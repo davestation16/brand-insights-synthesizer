@@ -14,7 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      brand_summaries: {
+        Row: {
+          created_at: string
+          id: string
+          response_count: number
+          summary: Json
+          survey_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          response_count?: number
+          summary: Json
+          survey_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          response_count?: number
+          summary?: Json
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_summaries_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "branding_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      branding_surveys: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          project_id: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          project_id?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          project_id?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      survey_responses: {
+        Row: {
+          answers: Json
+          created_at: string
+          id: string
+          respondent_name: string
+          respondent_role: string | null
+          survey_id: string
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          respondent_name: string
+          respondent_role?: string | null
+          survey_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          id?: string
+          respondent_name?: string
+          respondent_role?: string | null
+          survey_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "branding_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
