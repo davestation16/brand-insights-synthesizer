@@ -169,7 +169,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {clients.map((client) => {
             const publicUrl = `${window.location.origin}/survey/${client.survey_uid}`;
-            const previewUrl = `${publicUrl}?preview=1`;
+            
             return (
               <motion.div
                 key={client.id}
