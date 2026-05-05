@@ -23,6 +23,12 @@ interface StrategyView {
   contributors: Record<string, number>;
 }
 
+function pluralizeRole(role: string): string {
+  if (/s$/i.test(role)) return role;
+  if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
+  return role + "s";
+}
+
 export default function AdminDashboard({ user: _user }: { user: User }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
