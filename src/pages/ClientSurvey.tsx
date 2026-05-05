@@ -10,14 +10,26 @@ const PERSONALITY_TRAITS = [
   "Charming", "Outdoorsy", "Tough", "Brawny",
 ];
 
-const VALUES_SPECTRUM = [
-  { id: "leadership", left: "Clear", right: "Deeply Approachable", label: "Leadership position" },
-  { id: "beliefs", left: "Unwavering", right: "Profound Openness", label: "Beliefs approach" },
-  { id: "driver", left: "Striving", right: "Committed to Service", label: "Primary driver" },
-  { id: "tradition", left: "Embracing Change", right: "Upholding Heritage", label: "Tradition and change" },
-  { id: "tone", left: "Energetic", right: "Quiet Calm", label: "Spiritual atmosphere" },
-  { id: "focus", left: "Focus on Truth", right: "Focus on Relationship", label: "Teaching focus" },
-];
+const getValuesSpectrum = (client: { name: string; entity_type: string }) => {
+  if (client.entity_type === "Business") {
+    return [
+      { id: "respect_power", left: "Respect", right: "Power", question: `Would ${client.name} rather gain respect or power?` },
+      { id: "strength_transparency", left: "Strength", right: "Transparency", question: `Would ${client.name} prefer to make decisions that make them appear strong at the sake of being transparent with others or vice versa?` },
+      { id: "admiration_attention", left: "Admiration", right: "Attention", question: `Would ${client.name} rather gain admiration or attention?` },
+      { id: "original_tradition", left: "Original Thinking", right: "Tradition", question: `Does ${client.name} lean more on original thinking or more on tradition?` },
+      { id: "passion_thoughtfulness", left: "Passion", right: "Thoughtfulness", question: `When making a decision, which of these would ${client.name} rely on?` },
+      { id: "knowledge_experience", left: "Knowledge", right: "Experience", question: `When making a decision, which of these would ${client.name} rely on?` },
+    ];
+  }
+  return [
+    { id: "leadership", left: "Clear", right: "Deeply Approachable", question: `Where does ${client.name} primarily position its leadership?` },
+    { id: "beliefs", left: "Unwavering", right: "Profound Openness", question: `How does ${client.name} approach its core beliefs and the outside world?` },
+    { id: "driver", left: "Striving", right: "Committed to Service", question: `What is the primary driver of ${client.name}'s activities and focus?` },
+    { id: "tradition", left: "Embracing Change", right: "Upholding Heritage", question: `Where does ${client.name} stand on tradition and change?` },
+    { id: "tone", left: "Energetic", right: "Quiet Calm", question: `What is the primary atmosphere or tone of ${client.name}?` },
+    { id: "focus", left: "Focus on Truth", right: "Focus on Relationship", question: `What is the main focus of community life at ${client.name}?` },
+  ];
+};
 
 const PERCEPTION_TRAITS = ["Sincere", "Exciting", "Competent", "Sophisticated", "Rugged"];
 
@@ -96,8 +108,12 @@ export default function ClientSurvey() {
     }
   };
 
+  const isBusiness = client?.entity_type === "Business";
+  const totalSteps = isBusiness ? 4 : 5;
+  const lastStep = totalSteps - 1;
+
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < lastStep) {
       setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
     } else {
@@ -204,11 +220,11 @@ export default function ClientSurvey() {
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
       </div>
-      {VALUES_SPECTRUM.map((v, idx) => (
+      {getValuesSpectrum(client).map((v, idx) => (
         <div key={idx} className="space-y-8">
-          <label className="font-ui font-semibold text-[10px] uppercase tracking-widest text-s16-text-muted block">
-            {v.label}
-          </label>
+          <h3 className="font-body text-xl text-s16-text leading-snug">
+            {v.question}
+          </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
               <span className={responses[`spectrum_${v.id}`] <= 5 ? "text-s16-accent" : "text-s16-text-muted"}>
@@ -420,7 +436,7 @@ export default function ClientSurvey() {
         <motion.div
           className="h-full bg-s16-accent"
           initial={{ width: "0%" }}
-          animate={{ width: `${((currentStep + 1) / 5) * 100}%` }}
+          animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
         />
       </div>
 
@@ -431,7 +447,7 @@ export default function ClientSurvey() {
           <span className="s16-eyebrow text-s16-text-muted">Onboarding: {client.name}</span>
         </div>
         <span className="font-ui text-[10px] uppercase tracking-widest text-s16-text-muted">
-          Stage {currentStep + 1} / 5
+          Stage {currentStep + 1} / {totalSteps}
         </span>
       </header>
 
@@ -448,7 +464,7 @@ export default function ClientSurvey() {
             {currentStep === 1 && renderPersonality()}
             {currentStep === 2 && renderValues()}
             {currentStep === 3 && renderPerception()}
-            {currentStep === 4 && renderAesthetics()}
+            {currentStep === 4 && !isBusiness && renderAesthetics()}
 
             <div className="mt-24 pt-12 border-t border-s16-border flex items-center justify-between">
               {currentStep > 0 ? (
@@ -468,7 +484,7 @@ export default function ClientSurvey() {
               >
                 {submitting
                   ? "Analyzing..."
-                  : currentStep === 4
+                  : currentStep === lastStep
                   ? "↳ Submit Knowledge"
                   : "↳ Next Section"}
               </button>
