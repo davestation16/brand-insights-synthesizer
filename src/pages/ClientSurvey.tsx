@@ -78,6 +78,13 @@ const AESTHETIC_CHOICES: Record<string, any[]> = {
 
 export default function ClientSurvey() {
   const { uid } = useParams();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const isInternalPreview =
+    searchParams.get("preview") === "1" &&
+    !!user?.email &&
+    user.email.toLowerCase().endsWith(ADMIN_DOMAIN);
+
   const [client, setClient] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<any>({});
