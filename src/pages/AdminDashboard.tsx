@@ -32,6 +32,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [selectedSurvey, setSelectedSurvey] = useState<SurveyRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [finishingId, setFinishingId] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -73,6 +74,17 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     const { error } = await supabase.from("clients").delete().eq("id", clientId);
     if (error) alert("Failed to delete client: " + error.message);
     setDeletingId(null);
+    load();
+  };
+
+  const handleFinishSurveys = async (client: Client) => {
+    setFinishingId(client.id);
+    const { error } = await supabase
+      .from("clients")
+      .update({ status: "completed" })
+      .eq("id", client.id);
+    if (error) alert("Failed to update client: " + error.message);
+    setFinishingId(null);
     load();
   };
 
@@ -179,50 +191,62 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-2 text-s16-text-muted">
-                    <span className="s16-eyebrow text-[9px]">Responses:</span>
-                    <span className="font-mono text-lg font-bold tracking-widest text-s16-text">
-                      {client.response_count ?? 0}
+                    <span className="s16-eyebrow text-[9px]">
+                      {(client.response_count ?? 0) === 1
+                        ? "1 Response Gathered"
+                        : `${client.response_count ?? 0} Responses Gathered`}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-4 mt-6">
-                  {(client.response_count ?? 0) > 0 && (
+                  {client.status === "completed" ? (
                     <button
                       onClick={() => handleViewResults(client)}
                       className="s16-cta w-full justify-center bg-s16-bg-surface py-3 border border-s16-border"
                     >
-                      ↳ View Responses
+                      ↳ View Strategy
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleFinishSurveys(client)}
+                      disabled={
+                        (client.response_count ?? 0) === 0 || finishingId === client.id
+                      }
+                      className="s16-cta w-full justify-center bg-s16-bg-surface py-3 border border-s16-border disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {finishingId === client.id
+                        ? "↳ Analyzing Intelligence..."
+                        : "↳ Finish Surveys & Generate Strategy"}
                     </button>
                   )}
-                  {(
-                    <div className="pt-4 border-t border-s16-border space-y-2">
-                      <div className="flex justify-between items-center">
-                        <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-                          Public Survey Link
-                        </p>
-                        <button
-                          onClick={() => copyToClipboard(publicUrl, `${client.id}-public`)}
-                          className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
-                        >
-                          {copiedId === `${client.id}-public` ? (
-                            <>
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>Copied</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3 h-3" />
-                              <span>Copy Link</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <code className="text-[10px] break-all bg-s16-bg-surface p-2 block border border-s16-border-light font-mono text-s16-text-muted">
-                        {publicUrl}
-                      </code>
+
+                  <div className="pt-4 border-t border-s16-border space-y-2">
+                    <div className="flex justify-between items-center">
+                      <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
+                        Public Survey Link
+                      </p>
+                      <button
+                        onClick={() => copyToClipboard(publicUrl, `${client.id}-public`)}
+                        className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
+                      >
+                        {copiedId === `${client.id}-public` ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3 h-3" />
+                            <span>Copy Link</span>
+                          </>
+                        )}
+                      </button>
                     </div>
-                  )}
+                    <code className="text-[10px] break-all bg-s16-bg-surface p-2 block border border-s16-border-light font-mono text-s16-text-muted">
+                      {publicUrl}
+                    </code>
+                  </div>
                 </div>
               </motion.div>
             );
