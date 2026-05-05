@@ -1,120 +1,97 @@
-# Survey Template Management
+# Tighten survey_templates RLS + verify updated_by
 
-Replace the hardcoded survey content in `ClientSurvey.tsx` with editable templates stored in the database, manageable from a new admin page.
+The current `survey_templates` policies use `USING (true) WITH CHECK (true)` for INSERT and UPDATE, so any signed-in user can write to them. Lock writes to admins and require `updated_by = auth.uid()`.
 
-## What's hardcoded today (lines 10–78 of `ClientSurvey.tsx`)
+## 1. Roles infrastructure (new)
 
-- `PERSONALITY_TRAITS` — 22 trait words
-- `getValuesSpectrum(client)` — 6 spectrum questions per entity type (Business / Organization), with `${client.name}` interpolated into the question text
-- `PERCEPTION_TRAITS` — 5 archetype words
-- `AESTHETIC_CHOICES` — 5 categories (palette, material, house, vehicle, dress) with images / colors
-
-All of this becomes data, edited from `/admin/templates`.
-
-## 1. Schema: `survey_templates` table
-
-One row per entity type. Single JSON column keeps it simple and lets us add new sections later without migrations.
+There's no roles system today — admin status is inferred client-side from the `@station16.com` email. RLS can't trust that, so we add a server-side roles table.
 
 ```sql
-create table public.survey_templates (
-  id uuid primary key default gen_random_uuid(),
-  entity_type text not null unique,        -- 'Business' | 'Organization'
-  content jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now(),
-  updated_by uuid
+CREATE TYPE public.app_role AS ENUM ('admin', 'user');
+
+CREATE TABLE public.user_roles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  role public.app_role NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, role)
 );
-alter table public.survey_templates enable row level security;
-create policy "Anyone can read templates" on public.survey_templates
-  for select to anon, authenticated using (true);
-create policy "Authenticated can update templates" on public.survey_templates
-  for update to authenticated using (true) with check (true);
-create policy "Authenticated can insert templates" on public.survey_templates
-  for insert to authenticated with check (true);
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+
+CREATE FUNCTION public.has_role(_user_id uuid, _role public.app_role)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
+$$;
+
+CREATE POLICY "Users can read their own roles" ON public.user_roles
+  FOR SELECT TO authenticated USING (user_id = auth.uid());
+CREATE POLICY "Admins can read all roles" ON public.user_roles
+  FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
 ```
 
-`content` shape:
-```json
-{
-  "personalityTraits": ["Carefree", "Daring", ...],
-  "perceptionTraits": ["Sincere", ...],
-  "valuesSpectrum": [
-    { "id": "respect_power", "left": "Respect", "right": "Power",
-      "question": "Would {{name}} rather gain respect or power?" }
-  ],
-  "aesthetics": {
-    "palette":  [{ "name": "Neon", "colors": ["#482EF7", ...] }],
-    "material": [{ "name": "Metal", "image": "https://..." }],
-    "house":    [...], "vehicle": [...], "dress": [...]
-  }
-}
+Auto-grant admin to `@station16.com` accounts (matches the current client-side rule) and backfill existing users:
+
+```sql
+CREATE FUNCTION public.handle_new_user_role() RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN
+  IF NEW.email IS NOT NULL AND lower(NEW.email) LIKE '%@station16.com' THEN
+    INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'admin')
+    ON CONFLICT DO NOTHING;
+  END IF;
+  RETURN NEW;
+END; $$;
+
+CREATE TRIGGER on_auth_user_created_grant_role
+AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user_role();
+
+INSERT INTO public.user_roles (user_id, role)
+SELECT id, 'admin' FROM auth.users WHERE lower(email) LIKE '%@station16.com'
+ON CONFLICT DO NOTHING;
 ```
 
-Question text uses `{{name}}` placeholders so client name interpolation stays in code.
+## 2. Replace the `survey_templates` write policies
 
-The migration also seeds both rows with the existing hardcoded content so nothing changes visually until an admin edits.
+```sql
+DROP POLICY "Authenticated can insert templates" ON public.survey_templates;
+DROP POLICY "Authenticated can update templates" ON public.survey_templates;
 
-## 2. ClientSurvey reads from the template
+CREATE POLICY "Admins can insert templates" ON public.survey_templates
+  FOR INSERT TO authenticated
+  WITH CHECK (public.has_role(auth.uid(), 'admin') AND updated_by = auth.uid());
 
-- On mount, after loading `client`, fetch the matching `survey_templates` row by `entity_type`.
-- Replace the imported constants with template fields. Keep a fallback to the seeded content if the fetch fails so the survey is never blank.
-- Replace `{{name}}` with `client.name` at render time.
-- For Business clients, the aesthetics step continues to be skipped (existing logic in `getValuesSpectrum` / step list is unchanged — it just uses template data now).
-
-## 3. New admin page: `/admin/templates`
-
-A new route `SurveyTemplates.tsx` reachable from the admin nav (replaces the now-obsolete "Internal Preview Link" buttons on client cards — those get removed).
-
-Layout: a tab switcher (Business | Organization) → form with sections that mirror the template shape.
-
-```text
-┌── Survey Templates ─────────────────────────────────┐
-│ [ Business ] [ Organization ]                       │
-│                                                     │
-│ ── Values Spectrum ─────────────  [+ Add Question]  │
-│ ┌─ left ───┐ ┌─ right ──┐ ┌─ id ──┐                 │
-│ │ Respect  │ │ Power    │ │ resp..│  [✕]            │
-│ └──────────┘ └──────────┘ └───────┘                 │
-│ Question: [ Would {{name}} rather gain respect... ] │
-│                                                     │
-│ ── Personality Traits ──────────  [+ Add Trait]     │
-│ [Carefree] [Daring] [Spirited] ...    each with [✕] │
-│                                                     │
-│ ── Perception Traits ───────────  [+ Add]           │
-│                                                     │
-│ ── Aesthetic Choices ───────────                    │
-│  Palette  ▸ rows of {name, color1..5}               │
-│  Material ▸ rows of {name, image url}               │
-│  House / Vehicle / Dress (same shape)               │
-│                                                     │
-│              [ Cancel ]  [ Save Template ]          │
-└─────────────────────────────────────────────────────┘
+CREATE POLICY "Admins can update templates" ON public.survey_templates
+  FOR UPDATE TO authenticated
+  USING (public.has_role(auth.uid(), 'admin'))
+  WITH CHECK (public.has_role(auth.uid(), 'admin') AND updated_by = auth.uid());
 ```
 
-Editing primitives:
-- Add / remove / reorder rows for each list.
-- Inline text inputs for words, questions, ids.
-- Color palette: 5 hex inputs with a small swatch preview.
-- Image rows: URL input with a thumbnail preview.
-- "Save" writes the whole `content` JSON back via `supabase.from('survey_templates').update(...)`.
+Result:
+- Only users with the `admin` role can insert or update.
+- The new/updated row's `updated_by` must equal the caller's `auth.uid()` — clients can't impersonate another admin or leave it null/stale.
+- SELECT remains public (the public survey page needs to read templates).
 
-A "Preview Survey" button opens the existing `/survey/<some uid>?preview=1` flow in a new tab so admins can view their changes against a real client. (The preview link stays as a debugging aid but is moved off the client cards into this page's header.)
+## 3. Client change in `SurveyTemplates.tsx`
 
-## 4. Cleanup
+The save call must now set `updated_by` to the signed-in user's id. Update the `save()` function:
 
-- Remove the per-card "Internal Preview Link" block from `AdminDashboard.tsx` (added last turn).
-- Add a "Survey Templates" link to the admin nav.
-- Add `/admin/templates` route in `App.tsx` guarded by `isAdmin`.
+```ts
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) { alert("Not signed in"); return; }
+const { error } = await supabase
+  .from("survey_templates")
+  .update({
+    content: content as any,
+    updated_at: new Date().toISOString(),
+    updated_by: user.id,
+  })
+  .eq("entity_type", activeType);
+```
 
-## Files
+Without this, RLS will reject the update.
 
-- New migration creating `survey_templates` and seeding 2 rows.
-- `src/pages/SurveyTemplates.tsx` — new admin editor page.
-- `src/pages/ClientSurvey.tsx` — fetch template, drop hardcoded constants, interpolate `{{name}}`.
-- `src/pages/AdminDashboard.tsx` — remove preview link block, add templates nav link.
-- `src/App.tsx` — register `/admin/templates` route.
+## Notes
 
-## Out of scope (can do later)
-
-- Versioning / history of template edits.
-- Per-client template overrides.
-- Editing the AI system prompt from the UI (currently in `generate-blueprint/index.ts`).
+- The two existing seeded rows have `updated_by = null`; that's fine since RLS only checks the value on writes, not on reads.
+- The `clients` and `surveys` tables keep their current "any authenticated user" policies — they're out of scope for this request, but the same `has_role(...)` pattern is now available if you want to lock those down next.
+- Linter will still warn about the public-read-true policy on `survey_templates`; that one is intentional (anonymous survey takers must read templates).
