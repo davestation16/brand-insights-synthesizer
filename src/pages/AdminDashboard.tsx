@@ -143,9 +143,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Admin Dashboard</span>
         </div>
-        <button onClick={() => supabase.auth.signOut()} className="s16-cta opacity-50 hover:opacity-100">
-          ↳ Sign Out
-        </button>
+        <div className="flex items-center gap-6">
+          <a href="/admin/templates" className="s16-cta opacity-50 hover:opacity-100">
+            ↳ Survey Templates
+          </a>
+          <button onClick={() => supabase.auth.signOut()} className="s16-cta opacity-50 hover:opacity-100">
+            ↳ Sign Out
+          </button>
+        </div>
       </nav>
 
       <main className="max-w-[1240px] mx-auto px-10">
@@ -164,7 +169,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {clients.map((client) => {
             const publicUrl = `${window.location.origin}/survey/${client.survey_uid}`;
-            const previewUrl = `${publicUrl}?preview=1`;
+            
             return (
               <motion.div
                 key={client.id}
@@ -276,35 +281,6 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </code>
                   </div>
 
-                  <div className="pt-4 border-t border-dashed border-s16-border space-y-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-                        Internal Preview Link
-                      </p>
-                      <button
-                        onClick={() => copyToClipboard(previewUrl, `${client.id}-preview`)}
-                        className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
-                      >
-                        {copiedId === `${client.id}-preview` ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy Link</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-[9px] font-ui uppercase tracking-widest text-s16-text-muted/70">
-                      Requires Station16 sign-in
-                    </p>
-                    <code className="text-[10px] break-all bg-s16-bg-surface p-2 block border border-dashed border-s16-border-light font-mono text-s16-text-muted">
-                      {previewUrl}
-                    </code>
-                  </div>
                 </div>
               </motion.div>
             );

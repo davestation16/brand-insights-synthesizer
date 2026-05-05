@@ -7,75 +7,24 @@ import station16Logo from "@/assets/station16-logo.png";
 
 const ADMIN_DOMAIN = "@station16.com";
 
-const PERSONALITY_TRAITS = [
-  "Carefree", "Daring", "Spirited", "Down-to-earth", "Honest", "Communicative",
-  "Valuable", "Transparent", "Wholesome", "Cheerful", "Imaginative", "Innovative",
-  "Reliable", "Intelligent", "Successful", "Exclusive", "Upper-class", "Luxury",
-  "Charming", "Outdoorsy", "Tough", "Brawny",
-];
-
-const getValuesSpectrum = (client: { name: string; entity_type: string }) => {
-  if (client.entity_type === "Business") {
-    return [
-      { id: "respect_power", left: "Respect", right: "Power", question: `Would ${client.name} rather gain respect or power?` },
-      { id: "strength_transparency", left: "Strength", right: "Transparency", question: `Would ${client.name} prefer to make decisions that make them appear strong at the sake of being transparent with others or vice versa?` },
-      { id: "admiration_attention", left: "Admiration", right: "Attention", question: `Would ${client.name} rather gain admiration or attention?` },
-      { id: "original_tradition", left: "Original Thinking", right: "Tradition", question: `Does ${client.name} lean more on original thinking or more on tradition?` },
-      { id: "passion_thoughtfulness", left: "Passion", right: "Thoughtfulness", question: `When making a decision, which of these would ${client.name} rely on?` },
-      { id: "knowledge_experience", left: "Knowledge", right: "Experience", question: `When making a decision, which of these would ${client.name} rely on?` },
-    ];
-  }
-  return [
-    { id: "leadership", left: "Clear", right: "Deeply Approachable", question: `Where does ${client.name} primarily position its leadership?` },
-    { id: "beliefs", left: "Unwavering", right: "Profound Openness", question: `How does ${client.name} approach its core beliefs and the outside world?` },
-    { id: "driver", left: "Striving", right: "Committed to Service", question: `What is the primary driver of ${client.name}'s activities and focus?` },
-    { id: "tradition", left: "Embracing Change", right: "Upholding Heritage", question: `Where does ${client.name} stand on tradition and change?` },
-    { id: "tone", left: "Energetic", right: "Quiet Calm", question: `What is the primary atmosphere or tone of ${client.name}?` },
-    { id: "focus", left: "Focus on Truth", right: "Focus on Relationship", question: `What is the main focus of community life at ${client.name}?` },
-  ];
+type ValueSpectrum = { id: string; left: string; right: string; question: string };
+type AestheticOption = { name: string; image?: string; colors?: string[] };
+type SurveyTemplate = {
+  personalityTraits: string[];
+  perceptionTraits: string[];
+  valuesSpectrum: ValueSpectrum[];
+  aesthetics: Record<string, AestheticOption[]>;
 };
 
-const PERCEPTION_TRAITS = ["Sincere", "Exciting", "Competent", "Sophisticated", "Rugged"];
-
-const AESTHETIC_CHOICES: Record<string, any[]> = {
-  palette: [
-    { name: "Neon", colors: ["#482EF7", "#FFEB3B", "#90CAF9", "#E69AC1", "#FF6D62"] },
-    { name: "Bright", colors: ["#484D9F", "#5577DB", "#DBD655", "#8E249F", "#E44EDB"] },
-    { name: "Faded", colors: ["#D1C497", "#D0B59B", "#ABA290", "#A18865", "#8F727F"] },
-    { name: "Neutral", colors: ["#3D505B", "#9CA3B1", "#D3D2C4", "#877C73", "#44474D"] },
-    { name: "Muted", colors: ["#422D2F", "#7A8366", "#D6CCAD", "#DC8C74", "#D8695A"] },
-  ],
-  material: [
-    { name: "Metal", image: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&q=80&w=600" },
-    { name: "Fabric", image: "https://images.unsplash.com/photo-1583338917451-acad6eb500c5?auto=format&fit=crop&q=80&w=600" },
-    { name: "Leather", image: "https://images.unsplash.com/photo-1524292332709-3551400587d5?auto=format&fit=crop&q=80&w=600" },
-    { name: "Stone", image: "https://images.unsplash.com/photo-1517594422361-5eeb8ae275a9?auto=format&fit=crop&q=80&w=600" },
-    { name: "Wood", image: "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=600" },
-  ],
-  house: [
-    { name: "Neoclassical", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&q=80&w=600" },
-    { name: "Tudor", image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&q=80&w=600" },
-    { name: "Art Deco", image: "https://images.unsplash.com/photo-1481026469463-66327c86e544?auto=format&fit=crop&q=80&w=600" },
-    { name: "Craftsman", image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=600" },
-    { name: "Modern", image: "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?auto=format&fit=crop&q=80&w=600" },
-  ],
-  vehicle: [
-    { name: "Sports Car", image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=600" },
-    { name: "Truck", image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=600" },
-    { name: "Minivan", image: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=600" },
-    { name: "Sedan", image: "https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&q=80&w=600" },
-    { name: "ATV", image: "https://images.unsplash.com/photo-1549448512-29fc2a2982d6?auto=format&fit=crop&q=80&w=600" },
-    { name: "Bicycle", image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=600" },
-  ],
-  dress: [
-    { name: "Casual", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600" },
-    { name: "Sporty", image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=600" },
-    { name: "Work Clothes", image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80&w=600" },
-    { name: "Stylish", image: "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?auto=format&fit=crop&q=80&w=600" },
-    { name: "White Collar", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600" },
-    { name: "Formal", image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=600" },
-  ],
+const EMPTY_TEMPLATE: SurveyTemplate = {
+  personalityTraits: [],
+  perceptionTraits: [],
+  valuesSpectrum: [],
+  aesthetics: {},
 };
+
+const interpolate = (text: string, name: string) =>
+  (text || "").split("{{name}}").join(name);
 
 export default function ClientSurvey() {
   const { uid } = useParams();
@@ -95,6 +44,7 @@ export default function ClientSurvey() {
   const [isVerified, setIsVerified] = useState(false);
   const [tempCode, setTempCode] = useState("");
   const [codeError, setCodeError] = useState("");
+  const [template, setTemplate] = useState<SurveyTemplate>(EMPTY_TEMPLATE);
 
   useEffect(() => {
     if (!uid) return;
@@ -103,10 +53,20 @@ export default function ClientSurvey() {
       .select("id, name, entity_type, access_code, status, survey_uid")
       .eq("survey_uid", uid)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         setClient(data);
         if (data && isInternalPreview) {
           setIsVerified(true);
+        }
+        if (data?.entity_type) {
+          const { data: tpl } = await supabase
+            .from("survey_templates")
+            .select("content")
+            .eq("entity_type", data.entity_type)
+            .maybeSingle();
+          if (tpl?.content) {
+            setTemplate({ ...EMPTY_TEMPLATE, ...(tpl.content as Partial<SurveyTemplate>) });
+          }
         }
         setLoading(false);
       });
@@ -206,7 +166,7 @@ export default function ClientSurvey() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
-        {PERSONALITY_TRAITS.map((trait) => (
+        {template.personalityTraits.map((trait) => (
           <div key={trait} className="flex flex-col gap-4 border-b border-s16-border pb-6">
             <span className="font-ui font-semibold text-[10px] uppercase tracking-widest">{trait}</span>
             <div className="flex justify-between max-w-xs">
@@ -238,10 +198,10 @@ export default function ClientSurvey() {
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
       </div>
-      {getValuesSpectrum(client).map((v, idx) => (
+      {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
           <h3 className="font-body text-xl text-s16-text leading-snug">
-            {v.question}
+            {interpolate(v.question, client.name)}
           </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
@@ -282,7 +242,7 @@ export default function ClientSurvey() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
-        {PERCEPTION_TRAITS.map((trait) => (
+        {template.perceptionTraits.map((trait) => (
           <div key={trait} className="flex flex-col gap-4">
             <span className="font-ui font-semibold text-[10px] uppercase tracking-widest">{trait}</span>
             <div className="flex justify-between max-w-xs">
@@ -314,7 +274,7 @@ export default function ClientSurvey() {
           Select the visual archetypes that resonate most with the brand identity.
         </p>
       </div>
-      {Object.entries(AESTHETIC_CHOICES).map(([category, options]) => (
+      {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">
           <label className="s16-eyebrow text-s16-text-muted block border-b border-s16-border pb-4">
             Which {category} reflects the brand most?
