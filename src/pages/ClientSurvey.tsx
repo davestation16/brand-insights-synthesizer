@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "@/hooks/useAuth";
+
+const ADMIN_DOMAIN = "@station16.com";
 
 const PERSONALITY_TRAITS = [
   "Carefree", "Daring", "Spirited", "Down-to-earth", "Honest", "Communicative",
