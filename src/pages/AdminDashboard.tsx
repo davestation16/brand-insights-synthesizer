@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Copy, CheckCircle2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface Client {
   id: string;
@@ -12,14 +13,14 @@ interface Client {
   entity_type: "Business" | "Organization";
   status: "pending" | "completed";
   response_count: number;
+  blueprint: string | null;
   created_at: string;
 }
 
-interface SurveyRow {
-  id: string;
-  client_id: string;
-  responses: any;
-  blueprint: string | null;
+interface StrategyView {
+  client: Client;
+  blueprint: string;
+  contributors: Record<string, number>;
 }
 
 export default function AdminDashboard({ user: _user }: { user: User }) {
