@@ -24,7 +24,7 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
 };
 
 const interpolate = (text: string, name: string) =>
-  (text || "").replaceAll("{{name}}", name);
+  (text || "").split("{{name}}").join(name);
 
 export default function ClientSurvey() {
   const { uid } = useParams();
