@@ -135,6 +135,10 @@ export default function ClientSurvey() {
   };
 
   const handleSubmit = async () => {
+    if (isInternalPreview) {
+      setCompleted(true);
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("submit-survey", {
