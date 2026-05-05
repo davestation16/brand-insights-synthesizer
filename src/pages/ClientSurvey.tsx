@@ -447,7 +447,7 @@ export default function ClientSurvey() {
           <span className="s16-eyebrow text-s16-text-muted">Onboarding: {client.name}</span>
         </div>
         <span className="font-ui text-[10px] uppercase tracking-widest text-s16-text-muted">
-          Stage {currentStep + 1} / 5
+          Stage {currentStep + 1} / {totalSteps}
         </span>
       </header>
 
