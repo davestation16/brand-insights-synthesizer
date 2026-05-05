@@ -30,7 +30,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     name: "",
     entityType: "Business" as "Business" | "Organization",
   });
-  const [selectedSurvey, setSelectedSurvey] = useState<SurveyRow | null>(null);
+  const [selectedStrategy, setSelectedStrategy] = useState<StrategyView | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
