@@ -143,9 +143,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Admin Dashboard</span>
         </div>
-        <button onClick={() => supabase.auth.signOut()} className="s16-cta opacity-50 hover:opacity-100">
-          ↳ Sign Out
-        </button>
+        <div className="flex items-center gap-6">
+          <a href="/admin/templates" className="s16-cta opacity-50 hover:opacity-100">
+            ↳ Survey Templates
+          </a>
+          <button onClick={() => supabase.auth.signOut()} className="s16-cta opacity-50 hover:opacity-100">
+            ↳ Sign Out
+          </button>
+        </div>
       </nav>
 
       <main className="max-w-[1240px] mx-auto px-10">
