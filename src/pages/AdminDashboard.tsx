@@ -323,11 +323,55 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                 </div>
               </div>
 
-              <div className="p-12 font-body text-base leading-relaxed prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-h1:text-4xl prose-h2:text-2xl prose-h2:mt-8 prose-h3:text-xl">
+              <div className="p-12">
                 {selectedStrategy.blueprint ? (
-                  <ReactMarkdown>{selectedStrategy.blueprint}</ReactMarkdown>
+                  <ReactMarkdown
+                    components={{
+                      h1: ({ node, ...props }) => (
+                        <h1
+                          className="font-display text-s16-text text-4xl mb-6 tracking-tight"
+                          {...props}
+                        />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <h2
+                          className="font-display text-s16-text text-3xl mb-4 mt-10 tracking-tight"
+                          {...props}
+                        />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3
+                          className="font-display text-s16-text text-2xl mb-3 mt-8 tracking-tight"
+                          {...props}
+                        />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p
+                          className="font-body text-lg text-s16-text-muted leading-relaxed mb-5"
+                          {...props}
+                        />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="list-disc pl-6 mb-5 space-y-2" {...props} />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol className="list-decimal pl-6 mb-5 space-y-2" {...props} />
+                      ),
+                      li: ({ node, ...props }) => (
+                        <li
+                          className="font-body text-lg text-s16-text-muted leading-relaxed"
+                          {...props}
+                        />
+                      ),
+                      strong: ({ node, ...props }) => (
+                        <strong className="text-s16-text font-semibold" {...props} />
+                      ),
+                    }}
+                  >
+                    {selectedStrategy.blueprint}
+                  </ReactMarkdown>
                 ) : (
-                  <p className="text-s16-text-muted">Strategy analysis in progress...</p>
+                  <p className="font-body text-s16-text-muted">Strategy analysis in progress...</p>
                 )}
               </div>
             </motion.div>
