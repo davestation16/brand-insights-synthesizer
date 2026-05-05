@@ -166,7 +166,7 @@ export default function ClientSurvey() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
-        {PERSONALITY_TRAITS.map((trait) => (
+        {template.personalityTraits.map((trait) => (
           <div key={trait} className="flex flex-col gap-4 border-b border-s16-border pb-6">
             <span className="font-ui font-semibold text-[10px] uppercase tracking-widest">{trait}</span>
             <div className="flex justify-between max-w-xs">
@@ -198,10 +198,10 @@ export default function ClientSurvey() {
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
       </div>
-      {getValuesSpectrum(client).map((v, idx) => (
+      {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
           <h3 className="font-body text-xl text-s16-text leading-snug">
-            {v.question}
+            {interpolate(v.question, client.name)}
           </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
@@ -242,7 +242,7 @@ export default function ClientSurvey() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
-        {PERCEPTION_TRAITS.map((trait) => (
+        {template.perceptionTraits.map((trait) => (
           <div key={trait} className="flex flex-col gap-4">
             <span className="font-ui font-semibold text-[10px] uppercase tracking-widest">{trait}</span>
             <div className="flex justify-between max-w-xs">
@@ -274,7 +274,7 @@ export default function ClientSurvey() {
           Select the visual archetypes that resonate most with the brand identity.
         </p>
       </div>
-      {Object.entries(AESTHETIC_CHOICES).map(([category, options]) => (
+      {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">
           <label className="s16-eyebrow text-s16-text-muted block border-b border-s16-border pb-4">
             Which {category} reflects the brand most?
