@@ -10,14 +10,26 @@ const PERSONALITY_TRAITS = [
   "Charming", "Outdoorsy", "Tough", "Brawny",
 ];
 
-const VALUES_SPECTRUM = [
-  { id: "leadership", left: "Clear", right: "Deeply Approachable", label: "Leadership position" },
-  { id: "beliefs", left: "Unwavering", right: "Profound Openness", label: "Beliefs approach" },
-  { id: "driver", left: "Striving", right: "Committed to Service", label: "Primary driver" },
-  { id: "tradition", left: "Embracing Change", right: "Upholding Heritage", label: "Tradition and change" },
-  { id: "tone", left: "Energetic", right: "Quiet Calm", label: "Spiritual atmosphere" },
-  { id: "focus", left: "Focus on Truth", right: "Focus on Relationship", label: "Teaching focus" },
-];
+const getValuesSpectrum = (client: { name: string; entity_type: string }) => {
+  if (client.entity_type === "Business") {
+    return [
+      { id: "respect_power", left: "Respect", right: "Power", question: `Would ${client.name} rather gain respect or power?` },
+      { id: "strength_transparency", left: "Strength", right: "Transparency", question: `Would ${client.name} prefer to make decisions that make them appear strong at the sake of being transparent with others or vice versa?` },
+      { id: "admiration_attention", left: "Admiration", right: "Attention", question: `Would ${client.name} rather gain admiration or attention?` },
+      { id: "original_tradition", left: "Original Thinking", right: "Tradition", question: `Does ${client.name} lean more on original thinking or more on tradition?` },
+      { id: "passion_thoughtfulness", left: "Passion", right: "Thoughtfulness", question: `When making a decision, which of these would ${client.name} rely on?` },
+      { id: "knowledge_experience", left: "Knowledge", right: "Experience", question: `When making a decision, which of these would ${client.name} rely on?` },
+    ];
+  }
+  return [
+    { id: "leadership", left: "Clear", right: "Deeply Approachable", question: `Where does ${client.name} primarily position its leadership?` },
+    { id: "beliefs", left: "Unwavering", right: "Profound Openness", question: `How does ${client.name} approach its core beliefs and the outside world?` },
+    { id: "driver", left: "Striving", right: "Committed to Service", question: `What is the primary driver of ${client.name}'s activities and focus?` },
+    { id: "tradition", left: "Embracing Change", right: "Upholding Heritage", question: `Where does ${client.name} stand on tradition and change?` },
+    { id: "tone", left: "Energetic", right: "Quiet Calm", question: `What is the primary atmosphere or tone of ${client.name}?` },
+    { id: "focus", left: "Focus on Truth", right: "Focus on Relationship", question: `What is the main focus of community life at ${client.name}?` },
+  ];
+};
 
 const PERCEPTION_TRAITS = ["Sincere", "Exciting", "Competent", "Sophisticated", "Rugged"];
 
