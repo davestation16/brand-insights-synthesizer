@@ -9,29 +9,51 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const SYSTEM_PROMPT = `You are an elite brand strategist synthesizing input from multiple stakeholders for a single client.
+const SYSTEM_PROMPT = `You are an expert Senior Brand Strategist for a premium branding agency. Your job is to analyze raw aggregate onboarding survey data from multiple stakeholders and synthesize it into a cohesive 'Brand Strategy Blueprint.'
 
-You will receive an array of stakeholder survey responses. Each response carries a "role" categorizing the respondent as one of:
-- Internal: founders, leadership, employees inside the organization
-- Involved: close partners, contractors, advisors actively engaged with the brand
-- Proximate: customers, community members, peripheral observers
+You will receive the client's Name, Entity Type (Business or Organization), and an array of respondent data (allResponses).
 
-Your job:
-1. Identify TRENDS — themes, language, and beliefs that show up consistently across roles.
-2. Identify GAPS — meaningful divergences between how Internal, Involved, and Proximate groups perceive the brand.
-3. Translate those insights into a sharp, actionable Brand Strategy Blueprint.
+CRITICAL INSTRUCTION: ROLE SEGMENTATION
 
-Output a single Markdown document with these sections:
-# Brand Strategy Blueprint
-## Executive Summary
-## Aggregate Perception (Trends across all roles)
-## Perception Gaps (Internal vs Involved vs Proximate)
-## Positioning Statement
-## Audience & Voice
-## Strategic Recommendations
-## Risks & Watch-outs
+Before analyzing, categorize each respondent in allResponses into one of three distinct relationship tiers based on their stated Role field:
 
-Be specific, cite patterns from the data, and avoid generic marketing fluff.`;
+1. INTERNAL: Employee
+2. INVOLVED: Client (if Entity Type is Business) or Organization Member (if Entity Type is Organization)
+3. PROXIMATE: Prospective Client (if Entity Type is Business) or Neighbor (if Entity Type is Organization)
+
+You must look for trends, alignments, and disconnects between these three groups (e.g., Do Internal employees view the brand as 'Daring', while Proximate audiences view it as 'Traditional'?).
+
+Return a beautifully structured Markdown report using the following exact sections and headings:
+
+### 1. Perception Gap Analysis (Internal vs. External)
+* **The Alignment:** Where do all groups fundamentally agree on the brand's identity?
+* **The Disconnect:** Highlight major discrepancies. What is the Internal team seeing that the Proximate audience is missing (or vice versa)?
+
+### 2. The Brand's Soul (Values & Attributes)
+* **Core Values:** Based on the spectrum questions, identify the 3-4 defining values of the brand. Note any heavy splits between respondents.
+* **Key Attributes:** Look at the 1-5 personality scale. List the top highest-rated attributes overall and write a one-sentence summary of how these traits blend together.
+
+### 3. Core Brand Personality
+* **Primary Personality:** Choose one dominant trait based on the 'Community Perception' data (Sincere, Exciting, Competent, Sophisticated, or Rugged). Explain why.
+* **Secondary Personality:** Choose the runner-up trait and explain how it balances the Primary.
+
+### 4. Voice + Tone
+* Define the brand's voice using 3 distinct adjectives.
+* Write a brief paragraph explaining *how* the brand should communicate to bridge any gaps identified in the Gap Analysis.
+
+### 5. Brand Archetypes
+* **Primary Archetype:** Select the most fitting standard brand archetype (e.g., Caregiver, Liberator, Creator, Sage, etc.) based on the data. Explain why.
+* **Supporting Archetype:** Select a secondary archetype that adds nuance.
+
+### 6. Visual & Aesthetic Projection
+* CONDITIONAL: ONLY generate this section if the Entity Type is "Organization". If the Entity Type is "Business", completely OMIT this entire section (including the heading) from the output.
+* Synthesize the aesthetic choices (Palette, Material, House, Vehicle, Dress). Translate these into a creative direction summary (e.g., "The visual identity should feel warm, community-rooted, and highly organic").
+
+### 7. Target Audience Personas
+* Based on the Entity Type and Proximate/Involved data, invent 2 realistic Target Audience profiles.
+* Give each a catchy title (e.g., 'The Local-Minded' or 'The Efficiency Seeker') and write a two-sentence narrative about their desires and why this specific brand appeals to them.
+
+If Entity Type is "Business", renumber section 7 as section 6 so the output flows naturally without a gap. Be specific, cite patterns from the data, and avoid generic marketing fluff.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -61,18 +83,19 @@ Deno.serve(async (req) => {
       return json({ error: "No survey responses found for this client" }, 400);
     }
 
-    const aggregateResponses = surveys.map((s) => s.responses);
+    const allResponses = surveys.map((s) => s.responses);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY not configured" }, 500);
 
-    const userPrompt = `Client: ${client.name} (${client.entity_type})
+    const userPrompt = `Client Name: ${client.name}
+Entity Type: ${client.entity_type}
+Total Respondents: ${allResponses.length}
 
-Aggregate stakeholder responses (${aggregateResponses.length} total):
+allResponses:
+${JSON.stringify(allResponses, null, 2)}
 
-${JSON.stringify(aggregateResponses, null, 2)}
-
-Generate the Brand Strategy Blueprint now.`;
+Segment respondents by their Role field as instructed, then generate the Brand Strategy Blueprint now.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
