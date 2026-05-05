@@ -61,9 +61,19 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
 
   const save = async () => {
     setSaving(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setSaving(false);
+      alert("You must be signed in to save changes.");
+      return;
+    }
     const { error } = await supabase
       .from("survey_templates")
-      .update({ content: content as any, updated_at: new Date().toISOString() })
+      .update({
+        content: content as any,
+        updated_at: new Date().toISOString(),
+        updated_by: user.id,
+      })
       .eq("entity_type", activeType);
     setSaving(false);
     if (error) {
