@@ -484,7 +484,7 @@ export default function ClientSurvey() {
               >
                 {submitting
                   ? "Analyzing..."
-                  : currentStep === 4
+                  : currentStep === lastStep
                   ? "↳ Submit Knowledge"
                   : "↳ Next Section"}
               </button>
