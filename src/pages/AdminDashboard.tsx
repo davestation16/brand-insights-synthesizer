@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Copy, CheckCircle2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import station16Logo from "@/assets/station16-logo.png";
 
 interface Client {
   id: string;
@@ -138,7 +139,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     <div className="min-h-screen bg-s16-bg pb-20">
       <nav className="border-b border-s16-border py-8 px-10 flex justify-between items-center mb-16">
         <div className="flex items-center gap-4">
-          <span className="font-display text-2xl tracking-tight">Station16</span>
+          <img src={station16Logo} alt="Station16" className="h-7 w-auto" />
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Admin Dashboard</span>
         </div>
