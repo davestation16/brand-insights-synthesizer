@@ -11,6 +11,7 @@ interface Client {
   access_code: string;
   entity_type: "Business" | "Organization";
   status: "pending" | "completed";
+  response_count: number;
   created_at: string;
 }
 
@@ -177,17 +178,24 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                       {client.access_code}
                     </span>
                   </div>
+                  <div className="flex items-center gap-2 mt-2 text-s16-text-muted">
+                    <span className="s16-eyebrow text-[9px]">Responses:</span>
+                    <span className="font-mono text-lg font-bold tracking-widest text-s16-text">
+                      {client.response_count ?? 0}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="space-y-4 mt-6">
-                  {client.status === "completed" ? (
+                  {(client.response_count ?? 0) > 0 && (
                     <button
                       onClick={() => handleViewResults(client)}
                       className="s16-cta w-full justify-center bg-s16-bg-surface py-3 border border-s16-border"
                     >
-                      ↳ View Strategy
+                      ↳ View Responses
                     </button>
-                  ) : (
+                  )}
+                  {(
                     <div className="pt-4 border-t border-s16-border space-y-2">
                       <div className="flex justify-between items-center">
                         <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
