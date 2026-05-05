@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
+import { useAuth } from "@/hooks/useAuth";
+
+const ADMIN_DOMAIN = "@station16.com";
 
 const PERSONALITY_TRAITS = [
   "Carefree", "Daring", "Spirited", "Down-to-earth", "Honest", "Communicative",
@@ -75,6 +78,13 @@ const AESTHETIC_CHOICES: Record<string, any[]> = {
 
 export default function ClientSurvey() {
   const { uid } = useParams();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const isInternalPreview =
+    searchParams.get("preview") === "1" &&
+    !!user?.email &&
+    user.email.toLowerCase().endsWith(ADMIN_DOMAIN);
+
   const [client, setClient] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<any>({});
@@ -94,9 +104,12 @@ export default function ClientSurvey() {
       .maybeSingle()
       .then(({ data }) => {
         setClient(data);
+        if (data && isInternalPreview) {
+          setIsVerified(true);
+        }
         setLoading(false);
       });
-  }, [uid]);
+  }, [uid, isInternalPreview]);
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +135,10 @@ export default function ClientSurvey() {
   };
 
   const handleSubmit = async () => {
+    if (isInternalPreview) {
+      setCompleted(true);
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("submit-survey", {
@@ -445,6 +462,12 @@ export default function ClientSurvey() {
           <span className="font-display text-xl tracking-tight uppercase">Station16</span>
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Onboarding: {client.name}</span>
+          {isInternalPreview && (
+            <>
+              <span className="h-4 w-px bg-s16-border"></span>
+              <span className="s16-eyebrow text-s16-accent">Internal Preview</span>
+            </>
+          )}
         </div>
         <span className="font-ui text-[10px] uppercase tracking-widest text-s16-text-muted">
           Stage {currentStep + 1} / {totalSteps}
