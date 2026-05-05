@@ -216,11 +216,11 @@ export default function ClientSurvey() {
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
       </div>
-      {VALUES_SPECTRUM.map((v, idx) => (
+      {getValuesSpectrum(client).map((v, idx) => (
         <div key={idx} className="space-y-8">
-          <label className="font-ui font-semibold text-[10px] uppercase tracking-widest text-s16-text-muted block">
-            {v.label}
-          </label>
+          <h3 className="font-body text-xl text-s16-text leading-snug">
+            {v.question}
+          </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
               <span className={responses[`spectrum_${v.id}`] <= 5 ? "text-s16-accent" : "text-s16-text-muted"}>
