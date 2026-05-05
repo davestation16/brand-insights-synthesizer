@@ -281,11 +281,6 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </code>
                   </div>
 
-                  <div className="pt-4 border-t border-dashed border-s16-border space-y-2">
-                    <div className="flex justify-between items-center">
-                      <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-                        Internal Preview Link
-                      </p>
                 </div>
               </motion.div>
             );
