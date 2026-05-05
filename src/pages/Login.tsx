@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 
 interface LoginProps {
   user: User | null;
@@ -13,6 +14,20 @@ export default function Login({ user: _user }: LoginProps) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+      extraParams: {
+        hd: "station16.com",
+        prompt: "select_account",
+      },
+    });
+    if (result.error) {
+      setError((result.error as Error).message ?? "Google sign-in failed.");
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +62,25 @@ export default function Login({ user: _user }: LoginProps) {
         <span className="s16-eyebrow mb-4 block">Welcome to Station16</span>
         <h1 className="text-6xl md:text-7xl mb-8 leading-none">Internal Branding Portal</h1>
         <p className="font-body text-s16-text-muted mb-12 max-w-[340px] mx-auto text-lg">
-          Please authenticate with your agency account to access the administration site.
+          Sign in with your @station16.com Google account to access the administration site.
         </p>
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="s16-cta w-full justify-center bg-s16-bg-warm py-4 border border-s16-border mb-4"
+        >
+          ↳ Sign in with Google
+        </button>
+        <p className="text-[10px] font-ui uppercase tracking-widest text-s16-text-muted mb-10">
+          Only @station16.com accounts are allowed
+        </p>
+
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex-1 h-px bg-s16-border" />
+          <span className="s16-eyebrow text-s16-text-muted">Dev / Test Login</span>
+          <div className="flex-1 h-px bg-s16-border" />
+        </div>
 
         <form onSubmit={submit} className="space-y-6 text-left">
           <div>
