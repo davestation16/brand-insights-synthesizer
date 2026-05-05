@@ -77,6 +77,17 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     load();
   };
 
+  const handleFinishSurveys = async (client: Client) => {
+    setFinishingId(client.id);
+    const { error } = await supabase
+      .from("clients")
+      .update({ status: "completed" })
+      .eq("id", client.id);
+    if (error) alert("Failed to update client: " + error.message);
+    setFinishingId(null);
+    load();
+  };
+
   const handleAddClient = async (e: React.FormEvent) => {
     e.preventDefault();
     const surveyUid = Math.random().toString(36).substring(2, 15);
