@@ -108,8 +108,12 @@ export default function ClientSurvey() {
     }
   };
 
+  const isBusiness = client?.entity_type === "Business";
+  const totalSteps = isBusiness ? 4 : 5;
+  const lastStep = totalSteps - 1;
+
   const handleNext = () => {
-    if (currentStep < 4) {
+    if (currentStep < lastStep) {
       setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
     } else {
