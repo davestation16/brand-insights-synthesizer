@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/hooks/useAuth";
+import station16Logo from "@/assets/station16-logo.png";
 
 const ADMIN_DOMAIN = "@station16.com";
 
@@ -459,7 +460,7 @@ export default function ClientSurvey() {
 
       <header className="p-10 flex justify-between items-center border-b border-s16-border bg-s16-bg sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <span className="font-display text-xl tracking-tight uppercase">Station16</span>
+          <img src={station16Logo} alt="Station16" className="h-6 w-auto" />
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Onboarding: {client.name}</span>
           {isInternalPreview && (

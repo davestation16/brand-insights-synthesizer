@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import station16Logo from "@/assets/station16-logo.png";
 
 interface LoginProps {
   user: User | null;
@@ -59,7 +60,8 @@ export default function Login({ user: _user }: LoginProps) {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full text-center"
       >
-        <span className="s16-eyebrow mb-4 block">Welcome to Station16</span>
+        <img src={station16Logo} alt="Station16" className="h-10 w-auto mx-auto mb-8" />
+        <span className="s16-eyebrow mb-4 block">Welcome</span>
         <h1 className="text-6xl md:text-7xl mb-8 leading-none">Internal Branding Portal</h1>
         <p className="font-body text-s16-text-muted mb-12 max-w-[340px] mx-auto text-lg">
           Sign in with your @station16.com Google account to access the administration site.
