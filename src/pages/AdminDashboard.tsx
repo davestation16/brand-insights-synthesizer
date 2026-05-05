@@ -286,30 +286,6 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                       <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
                         Internal Preview Link
                       </p>
-                      <button
-                        onClick={() => copyToClipboard(previewUrl, `${client.id}-preview`)}
-                        className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
-                      >
-                        {copiedId === `${client.id}-preview` ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy Link</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <p className="text-[9px] font-ui uppercase tracking-widest text-s16-text-muted/70">
-                      Requires Station16 sign-in
-                    </p>
-                    <code className="text-[10px] break-all bg-s16-bg-surface p-2 block border border-dashed border-s16-border-light font-mono text-s16-text-muted">
-                      {previewUrl}
-                    </code>
-                  </div>
                 </div>
               </motion.div>
             );
