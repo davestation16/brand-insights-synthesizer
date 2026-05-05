@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/hooks/useAuth";
+import station16Logo from "@/assets/station16-logo.png";
 
 const ADMIN_DOMAIN = "@station16.com";
 
