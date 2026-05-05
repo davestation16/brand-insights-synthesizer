@@ -436,7 +436,7 @@ export default function ClientSurvey() {
         <motion.div
           className="h-full bg-s16-accent"
           initial={{ width: "0%" }}
-          animate={{ width: `${((currentStep + 1) / 5) * 100}%` }}
+          animate={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
         />
       </div>
 
