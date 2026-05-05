@@ -104,9 +104,12 @@ export default function ClientSurvey() {
       .maybeSingle()
       .then(({ data }) => {
         setClient(data);
+        if (data && isInternalPreview) {
+          setIsVerified(true);
+        }
         setLoading(false);
       });
-  }, [uid]);
+  }, [uid, isInternalPreview]);
 
   const handleVerifyCode = (e: React.FormEvent) => {
     e.preventDefault();
