@@ -14,117 +14,70 @@ export type Database = {
   }
   public: {
     Tables: {
-      brand_summaries: {
+      clients: {
         Row: {
+          access_code: string
           created_at: string
+          entity_type: string
           id: string
-          response_count: number
-          summary: Json
-          survey_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          response_count?: number
-          summary: Json
-          survey_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          response_count?: number
-          summary?: Json
-          survey_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "brand_summaries_survey_id_fkey"
-            columns: ["survey_id"]
-            isOneToOne: false
-            referencedRelation: "branding_surveys"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      branding_surveys: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          project_id: string | null
+          name: string
           status: string
-          title: string
+          survey_uid: string
         }
         Insert: {
+          access_code: string
           created_at?: string
-          created_by?: string | null
+          entity_type: string
           id?: string
-          project_id?: string | null
+          name: string
           status?: string
-          title: string
+          survey_uid: string
         }
         Update: {
+          access_code?: string
           created_at?: string
-          created_by?: string | null
+          entity_type?: string
           id?: string
-          project_id?: string | null
+          name?: string
           status?: string
-          title?: string
+          survey_uid?: string
         }
         Relationships: []
       }
-      profiles: {
+      surveys: {
         Row: {
-          created_at: string
-          display_name: string | null
-          email: string | null
+          access_code: string
+          blueprint: string | null
+          client_id: string
           id: string
+          processed_at: string | null
+          responses: Json
+          submitted_at: string
         }
         Insert: {
-          created_at?: string
-          display_name?: string | null
-          email?: string | null
-          id: string
+          access_code: string
+          blueprint?: string | null
+          client_id: string
+          id?: string
+          processed_at?: string | null
+          responses?: Json
+          submitted_at?: string
         }
         Update: {
-          created_at?: string
-          display_name?: string | null
-          email?: string | null
+          access_code?: string
+          blueprint?: string | null
+          client_id?: string
           id?: string
-        }
-        Relationships: []
-      }
-      survey_responses: {
-        Row: {
-          answers: Json
-          created_at: string
-          id: string
-          respondent_name: string
-          respondent_role: string | null
-          survey_id: string
-        }
-        Insert: {
-          answers?: Json
-          created_at?: string
-          id?: string
-          respondent_name: string
-          respondent_role?: string | null
-          survey_id: string
-        }
-        Update: {
-          answers?: Json
-          created_at?: string
-          id?: string
-          respondent_name?: string
-          respondent_role?: string | null
-          survey_id?: string
+          processed_at?: string | null
+          responses?: Json
+          submitted_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "survey_responses_survey_id_fkey"
-            columns: ["survey_id"]
+            foreignKeyName: "surveys_client_id_fkey"
+            columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "branding_surveys"
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]

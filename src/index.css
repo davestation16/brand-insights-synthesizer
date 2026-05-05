@@ -1,101 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&family=Syne:wght@500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Brand Onboarding — editorial, ink-on-cream design system */
-
 @layer base {
   :root {
-    --background: 39 38% 95%;          /* warm cream */
-    --foreground: 222 47% 11%;         /* deep ink */
-
-    --card: 40 40% 97%;
-    --card-foreground: 222 47% 11%;
-
-    --popover: 40 40% 97%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 222 47% 11%;            /* ink */
-    --primary-foreground: 39 38% 95%;
-
-    --secondary: 36 25% 88%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 36 22% 90%;
-    --muted-foreground: 222 15% 38%;
-
-    --accent: 14 88% 55%;              /* vermilion */
-    --accent-foreground: 39 38% 95%;
-
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 39 38% 95%;
-
-    --border: 36 18% 82%;
-    --input: 36 18% 82%;
-    --ring: 222 47% 11%;
-
+    --background: 40 40% 98%;
+    --foreground: 30 8% 10%;
+    --card: 40 30% 95%;
+    --card-foreground: 30 8% 10%;
+    --popover: 40 40% 98%;
+    --popover-foreground: 30 8% 10%;
+    --primary: 30 8% 10%;
+    --primary-foreground: 40 40% 98%;
+    --secondary: 36 22% 92%;
+    --secondary-foreground: 30 8% 10%;
+    --muted: 36 18% 90%;
+    --muted-foreground: 30 6% 45%;
+    --accent: 22 92% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 36 22% 86%;
+    --input: 36 22% 86%;
+    --ring: 30 8% 10%;
     --radius: 0.25rem;
-
-    --gradient-hero: linear-gradient(135deg, hsl(39 50% 92%) 0%, hsl(36 30% 85%) 100%);
-    --gradient-accent: linear-gradient(120deg, hsl(14 88% 55%), hsl(28 90% 58%));
-    --shadow-editorial: 0 24px 60px -28px hsl(222 47% 11% / 0.35);
-    --shadow-card: 0 1px 0 hsl(36 18% 82%), 0 12px 32px -20px hsl(222 47% 11% / 0.18);
-
-    --sidebar-background: 39 38% 95%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 222 47% 11%;
-    --sidebar-primary-foreground: 39 38% 95%;
-    --sidebar-accent: 36 25% 88%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 36 18% 82%;
-    --sidebar-ring: 222 47% 11%;
   }
 
-  .dark {
-    --background: 222 47% 7%;
-    --foreground: 39 38% 95%;
-    --card: 222 40% 10%;
-    --card-foreground: 39 38% 95%;
-    --popover: 222 40% 10%;
-    --popover-foreground: 39 38% 95%;
-    --primary: 39 38% 95%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 222 30% 16%;
-    --secondary-foreground: 39 38% 95%;
-    --muted: 222 30% 16%;
-    --muted-foreground: 222 10% 65%;
-    --accent: 14 88% 55%;
-    --accent-foreground: 39 38% 95%;
-    --destructive: 0 70% 45%;
-    --destructive-foreground: 39 38% 95%;
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 39 38% 95%;
-    --gradient-hero: linear-gradient(135deg, hsl(222 40% 10%), hsl(222 30% 16%));
-    --shadow-editorial: 0 24px 60px -28px hsl(0 0% 0% / 0.6);
-    --shadow-card: 0 1px 0 hsl(222 30% 18%), 0 12px 32px -20px hsl(0 0% 0% / 0.5);
-  }
-}
-
-@layer base {
   * { @apply border-border; }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    @apply bg-s16-bg text-s16-text;
+    font-family: 'Lora', Georgia, serif;
   }
-  h1, h2, h3, .font-display {
-    font-family: 'Fraunces', 'Iowan Old Style', Georgia, serif;
-    font-feature-settings: "ss01", "ss02";
-    letter-spacing: -0.02em;
+  h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
   }
 }
 
-@layer utilities {
-  .bg-hero { background: var(--gradient-hero); }
-  .bg-accent-gradient { background: var(--gradient-accent); }
-  .shadow-editorial { box-shadow: var(--shadow-editorial); }
-  .shadow-card { box-shadow: var(--shadow-card); }
-  .rule {
-    height: 1px; background: hsl(var(--border));
+@layer components {
+  .s16-cta {
+    @apply font-ui font-semibold text-[0.85rem] uppercase tracking-[0.1em] transition-all flex items-center gap-2 hover:opacity-70 cursor-pointer;
+  }
+  .s16-eyebrow {
+    @apply font-ui font-semibold text-[9px] uppercase tracking-[0.22em] text-s16-accent;
   }
 }
