@@ -32,6 +32,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [selectedSurvey, setSelectedSurvey] = useState<SurveyRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [finishingId, setFinishingId] = useState<string | null>(null);
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
