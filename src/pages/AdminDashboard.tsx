@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Copy, CheckCircle2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 interface Client {
   id: string;
@@ -12,14 +13,20 @@ interface Client {
   entity_type: "Business" | "Organization";
   status: "pending" | "completed";
   response_count: number;
+  blueprint: string | null;
   created_at: string;
 }
 
-interface SurveyRow {
-  id: string;
-  client_id: string;
-  responses: any;
-  blueprint: string | null;
+interface StrategyView {
+  client: Client;
+  blueprint: string;
+  contributors: Record<string, number>;
+}
+
+function pluralizeRole(role: string): string {
+  if (/s$/i.test(role)) return role;
+  if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
+  return role + "s";
 }
 
 export default function AdminDashboard({ user: _user }: { user: User }) {
@@ -29,7 +36,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     name: "",
     entityType: "Business" as "Business" | "Organization",
   });
-  const [selectedSurvey, setSelectedSurvey] = useState<SurveyRow | null>(null);
+  const [selectedStrategy, setSelectedStrategy] = useState<StrategyView | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
@@ -60,14 +67,30 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   }, []);
 
   const handleViewResults = async (client: Client) => {
-    const { data } = await supabase
-      .from("surveys")
+    // Refetch latest blueprint in case state is stale
+    const { data: clientRow } = await supabase
+      .from("clients")
       .select("*")
-      .eq("client_id", client.id)
-      .order("submitted_at", { ascending: false })
-      .limit(1)
+      .eq("id", client.id)
       .maybeSingle();
-    if (data) setSelectedSurvey(data as SurveyRow);
+    const fresh = (clientRow as Client) ?? client;
+
+    const { data: surveys } = await supabase
+      .from("surveys")
+      .select("responses")
+      .eq("client_id", client.id);
+
+    const contributors: Record<string, number> = {};
+    (surveys ?? []).forEach((s: any) => {
+      const role = s?.responses?.role;
+      if (role) contributors[role] = (contributors[role] ?? 0) + 1;
+    });
+
+    setSelectedStrategy({
+      client: fresh,
+      blueprint: fresh.blueprint || "",
+      contributors,
+    });
   };
 
   const handleDeleteClient = async (clientId: string) => {
@@ -79,11 +102,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
 
   const handleFinishSurveys = async (client: Client) => {
     setFinishingId(client.id);
-    const { error } = await supabase
-      .from("clients")
-      .update({ status: "completed" })
-      .eq("id", client.id);
-    if (error) alert("Failed to update client: " + error.message);
+    const { data, error } = await supabase.functions.invoke("generate-blueprint", {
+      body: { clientId: client.id },
+    });
+    if (error || (data as any)?.error) {
+      alert("Failed to generate strategy: " + (error?.message || (data as any)?.error));
+      setFinishingId(null);
+      return;
+    }
     setFinishingId(null);
     load();
   };
@@ -255,7 +281,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       </main>
 
       <AnimatePresence>
-        {selectedSurvey && (
+        {selectedStrategy && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-6 overflow-y-auto bg-s16-text/30 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -264,16 +290,45 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
               className="relative bg-s16-bg max-w-3xl w-full my-12 border border-s16-border"
             >
               <div className="sticky top-0 bg-s16-bg p-8 border-b border-s16-border flex justify-between items-center z-10">
-                <span className="s16-eyebrow">Strategy Blueprint</span>
+                <div>
+                  <span className="s16-eyebrow">Strategy Blueprint</span>
+                  <h3 className="text-2xl mt-1">{selectedStrategy.client.name}</h3>
+                </div>
                 <button
-                  onClick={() => setSelectedSurvey(null)}
+                  onClick={() => setSelectedStrategy(null)}
                   className="p-2 hover:bg-s16-bg-warm rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-12 font-body text-lg leading-relaxed whitespace-pre-wrap">
-                {selectedSurvey.blueprint || "Strategy analysis in progress..."}
+
+              <div className="px-12 pt-10">
+                <div className="bg-s16-bg-warm border border-s16-border p-6">
+                  <p className="s16-eyebrow text-s16-text-muted mb-3">Contributors</p>
+                  {Object.keys(selectedStrategy.contributors).length === 0 ? (
+                    <p className="font-body text-s16-text-muted">
+                      No role data captured for this client.
+                    </p>
+                  ) : (
+                    <p className="font-body text-base leading-relaxed">
+                      <span className="text-s16-text-muted">Responses synthesized from: </span>
+                      {Object.entries(selectedStrategy.contributors)
+                        .map(
+                          ([role, count]) =>
+                            `${count} ${count === 1 ? role : pluralizeRole(role)}`,
+                        )
+                        .join(", ")}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-12 font-body text-base leading-relaxed prose prose-neutral max-w-none prose-headings:font-display prose-headings:tracking-tight prose-h1:text-4xl prose-h2:text-2xl prose-h2:mt-8 prose-h3:text-xl">
+                {selectedStrategy.blueprint ? (
+                  <ReactMarkdown>{selectedStrategy.blueprint}</ReactMarkdown>
+                ) : (
+                  <p className="text-s16-text-muted">Strategy analysis in progress...</p>
+                )}
               </div>
             </motion.div>
           </div>
