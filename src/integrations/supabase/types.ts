@@ -17,6 +17,7 @@ export type Database = {
       clients: {
         Row: {
           access_code: string
+          blueprint: string | null
           created_at: string
           entity_type: string
           id: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           access_code: string
+          blueprint?: string | null
           created_at?: string
           entity_type: string
           id?: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           access_code?: string
+          blueprint?: string | null
           created_at?: string
           entity_type?: string
           id?: string
