@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import ClientSurvey from "./pages/ClientSurvey";
+import SurveyTemplates from "./pages/SurveyTemplates";
 import NotFound from "./pages/NotFound";
 
 const ADMIN_DOMAIN = "@station16.com";
@@ -21,6 +22,13 @@ function AdminRoute() {
   if (loading) return null;
   if (!user) return <Navigate to="/" replace />;
   return <AdminDashboard user={user} />;
+}
+
+function TemplatesRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user || !isAdmin(user.email)) return <Navigate to="/" replace />;
+  return <SurveyTemplates user={user} />;
 }
 
 function HomeRoute() {
