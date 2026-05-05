@@ -11,6 +11,7 @@ interface Client {
   access_code: string;
   entity_type: "Business" | "Organization";
   status: "pending" | "completed";
+  response_count: number;
   created_at: string;
 }
 
