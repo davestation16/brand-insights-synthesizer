@@ -44,6 +44,7 @@ export default function ClientSurvey() {
   const [isVerified, setIsVerified] = useState(false);
   const [tempCode, setTempCode] = useState("");
   const [codeError, setCodeError] = useState("");
+  const [template, setTemplate] = useState<SurveyTemplate>(EMPTY_TEMPLATE);
 
   useEffect(() => {
     if (!uid) return;
@@ -52,10 +53,20 @@ export default function ClientSurvey() {
       .select("id, name, entity_type, access_code, status, survey_uid")
       .eq("survey_uid", uid)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         setClient(data);
         if (data && isInternalPreview) {
           setIsVerified(true);
+        }
+        if (data?.entity_type) {
+          const { data: tpl } = await supabase
+            .from("survey_templates")
+            .select("content")
+            .eq("entity_type", data.entity_type)
+            .maybeSingle();
+          if (tpl?.content) {
+            setTemplate({ ...EMPTY_TEMPLATE, ...(tpl.content as Partial<SurveyTemplate>) });
+          }
         }
         setLoading(false);
       });
