@@ -462,6 +462,12 @@ export default function ClientSurvey() {
           <span className="font-display text-xl tracking-tight uppercase">Station16</span>
           <span className="h-4 w-px bg-s16-border"></span>
           <span className="s16-eyebrow text-s16-text-muted">Onboarding: {client.name}</span>
+          {isInternalPreview && (
+            <>
+              <span className="h-4 w-px bg-s16-border"></span>
+              <span className="s16-eyebrow text-s16-accent">Internal Preview</span>
+            </>
+          )}
         </div>
         <span className="font-ui text-[10px] uppercase tracking-widest text-s16-text-muted">
           Stage {currentStep + 1} / {totalSteps}
