@@ -50,6 +50,30 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_templates: {
+        Row: {
+          content: Json
+          entity_type: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          entity_type: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          entity_type?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       surveys: {
         Row: {
           access_code: string
