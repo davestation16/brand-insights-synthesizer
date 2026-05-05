@@ -21,6 +21,7 @@ export type Database = {
           entity_type: string
           id: string
           name: string
+          response_count: number
           status: string
           survey_uid: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           entity_type: string
           id?: string
           name: string
+          response_count?: number
           status?: string
           survey_uid: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           entity_type?: string
           id?: string
           name?: string
+          response_count?: number
           status?: string
           survey_uid?: string
         }
