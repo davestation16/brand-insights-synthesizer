@@ -464,7 +464,7 @@ export default function ClientSurvey() {
             {currentStep === 1 && renderPersonality()}
             {currentStep === 2 && renderValues()}
             {currentStep === 3 && renderPerception()}
-            {currentStep === 4 && renderAesthetics()}
+            {currentStep === 4 && !isBusiness && renderAesthetics()}
 
             <div className="mt-24 pt-12 border-t border-s16-border flex items-center justify-between">
               {currentStep > 0 ? (
