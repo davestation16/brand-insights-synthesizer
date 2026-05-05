@@ -9,8 +9,12 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ClientSurvey from "./pages/ClientSurvey";
 import NotFound from "./pages/NotFound";
 
-const ADMIN_EMAIL = "david@station16.com";
+const ADMIN_DOMAIN = "@station16.com";
 const queryClient = new QueryClient();
+
+function isAdmin(email: string | undefined | null): boolean {
+  return !!email && email.toLowerCase().endsWith(ADMIN_DOMAIN);
+}
 
 function AdminRoute() {
   const { user, loading } = useAuth();
@@ -22,7 +26,7 @@ function AdminRoute() {
 function HomeRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (user?.email === ADMIN_EMAIL) return <Navigate to="/admin" replace />;
+  if (isAdmin(user?.email)) return <Navigate to="/admin" replace />;
   return <Login user={user} />;
 }
 
