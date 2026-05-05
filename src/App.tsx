@@ -1,17 +1,30 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SiteHeader } from "@/components/SiteHeader";
-import Index from "./pages/Index.tsx";
-import NotFound from "./pages/NotFound.tsx";
-import Auth from "./pages/Auth.tsx";
-import Dashboard from "./pages/Dashboard.tsx";
-import SurveyDetail from "./pages/SurveyDetail.tsx";
-import PublicSurvey from "./pages/PublicSurvey.tsx";
+import { useAuth } from "@/hooks/useAuth";
+import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
+import ClientSurvey from "./pages/ClientSurvey";
+import NotFound from "./pages/NotFound";
 
+const ADMIN_EMAIL = "david@station16.com";
 const queryClient = new QueryClient();
+
+function AdminRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/" replace />;
+  return <AdminDashboard user={user} />;
+}
+
+function HomeRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user?.email === ADMIN_EMAIL) return <Navigate to="/admin" replace />;
+  return <Login user={user} />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -19,13 +32,10 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <SiteHeader />
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/surveys/:id" element={<SurveyDetail />} />
-          <Route path="/s/:id" element={<PublicSurvey />} />
+          <Route path="/" element={<HomeRoute />} />
+          <Route path="/admin" element={<AdminRoute />} />
+          <Route path="/survey/:uid" element={<ClientSurvey />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
