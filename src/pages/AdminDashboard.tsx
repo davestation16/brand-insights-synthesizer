@@ -61,14 +61,30 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   }, []);
 
   const handleViewResults = async (client: Client) => {
-    const { data } = await supabase
-      .from("surveys")
+    // Refetch latest blueprint in case state is stale
+    const { data: clientRow } = await supabase
+      .from("clients")
       .select("*")
-      .eq("client_id", client.id)
-      .order("submitted_at", { ascending: false })
-      .limit(1)
+      .eq("id", client.id)
       .maybeSingle();
-    if (data) setSelectedSurvey(data as SurveyRow);
+    const fresh = (clientRow as Client) ?? client;
+
+    const { data: surveys } = await supabase
+      .from("surveys")
+      .select("responses")
+      .eq("client_id", client.id);
+
+    const contributors: Record<string, number> = {};
+    (surveys ?? []).forEach((s: any) => {
+      const role = s?.responses?.role;
+      if (role) contributors[role] = (contributors[role] ?? 0) + 1;
+    });
+
+    setSelectedStrategy({
+      client: fresh,
+      blueprint: fresh.blueprint || "",
+      contributors,
+    });
   };
 
   const handleDeleteClient = async (clientId: string) => {
@@ -80,11 +96,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
 
   const handleFinishSurveys = async (client: Client) => {
     setFinishingId(client.id);
-    const { error } = await supabase
-      .from("clients")
-      .update({ status: "completed" })
-      .eq("id", client.id);
-    if (error) alert("Failed to update client: " + error.message);
+    const { data, error } = await supabase.functions.invoke("generate-blueprint", {
+      body: { clientId: client.id },
+    });
+    if (error || (data as any)?.error) {
+      alert("Failed to generate strategy: " + (error?.message || (data as any)?.error));
+      setFinishingId(null);
+      return;
+    }
     setFinishingId(null);
     load();
   };
