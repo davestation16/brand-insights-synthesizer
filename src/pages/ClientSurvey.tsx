@@ -59,13 +59,13 @@ export default function ClientSurvey() {
       }
       setClient(data.client);
       if (isInternalPreview) {
-        // Load template directly via edge function using a non-validating call;
-        // we still need the template content to render the preview.
-        const { data: verifyData } = await supabase.functions.invoke("get-survey", {
-          body: { uid, action: "verify", accessCode: "__preview__" },
-        });
-        if (verifyData?.template) {
-          setTemplate({ ...EMPTY_TEMPLATE, ...(verifyData.template as Partial<SurveyTemplate>) });
+        const { data: tpl } = await supabase
+          .from("survey_templates")
+          .select("content")
+          .eq("entity_type", data.client.entity_type)
+          .maybeSingle();
+        if (tpl?.content) {
+          setTemplate({ ...EMPTY_TEMPLATE, ...(tpl.content as Partial<SurveyTemplate>) });
         }
         setIsVerified(true);
       }
