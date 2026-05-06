@@ -61,6 +61,12 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
 
   useEffect(() => {
     load();
+    (async () => {
+      const { data } = await supabase.from("survey_templates").select("entity_type").order("entity_type");
+      const types = ((data as any[]) ?? []).map((r) => r.entity_type);
+      setIndustries(types);
+      setNewClient((p) => ({ ...p, entityType: p.entityType || types[0] || "" }));
+    })();
     const channel = supabase
       .channel("clients-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "clients" }, () => load())
@@ -128,12 +134,13 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       survey_uid: surveyUid,
       access_code: accessCode,
       status: "pending",
+      include_aesthetics: newClient.includeAesthetics,
     });
     if (error) {
       alert("Failed to create client: " + error.message);
       return;
     }
-    setNewClient({ name: "", entityType: "Business" });
+    setNewClient({ name: "", entityType: industries[0] || "", includeAesthetics: true });
     setShowAddModal(false);
     load();
   };
