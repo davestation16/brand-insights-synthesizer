@@ -419,15 +419,12 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     required
                     className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
                     value={newClient.entityType}
-                    onChange={(e) =>
-                      setNewClient({
-                        ...newClient,
-                        entityType: e.target.value as "Business" | "Organization",
-                      })
-                    }
+                    onChange={(e) => setNewClient({ ...newClient, entityType: e.target.value })}
                   >
-                    <option value="Business">Business</option>
-                    <option value="Organization">Organization</option>
+                    {industries.length === 0 && <option value="">— No industries — create one in Templates —</option>}
+                    {industries.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -440,6 +437,15 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     placeholder="e.g. Kairos Church"
                   />
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={newClient.includeAesthetics}
+                    onChange={(e) => setNewClient({ ...newClient, includeAesthetics: e.target.checked })}
+                    className="w-5 h-5 accent-s16-accent"
+                  />
+                  <span className="font-body text-base">Include Visual Identity (Aesthetics) section</span>
+                </label>
                 <div className="flex gap-8 pt-4">
                   <button type="submit" className="s16-cta">
                     ↳ Create Project
