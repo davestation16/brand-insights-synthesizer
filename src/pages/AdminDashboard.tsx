@@ -11,11 +11,12 @@ interface Client {
   name: string;
   survey_uid: string;
   access_code: string;
-  entity_type: "Business" | "Organization";
+  entity_type: string;
   status: "pending" | "completed";
   response_count: number;
   blueprint: string | null;
   created_at: string;
+  include_aesthetics: boolean;
 }
 
 interface StrategyView {
@@ -32,10 +33,12 @@ function pluralizeRole(role: string): string {
 
 export default function AdminDashboard({ user: _user }: { user: User }) {
   const [clients, setClients] = useState<Client[]>([]);
+  const [industries, setIndustries] = useState<string[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newClient, setNewClient] = useState({
+  const [newClient, setNewClient] = useState<{ name: string; entityType: string; includeAesthetics: boolean }>({
     name: "",
-    entityType: "Business" as "Business" | "Organization",
+    entityType: "",
+    includeAesthetics: true,
   });
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyView | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
