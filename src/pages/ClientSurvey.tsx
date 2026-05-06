@@ -48,38 +48,45 @@ export default function ClientSurvey() {
 
   useEffect(() => {
     if (!uid) return;
-    supabase
-      .from("clients")
-      .select("id, name, entity_type, access_code, status, survey_uid")
-      .eq("survey_uid", uid)
-      .maybeSingle()
-      .then(async ({ data }) => {
-        setClient(data);
-        if (data && isInternalPreview) {
-          setIsVerified(true);
-        }
-        if (data?.entity_type) {
-          const { data: tpl } = await supabase
-            .from("survey_templates")
-            .select("content")
-            .eq("entity_type", data.entity_type)
-            .maybeSingle();
-          if (tpl?.content) {
-            setTemplate({ ...EMPTY_TEMPLATE, ...(tpl.content as Partial<SurveyTemplate>) });
-          }
-        }
-        setLoading(false);
+    (async () => {
+      const { data, error } = await supabase.functions.invoke("get-survey", {
+        body: { uid, action: "lookup" },
       });
+      if (error || !data?.client) {
+        setClient(null);
+        setLoading(false);
+        return;
+      }
+      setClient(data.client);
+      if (isInternalPreview) {
+        const { data: tpl } = await supabase
+          .from("survey_templates")
+          .select("content")
+          .eq("entity_type", data.client.entity_type)
+          .maybeSingle();
+        if (tpl?.content) {
+          setTemplate({ ...EMPTY_TEMPLATE, ...(tpl.content as Partial<SurveyTemplate>) });
+        }
+        setIsVerified(true);
+      }
+      setLoading(false);
+    })();
   }, [uid, isInternalPreview]);
 
-  const handleVerifyCode = (e: React.FormEvent) => {
+  const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (tempCode === client.access_code) {
-      setIsVerified(true);
-      setCodeError("");
-    } else {
+    const { data, error } = await supabase.functions.invoke("get-survey", {
+      body: { uid, action: "verify", accessCode: tempCode },
+    });
+    if (error || !data || data.error) {
       setCodeError("Incorrect access code. Please try again.");
+      return;
     }
+    if (data.template) {
+      setTemplate({ ...EMPTY_TEMPLATE, ...(data.template as Partial<SurveyTemplate>) });
+    }
+    setIsVerified(true);
+    setCodeError("");
   };
 
   const isBusiness = client?.entity_type === "Business";
