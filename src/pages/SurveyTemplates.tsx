@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import station16Logo from "@/assets/station16-logo.png";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, BookmarkPlus, FolderInput } from "lucide-react";
+import { LibraryDrawer } from "@/components/LibraryDrawer";
+import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templateLibrary";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
@@ -21,42 +23,41 @@ const EMPTY: TemplateContent = {
   aesthetics: {},
 };
 
-const ENTITY_TYPES = ["Business", "Organization"] as const;
-type EntityType = (typeof ENTITY_TYPES)[number];
-
 export default function SurveyTemplates({ user: _user }: { user: User }) {
   const navigate = useNavigate();
-  const [activeType, setActiveType] = useState<EntityType>("Business");
-  const [templates, setTemplates] = useState<Record<EntityType, TemplateContent>>({
-    Business: EMPTY,
-    Organization: EMPTY,
-  });
+  const [industries, setIndustries] = useState<string[]>([]);
+  const [activeType, setActiveType] = useState<string>("");
+  const [templates, setTemplates] = useState<Record<string, TemplateContent>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [drawerCategory, setDrawerCategory] = useState<LibraryCategory | null>(null);
 
-  const content = templates[activeType];
+  const content = templates[activeType] ?? EMPTY;
+
+  const fetchAll = async () => {
+    const { data } = await supabase
+      .from("survey_templates")
+      .select("entity_type, content")
+      .order("entity_type");
+    const next: Record<string, TemplateContent> = {};
+    const types: string[] = [];
+    for (const row of (data as any[]) ?? []) {
+      types.push(row.entity_type);
+      next[row.entity_type] = { ...EMPTY, ...(row.content || {}) };
+    }
+    setIndustries(types);
+    setTemplates(next);
+    if (types.length && !types.includes(activeType)) setActiveType(types[0]);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("survey_templates")
-        .select("entity_type, content");
-      if (data) {
-        const next = { Business: EMPTY, Organization: EMPTY } as Record<EntityType, TemplateContent>;
-        for (const row of data as any[]) {
-          if (ENTITY_TYPES.includes(row.entity_type)) {
-            next[row.entity_type as EntityType] = { ...EMPTY, ...row.content };
-          }
-        }
-        setTemplates(next);
-      }
-      setLoading(false);
-    })();
+    fetchAll();
   }, []);
 
   const update = (patch: Partial<TemplateContent>) => {
-    setTemplates((prev) => ({ ...prev, [activeType]: { ...prev[activeType], ...patch } }));
+    setTemplates((prev) => ({ ...prev, [activeType]: { ...(prev[activeType] ?? EMPTY), ...patch } }));
   };
 
   const save = async () => {
@@ -83,7 +84,57 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
     setSavedAt(new Date().toLocaleTimeString());
   };
 
-  // ── Personality / Perception traits ──
+  const addIndustry = async () => {
+    const name = prompt("New industry name (e.g. Restaurant, Nonprofit):")?.trim();
+    if (!name) return;
+    if (industries.includes(name)) {
+      alert("That industry already exists.");
+      return;
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("Not signed in");
+    const { error } = await supabase
+      .from("survey_templates")
+      .insert({ entity_type: name, content: EMPTY as any, updated_by: user.id });
+    if (error) return alert("Failed: " + error.message);
+    await fetchAll();
+    setActiveType(name);
+  };
+
+  // ── Section save/import helpers ──
+  const handleSaveSection = async (category: LibraryCategory) => {
+    try {
+      const payload =
+        category === "valuesSpectrum" ? content.valuesSpectrum :
+        category === "personalityTraits" ? content.personalityTraits :
+        category === "perceptionTraits" ? content.perceptionTraits :
+        content.aesthetics;
+      const name = await saveSection(category, activeType, payload);
+      alert(`Saved "${name}" to library.`);
+    } catch (e: any) {
+      alert("Save failed: " + e.message);
+    }
+  };
+
+  const handleImport = (category: LibraryCategory, payload: any, mode: "replace" | "append") => {
+    if (category === "aesthetics") {
+      const incoming = payload && typeof payload === "object" && !Array.isArray(payload) ? payload : {};
+      update({
+        aesthetics: mode === "replace" ? incoming : { ...content.aesthetics, ...incoming },
+      });
+      return;
+    }
+    const arr = Array.isArray(payload) ? payload : [];
+    if (category === "valuesSpectrum") {
+      update({ valuesSpectrum: mode === "replace" ? arr : [...content.valuesSpectrum, ...arr] });
+    } else if (category === "personalityTraits") {
+      update({ personalityTraits: mode === "replace" ? arr : [...content.personalityTraits, ...arr] });
+    } else if (category === "perceptionTraits") {
+      update({ perceptionTraits: mode === "replace" ? arr : [...content.perceptionTraits, ...arr] });
+    }
+  };
+
+  // ── Trait list ──
   const updateTraitList = (key: "personalityTraits" | "perceptionTraits", idx: number, val: string) => {
     const next = [...content[key]];
     next[idx] = val;
@@ -96,7 +147,7 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
     update({ [key]: [...content[key], "New Trait"] } as any);
   };
 
-  // ── Values spectrum ──
+  // ── Spectrum ──
   const updateSpectrum = (idx: number, patch: Partial<ValueSpectrum>) => {
     const next = content.valuesSpectrum.map((v, i) => (i === idx ? { ...v, ...patch } : v));
     update({ valuesSpectrum: next });
@@ -149,6 +200,31 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
     update({ aesthetics: { ...content.aesthetics, [name]: [] } });
   };
 
+  // ── Auto-populate library from existing templates ──
+  const autoPopulate = async () => {
+    if (!confirm("Insert all current sections from every industry into the Library?")) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("Not signed in");
+    const { data } = await supabase.from("survey_templates").select("entity_type, content");
+    const rows: any[] = [];
+    for (const r of (data as any[]) ?? []) {
+      const c = r.content || {};
+      const cats: LibraryCategory[] = ["valuesSpectrum", "personalityTraits", "perceptionTraits", "aesthetics"];
+      for (const cat of cats) {
+        rows.push({
+          name: `${CATEGORY_LABELS[cat]} - ${r.entity_type}`,
+          category: cat,
+          payload: c[cat] ?? (cat === "aesthetics" ? {} : []),
+          created_by: user.id,
+        });
+      }
+    }
+    if (!rows.length) return alert("No templates found.");
+    const { error } = await supabase.from("template_library" as any).insert(rows);
+    if (error) return alert("Failed: " + error.message);
+    alert(`Inserted ${rows.length} library entries.`);
+  };
+
   if (loading) return null;
 
   return (
@@ -160,6 +236,9 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           <span className="s16-eyebrow text-s16-text-muted">Survey Templates</span>
         </div>
         <div className="flex items-center gap-6">
+          <button onClick={autoPopulate} className="s16-cta opacity-50 hover:opacity-100">
+            ↳ Auto-Populate Library
+          </button>
           <button onClick={() => navigate("/admin")} className="s16-cta opacity-50 hover:opacity-100 flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </button>
@@ -174,20 +253,20 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           <div>
             <h1 className="text-5xl mb-3">Survey Templates</h1>
             <p className="text-s16-text-muted font-body max-w-xl">
-              Edit the questions and choices stakeholders see in the public survey. Use{" "}
+              Edit the questions stakeholders see in the public survey. Use{" "}
               <code className="font-mono text-s16-text">{"{{name}}"}</code> to insert the client's name.
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <button onClick={save} disabled={saving} className="s16-cta text-lg disabled:opacity-40">
+            <button onClick={save} disabled={saving || !activeType} className="s16-cta text-lg disabled:opacity-40">
               {saving ? "Saving..." : "↳ Save Template"}
             </button>
             {savedAt && <span className="text-[10px] uppercase tracking-widest text-s16-text-muted">Saved at {savedAt}</span>}
           </div>
         </header>
 
-        <div className="flex gap-2 border-b border-s16-border mb-12">
-          {ENTITY_TYPES.map((t) => (
+        <div className="flex gap-2 border-b border-s16-border mb-12 items-center flex-wrap">
+          {industries.map((t) => (
             <button
               key={t}
               onClick={() => setActiveType(t)}
@@ -200,11 +279,24 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
               {t}
             </button>
           ))}
+          <button onClick={addIndustry} className="s16-cta text-xs flex items-center gap-1 ml-2">
+            <Plus className="w-3 h-3" /> New Industry
+          </button>
         </div>
 
+        {!activeType ? (
+          <p className="font-body text-s16-text-muted italic">Create your first industry to get started.</p>
+        ) : (
+        <>
         {/* Values Spectrum */}
         <section className="mb-16">
-          <SectionHeader title="Values Spectrum" onAdd={addSpectrum} addLabel="Add Question" />
+          <SectionHeader
+            title="Values Spectrum"
+            onAdd={addSpectrum}
+            addLabel="Add Question"
+            onSave={() => handleSaveSection("valuesSpectrum")}
+            onImport={() => setDrawerCategory("valuesSpectrum")}
+          />
           <div className="space-y-4">
             {content.valuesSpectrum.map((v, idx) => (
               <div key={idx} className="border border-s16-border bg-s16-bg-warm p-5 space-y-3">
@@ -229,9 +321,15 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           </div>
         </section>
 
-        {/* Personality Traits */}
+        {/* Personality */}
         <section className="mb-16">
-          <SectionHeader title="Personality Traits" onAdd={() => addTrait("personalityTraits")} addLabel="Add Trait" />
+          <SectionHeader
+            title="Personality Traits"
+            onAdd={() => addTrait("personalityTraits")}
+            addLabel="Add Trait"
+            onSave={() => handleSaveSection("personalityTraits")}
+            onImport={() => setDrawerCategory("personalityTraits")}
+          />
           <TraitGrid
             items={content.personalityTraits}
             onChange={(idx, val) => updateTraitList("personalityTraits", idx, val)}
@@ -239,9 +337,15 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           />
         </section>
 
-        {/* Perception Traits */}
+        {/* Perception */}
         <section className="mb-16">
-          <SectionHeader title="Perception Traits" onAdd={() => addTrait("perceptionTraits")} addLabel="Add Trait" />
+          <SectionHeader
+            title="Perception Traits"
+            onAdd={() => addTrait("perceptionTraits")}
+            addLabel="Add Trait"
+            onSave={() => handleSaveSection("perceptionTraits")}
+            onImport={() => setDrawerCategory("perceptionTraits")}
+          />
           <TraitGrid
             items={content.perceptionTraits}
             onChange={(idx, val) => updateTraitList("perceptionTraits", idx, val)}
@@ -253,14 +357,20 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
         <section className="mb-16">
           <div className="flex justify-between items-end mb-6 border-b border-s16-border pb-4">
             <h2 className="text-3xl">Aesthetic Choices</h2>
-            <button onClick={addAestheticCategory} className="s16-cta text-sm flex items-center gap-1">
-              <Plus className="w-3 h-3" /> Add Category
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setDrawerCategory("aesthetics")} className="s16-cta text-sm flex items-center gap-1">
+                <FolderInput className="w-3 h-3" /> Import
+              </button>
+              <button onClick={() => handleSaveSection("aesthetics")} className="s16-cta text-sm flex items-center gap-1">
+                <BookmarkPlus className="w-3 h-3" /> Save Section
+              </button>
+              <button onClick={addAestheticCategory} className="s16-cta text-sm flex items-center gap-1">
+                <Plus className="w-3 h-3" /> Add Category
+              </button>
+            </div>
           </div>
           {Object.keys(content.aesthetics).length === 0 && (
-            <p className="font-body text-s16-text-muted italic">
-              No aesthetic categories. Businesses typically skip this section.
-            </p>
+            <p className="font-body text-s16-text-muted italic">No aesthetic categories yet.</p>
           )}
           <div className="space-y-10">
             {Object.entries(content.aesthetics).map(([cat, options]) => (
@@ -323,27 +433,49 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             ))}
           </div>
         </section>
+        </>
+        )}
       </main>
+
+      <LibraryDrawer
+        open={drawerCategory !== null}
+        onClose={() => setDrawerCategory(null)}
+        category={drawerCategory}
+        onImport={(payload, mode) => drawerCategory && handleImport(drawerCategory, payload, mode)}
+      />
     </div>
   );
 }
 
-function SectionHeader({ title, onAdd, addLabel }: { title: string; onAdd: () => void; addLabel: string }) {
+function SectionHeader({
+  title, onAdd, addLabel, onSave, onImport,
+}: {
+  title: string;
+  onAdd: () => void;
+  addLabel: string;
+  onSave: () => void;
+  onImport: () => void;
+}) {
   return (
     <div className="flex justify-between items-end mb-6 border-b border-s16-border pb-4">
       <h2 className="text-3xl">{title}</h2>
-      <button onClick={onAdd} className="s16-cta text-sm flex items-center gap-1">
-        <Plus className="w-3 h-3" /> {addLabel}
-      </button>
+      <div className="flex gap-2">
+        <button onClick={onImport} className="s16-cta text-sm flex items-center gap-1">
+          <FolderInput className="w-3 h-3" /> Import
+        </button>
+        <button onClick={onSave} className="s16-cta text-sm flex items-center gap-1">
+          <BookmarkPlus className="w-3 h-3" /> Save Section
+        </button>
+        <button onClick={onAdd} className="s16-cta text-sm flex items-center gap-1">
+          <Plus className="w-3 h-3" /> {addLabel}
+        </button>
+      </div>
     </div>
   );
 }
 
 function Field({
-  label,
-  value,
-  onChange,
-  textarea,
+  label, value, onChange, textarea,
 }: {
   label: string;
   value: string;
@@ -372,9 +504,7 @@ function Field({
 }
 
 function TraitGrid({
-  items,
-  onChange,
-  onRemove,
+  items, onChange, onRemove,
 }: {
   items: string[];
   onChange: (idx: number, val: string) => void;
