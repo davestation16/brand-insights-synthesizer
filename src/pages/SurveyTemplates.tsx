@@ -32,6 +32,26 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [drawerCategory, setDrawerCategory] = useState<LibraryCategory | null>(null);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+
+  const uploadAestheticImage = async (file: File, cat: string, idx: number) => {
+    const key = `${cat}-${idx}`;
+    setUploadingKey(key);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
+      const path = `${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage
+        .from("survey_images")
+        .upload(path, file, { cacheControl: "3600", upsert: false });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("survey_images").getPublicUrl(path);
+      updateAesthetic(cat, idx, { image: data.publicUrl });
+    } catch (e: any) {
+      alert("Upload failed: " + e.message);
+    } finally {
+      setUploadingKey(null);
+    }
+  };
 
   const content = templates[activeType] ?? EMPTY;
 
@@ -416,11 +436,22 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
                           {opt.image && (
                             <img src={opt.image} alt="" className="w-16 h-12 object-cover border border-s16-border" />
                           )}
-                          <Field
-                            label="Image URL"
-                            value={opt.image || ""}
-                            onChange={(val) => updateAesthetic(cat, idx, { image: val })}
-                          />
+                          <label className="s16-cta text-xs cursor-pointer">
+                            {uploadingKey === `${cat}-${idx}`
+                              ? "Uploading..."
+                              : opt.image ? "↳ Replace Image" : "↳ Upload Image"}
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              disabled={uploadingKey === `${cat}-${idx}`}
+                              onChange={(e) => {
+                                const f = e.target.files?.[0];
+                                if (f) uploadAestheticImage(f, cat, idx);
+                                e.target.value = "";
+                              }}
+                            />
+                          </label>
                         </div>
                       )}
                       <button onClick={() => removeAestheticOption(cat, idx)} className="text-red-500 hover:text-red-700">
