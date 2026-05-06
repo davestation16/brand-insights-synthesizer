@@ -32,6 +32,26 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [drawerCategory, setDrawerCategory] = useState<LibraryCategory | null>(null);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+
+  const uploadAestheticImage = async (file: File, cat: string, idx: number) => {
+    const key = `${cat}-${idx}`;
+    setUploadingKey(key);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
+      const path = `${Date.now()}-${safeName}`;
+      const { error: upErr } = await supabase.storage
+        .from("survey_images")
+        .upload(path, file, { cacheControl: "3600", upsert: false });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("survey_images").getPublicUrl(path);
+      updateAesthetic(cat, idx, { image: data.publicUrl });
+    } catch (e: any) {
+      alert("Upload failed: " + e.message);
+    } finally {
+      setUploadingKey(null);
+    }
+  };
 
   const content = templates[activeType] ?? EMPTY;
 
