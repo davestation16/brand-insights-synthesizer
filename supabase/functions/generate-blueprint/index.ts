@@ -46,8 +46,8 @@ Return a beautifully structured Markdown report using the following exact sectio
 * **Supporting Archetype:** Select a secondary archetype that adds nuance.
 
 ### 6. Visual & Aesthetic Projection
-* CONDITIONAL: ONLY generate this section if the Entity Type is "Organization". If the Entity Type is "Business", completely OMIT this entire section (including the heading) from the output.
-* Synthesize the aesthetic choices (Palette, Material, House, Vehicle, Dress). Translate these into a creative direction summary (e.g., "The visual identity should feel warm, community-rooted, and highly organic").
+* CONDITIONAL: ONLY include this section if the response data actually contains aesthetic answers (keys prefixed with "aesthetic_"). If no aesthetic data is present, completely OMIT this entire section (including the heading) and renumber Target Audience Personas as section 6.
+* Synthesize the aesthetic choices (Palette, Material, House, Vehicle, Dress, etc.) into a creative direction summary.
 
 ### 7. Target Audience Personas
 * Based on the Entity Type and Proximate/Involved data, invent 2 realistic Target Audience profiles.
