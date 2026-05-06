@@ -89,8 +89,8 @@ export default function ClientSurvey() {
     setCodeError("");
   };
 
-  const isBusiness = client?.entity_type === "Business";
-  const totalSteps = isBusiness ? 4 : 5;
+  const includeAesthetics = client?.include_aesthetics !== false;
+  const totalSteps = includeAesthetics ? 5 : 4;
   const lastStep = totalSteps - 1;
 
   const handleNext = () => {
@@ -455,7 +455,7 @@ export default function ClientSurvey() {
             {currentStep === 1 && renderPersonality()}
             {currentStep === 2 && renderValues()}
             {currentStep === 3 && renderPerception()}
-            {currentStep === 4 && !isBusiness && renderAesthetics()}
+            {currentStep === 4 && includeAesthetics && renderAesthetics()}
 
             <div className="mt-24 pt-12 border-t border-s16-border flex items-center justify-between">
               {currentStep > 0 ? (

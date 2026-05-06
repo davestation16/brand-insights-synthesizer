@@ -25,12 +25,19 @@ Deno.serve(async (req) => {
 
     const { data: client, error } = await supabase
       .from("clients")
-      .select("id, name, entity_type, access_code")
+      .select("id, name, entity_type, access_code, include_aesthetics")
       .eq("survey_uid", uid)
       .maybeSingle();
 
     if (error) return json({ error: error.message }, 500);
     if (!client) return json({ error: "Not found" }, 404);
+
+    const publicClient = {
+      id: client.id,
+      name: client.name,
+      entity_type: client.entity_type,
+      include_aesthetics: client.include_aesthetics ?? true,
+    };
 
     if (action === "verify") {
       if (!accessCode || accessCode !== client.access_code) {
@@ -41,16 +48,16 @@ Deno.serve(async (req) => {
         .select("content")
         .eq("entity_type", client.entity_type)
         .maybeSingle();
-      return json({
-        client: { id: client.id, name: client.name, entity_type: client.entity_type },
-        template: tpl?.content ?? null,
-      });
+      let content: any = tpl?.content ?? null;
+      if (content && publicClient.include_aesthetics === false) {
+        const { aesthetics: _omit, ...rest } = content;
+        content = rest;
+      }
+      return json({ client: publicClient, template: content });
     }
 
-    // Default: lookup — never expose access_code
-    return json({
-      client: { id: client.id, name: client.name, entity_type: client.entity_type },
-    });
+    // Default: lookup
+    return json({ client: publicClient });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
