@@ -11,11 +11,12 @@ interface Client {
   name: string;
   survey_uid: string;
   access_code: string;
-  entity_type: "Business" | "Organization";
+  entity_type: string;
   status: "pending" | "completed";
   response_count: number;
   blueprint: string | null;
   created_at: string;
+  include_aesthetics: boolean;
 }
 
 interface StrategyView {
@@ -32,10 +33,12 @@ function pluralizeRole(role: string): string {
 
 export default function AdminDashboard({ user: _user }: { user: User }) {
   const [clients, setClients] = useState<Client[]>([]);
+  const [industries, setIndustries] = useState<string[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newClient, setNewClient] = useState({
+  const [newClient, setNewClient] = useState<{ name: string; entityType: string; includeAesthetics: boolean }>({
     name: "",
-    entityType: "Business" as "Business" | "Organization",
+    entityType: "",
+    includeAesthetics: true,
   });
   const [selectedStrategy, setSelectedStrategy] = useState<StrategyView | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -58,6 +61,12 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
 
   useEffect(() => {
     load();
+    (async () => {
+      const { data } = await supabase.from("survey_templates").select("entity_type").order("entity_type");
+      const types = ((data as any[]) ?? []).map((r) => r.entity_type);
+      setIndustries(types);
+      setNewClient((p) => ({ ...p, entityType: p.entityType || types[0] || "" }));
+    })();
     const channel = supabase
       .channel("clients-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "clients" }, () => load())
@@ -125,12 +134,13 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       survey_uid: surveyUid,
       access_code: accessCode,
       status: "pending",
+      include_aesthetics: newClient.includeAesthetics,
     });
     if (error) {
       alert("Failed to create client: " + error.message);
       return;
     }
-    setNewClient({ name: "", entityType: "Business" });
+    setNewClient({ name: "", entityType: industries[0] || "", includeAesthetics: true });
     setShowAddModal(false);
     load();
   };
@@ -409,15 +419,12 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     required
                     className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
                     value={newClient.entityType}
-                    onChange={(e) =>
-                      setNewClient({
-                        ...newClient,
-                        entityType: e.target.value as "Business" | "Organization",
-                      })
-                    }
+                    onChange={(e) => setNewClient({ ...newClient, entityType: e.target.value })}
                   >
-                    <option value="Business">Business</option>
-                    <option value="Organization">Organization</option>
+                    {industries.length === 0 && <option value="">— No industries — create one in Templates —</option>}
+                    {industries.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -430,6 +437,15 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     placeholder="e.g. Kairos Church"
                   />
                 </div>
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={newClient.includeAesthetics}
+                    onChange={(e) => setNewClient({ ...newClient, includeAesthetics: e.target.checked })}
+                    className="w-5 h-5 accent-s16-accent"
+                  />
+                  <span className="font-body text-base">Include Visual Identity (Aesthetics) section</span>
+                </label>
                 <div className="flex gap-8 pt-4">
                   <button type="submit" className="s16-cta">
                     ↳ Create Project

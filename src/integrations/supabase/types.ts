@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           entity_type: string
           id: string
+          include_aesthetics: boolean
           name: string
           response_count: number
           status: string
@@ -32,6 +33,7 @@ export type Database = {
           created_at?: string
           entity_type: string
           id?: string
+          include_aesthetics?: boolean
           name: string
           response_count?: number
           status?: string
@@ -43,6 +45,7 @@ export type Database = {
           created_at?: string
           entity_type?: string
           id?: string
+          include_aesthetics?: boolean
           name?: string
           response_count?: number
           status?: string
@@ -111,6 +114,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      template_library: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          payload: Json
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          payload?: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          payload?: Json
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
