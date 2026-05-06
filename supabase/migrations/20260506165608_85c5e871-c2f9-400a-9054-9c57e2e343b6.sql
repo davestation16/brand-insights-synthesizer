@@ -1,0 +1,1 @@
+ALTER TABLE public.clients DROP CONSTRAINT IF EXISTS clients_entity_type_check;
