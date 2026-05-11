@@ -248,13 +248,10 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
 
   const renderValues = () => (
     <div className="space-y-16">
-      <div className="mb-12">
+      <div className={template.instructions?.values ? "mb-12" : "mb-8"}>
         <h2 className="text-4xl mb-4">Brand Values</h2>
-        <p className="font-body text-s16-text-muted text-xl">
-          Imagine the following values on a spectrum. Which of these attributes would the brand value more?
-        </p>
         {template.instructions?.values && (
-          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+          <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
             {interpolate(template.instructions.values, client.name)}
           </p>
         )}
