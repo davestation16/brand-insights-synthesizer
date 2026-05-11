@@ -382,6 +382,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             onSave={() => handleSaveSection("perceptionTraits")}
             onImport={() => setDrawerCategory("perceptionTraits")}
           />
+          <InstructionsField
+            value={content.instructions?.perception ?? ""}
+            onChange={(v) => updateInstruction("perception", v)}
+          />
           <TraitGrid
             items={content.perceptionTraits}
             onChange={(idx, val) => updateTraitList("perceptionTraits", idx, val)}
