@@ -19,6 +19,7 @@ type TemplateContent = {
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
   instructions: Instructions;
+  intro: string;
 };
 
 const EMPTY: TemplateContent = {
@@ -27,6 +28,7 @@ const EMPTY: TemplateContent = {
   valuesSpectrum: [],
   aesthetics: {},
   instructions: {},
+  intro: "",
 };
 
 export default function SurveyTemplates({ user: _user }: { user: User }) {
