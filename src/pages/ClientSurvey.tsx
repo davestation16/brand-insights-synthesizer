@@ -328,6 +328,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           Select the visual archetypes that resonate most with the brand identity.
         </p>
+        {template.instructions?.aesthetics && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.aesthetics}
+          </p>
+        )}
       </div>
       {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">
