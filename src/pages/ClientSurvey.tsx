@@ -328,13 +328,10 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
 
   const renderAesthetics = () => (
     <div className="space-y-24">
-      <div className="mb-12">
+      <div className={template.instructions?.aesthetics ? "mb-12" : "mb-8"}>
         <h2 className="text-4xl mb-4">Aesthetic Choices</h2>
-        <p className="font-body text-s16-text-muted text-xl">
-          Select the visual archetypes that resonate most with the brand identity.
-        </p>
         {template.instructions?.aesthetics && (
-          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+          <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
             {interpolate(template.instructions.aesthetics, client.name)}
           </p>
         )}
