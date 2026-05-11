@@ -288,9 +288,18 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <button onClick={save} disabled={saving || !activeType} className="s16-cta text-lg disabled:opacity-40">
-              {saving ? "Saving..." : "↳ Save Template"}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPreviewOpen(true)}
+                disabled={!activeType}
+                className="px-4 py-2 border border-s16-border text-s16-text text-xs uppercase tracking-widest font-ui font-semibold hover:bg-s16-bg-warm transition-colors disabled:opacity-40 flex items-center gap-2"
+              >
+                <Eye className="w-3 h-3" /> Preview Template
+              </button>
+              <button onClick={save} disabled={saving || !activeType} className="s16-cta text-lg disabled:opacity-40">
+                {saving ? "Saving..." : "↳ Save Template"}
+              </button>
+            </div>
             {savedAt && <span className="text-[10px] uppercase tracking-widest text-s16-text-muted">Saved at {savedAt}</span>}
           </div>
         </header>
