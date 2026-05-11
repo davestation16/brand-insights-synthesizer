@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import station16Logo from "@/assets/station16-logo.png";
-import { Plus, Trash2, ArrowLeft, BookmarkPlus, FolderInput } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, BookmarkPlus, FolderInput, Eye } from "lucide-react";
 import { LibraryDrawer } from "@/components/LibraryDrawer";
 import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templateLibrary";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import ClientSurvey from "@/pages/ClientSurvey";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
@@ -37,6 +39,7 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [drawerCategory, setDrawerCategory] = useState<LibraryCategory | null>(null);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const uploadAestheticImage = async (file: File, cat: string, idx: number) => {
     const key = `${cat}-${idx}`;
@@ -286,9 +289,18 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <button onClick={save} disabled={saving || !activeType} className="s16-cta text-lg disabled:opacity-40">
-              {saving ? "Saving..." : "↳ Save Template"}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPreviewOpen(true)}
+                disabled={!activeType}
+                className="px-4 py-2 border border-s16-border text-s16-text text-xs uppercase tracking-widest font-ui font-semibold hover:bg-s16-bg-warm transition-colors disabled:opacity-40 flex items-center gap-2"
+              >
+                <Eye className="w-3 h-3" /> Preview Template
+              </button>
+              <button onClick={save} disabled={saving || !activeType} className="s16-cta text-lg disabled:opacity-40">
+                {saving ? "Saving..." : "↳ Save Template"}
+              </button>
+            </div>
             {savedAt && <span className="text-[10px] uppercase tracking-widest text-s16-text-muted">Saved at {savedAt}</span>}
           </div>
         </header>
@@ -498,6 +510,26 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
         category={drawerCategory}
         onImport={(payload, mode) => drawerCategory && handleImport(drawerCategory, payload, mode)}
       />
+
+      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+        <SheetContent side="right" className="w-screen max-w-none sm:max-w-none p-0 overflow-y-auto bg-s16-bg">
+          <div className="sticky top-0 z-50 bg-s16-accent text-white text-center py-2 px-4 font-ui text-[10px] uppercase tracking-widest font-semibold">
+            Preview Mode · {activeType} · Unsaved edits visible · Submissions disabled
+          </div>
+          <div className="max-w-4xl mx-auto">
+            {previewOpen && activeType && (
+              <ClientSurvey
+                previewTemplate={content}
+                previewClient={{
+                  name: "Acme Corp",
+                  entity_type: activeType,
+                  include_aesthetics: true,
+                }}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
