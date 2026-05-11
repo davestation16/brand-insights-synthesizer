@@ -325,6 +325,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             onSave={() => handleSaveSection("valuesSpectrum")}
             onImport={() => setDrawerCategory("valuesSpectrum")}
           />
+          <InstructionsField
+            value={content.instructions?.values ?? ""}
+            onChange={(v) => updateInstruction("values", v)}
+          />
           <div className="space-y-4">
             {content.valuesSpectrum.map((v, idx) => (
               <div key={idx} className="border border-s16-border bg-s16-bg-warm p-5 space-y-3">
