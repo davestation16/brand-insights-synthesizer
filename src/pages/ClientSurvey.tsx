@@ -204,6 +204,11 @@ export default function ClientSurvey() {
           How well do the following attributes describe the brand personality, with 1 being 'not at all' and 5
           being 'absolutely'?
         </p>
+        {template.instructions?.personality && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.personality}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
         {template.personalityTraits.map((trait) => (
