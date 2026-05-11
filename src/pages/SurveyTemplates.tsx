@@ -84,6 +84,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
     setTemplates((prev) => ({ ...prev, [activeType]: { ...(prev[activeType] ?? EMPTY), ...patch } }));
   };
 
+  const updateInstruction = (key: InstructionKey, val: string) => {
+    update({ instructions: { ...(content.instructions ?? {}), [key]: val } });
+  };
+
   const save = async () => {
     setSaving(true);
     const { data: { user } } = await supabase.auth.getUser();
