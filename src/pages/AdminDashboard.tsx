@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Trash2, Copy, CheckCircle2 } from "lucide-react";
+import { X, Trash2, Copy, CheckCircle2, Users } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 interface Client {
   id: string;
