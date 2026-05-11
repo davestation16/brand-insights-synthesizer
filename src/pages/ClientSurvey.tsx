@@ -213,14 +213,10 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
 
   const renderPersonality = () => (
     <div className="space-y-12">
-      <div className="mb-12">
+      <div className={template.instructions?.personality ? "mb-12" : "mb-8"}>
         <h2 className="text-4xl mb-4">Brand Personality</h2>
-        <p className="font-body text-s16-text-muted text-xl">
-          How well do the following attributes describe the brand personality, with 1 being 'not at all' and 5
-          being 'absolutely'?
-        </p>
         {template.instructions?.personality && (
-          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+          <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
             {interpolate(template.instructions.personality, client.name)}
           </p>
         )}
