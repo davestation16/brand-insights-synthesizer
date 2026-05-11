@@ -9,11 +9,13 @@ const ADMIN_DOMAIN = "@station16.com";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
+type Instructions = Partial<Record<"values" | "personality" | "perception" | "aesthetics", string>>;
 type SurveyTemplate = {
   personalityTraits: string[];
   perceptionTraits: string[];
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
+  instructions: Instructions;
 };
 
 const EMPTY_TEMPLATE: SurveyTemplate = {
@@ -21,6 +23,7 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   perceptionTraits: [],
   valuesSpectrum: [],
   aesthetics: {},
+  instructions: {},
 };
 
 const interpolate = (text: string, name: string) =>
