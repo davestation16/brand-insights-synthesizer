@@ -582,3 +582,20 @@ function TraitGrid({
     </div>
   );
 }
+
+function InstructionsField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="flex flex-col gap-1 mb-6">
+      <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
+        Section Instructions (shown to respondents)
+      </span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={2}
+        placeholder="Optional guidance displayed under the section title…"
+        className="bg-s16-bg-warm border border-s16-border-light p-3 font-body text-sm focus:outline-none focus:border-s16-accent"
+      />
+    </label>
+  );
+}
