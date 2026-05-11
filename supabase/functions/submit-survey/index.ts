@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { clientId, responses, accessCode } = await req.json();
+    const { clientId, responses, accessCode, respondentEmail, respondentName } = await req.json();
     if (!clientId || !responses || !accessCode) {
       return json({ error: "Missing required fields" }, 400);
     }
@@ -35,10 +35,19 @@ Deno.serve(async (req) => {
     if (clientErr || !client) return json({ error: "Client not found" }, 404);
     if (client.access_code !== accessCode) return json({ error: "Invalid access code" }, 403);
 
+    const cleanStr = (v: unknown) =>
+      typeof v === "string" && v.trim().length > 0 ? v.trim() : null;
+
     // Insert survey response
     const { error: insertErr } = await supabase
       .from("surveys")
-      .insert({ client_id: clientId, responses, access_code: accessCode });
+      .insert({
+        client_id: clientId,
+        responses,
+        access_code: accessCode,
+        respondent_email: cleanStr(respondentEmail),
+        respondent_name: cleanStr(respondentName),
+      });
     if (insertErr) return json({ error: insertErr.message }, 500);
 
     // Increment stakeholder response counter; status stays "pending"
