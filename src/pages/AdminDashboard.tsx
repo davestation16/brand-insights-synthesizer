@@ -292,6 +292,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </code>
                   </div>
 
+                  <RespondentsPopover clientId={client.id} />
                 </div>
               </motion.div>
             );
