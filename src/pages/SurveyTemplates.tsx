@@ -9,11 +9,14 @@ import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templa
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
+type InstructionKey = "values" | "personality" | "perception" | "aesthetics";
+type Instructions = Partial<Record<InstructionKey, string>>;
 type TemplateContent = {
   personalityTraits: string[];
   perceptionTraits: string[];
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
+  instructions: Instructions;
 };
 
 const EMPTY: TemplateContent = {
@@ -21,6 +24,7 @@ const EMPTY: TemplateContent = {
   perceptionTraits: [],
   valuesSpectrum: [],
   aesthetics: {},
+  instructions: {},
 };
 
 export default function SurveyTemplates({ user: _user }: { user: User }) {
@@ -78,6 +82,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
 
   const update = (patch: Partial<TemplateContent>) => {
     setTemplates((prev) => ({ ...prev, [activeType]: { ...(prev[activeType] ?? EMPTY), ...patch } }));
+  };
+
+  const updateInstruction = (key: InstructionKey, val: string) => {
+    update({ instructions: { ...(content.instructions ?? {}), [key]: val } });
   };
 
   const save = async () => {
@@ -317,6 +325,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             onSave={() => handleSaveSection("valuesSpectrum")}
             onImport={() => setDrawerCategory("valuesSpectrum")}
           />
+          <InstructionsField
+            value={content.instructions?.values ?? ""}
+            onChange={(v) => updateInstruction("values", v)}
+          />
           <div className="space-y-4">
             {content.valuesSpectrum.map((v, idx) => (
               <div key={idx} className="border border-s16-border bg-s16-bg-warm p-5 space-y-3">
@@ -350,6 +362,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             onSave={() => handleSaveSection("personalityTraits")}
             onImport={() => setDrawerCategory("personalityTraits")}
           />
+          <InstructionsField
+            value={content.instructions?.personality ?? ""}
+            onChange={(v) => updateInstruction("personality", v)}
+          />
           <TraitGrid
             items={content.personalityTraits}
             onChange={(idx, val) => updateTraitList("personalityTraits", idx, val)}
@@ -365,6 +381,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             addLabel="Add Trait"
             onSave={() => handleSaveSection("perceptionTraits")}
             onImport={() => setDrawerCategory("perceptionTraits")}
+          />
+          <InstructionsField
+            value={content.instructions?.perception ?? ""}
+            onChange={(v) => updateInstruction("perception", v)}
           />
           <TraitGrid
             items={content.perceptionTraits}
@@ -389,6 +409,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
               </button>
             </div>
           </div>
+          <InstructionsField
+            value={content.instructions?.aesthetics ?? ""}
+            onChange={(v) => updateInstruction("aesthetics", v)}
+          />
           {Object.keys(content.aesthetics).length === 0 && (
             <p className="font-body text-s16-text-muted italic">No aesthetic categories yet.</p>
           )}
@@ -556,5 +580,22 @@ function TraitGrid({
         </div>
       ))}
     </div>
+  );
+}
+
+function InstructionsField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="flex flex-col gap-1 mb-6">
+      <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
+        Section Instructions (shown to respondents)
+      </span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={2}
+        placeholder="Optional guidance displayed under the section title…"
+        className="bg-s16-bg-warm border border-s16-border-light p-3 font-body text-sm focus:outline-none focus:border-s16-accent"
+      />
+    </label>
   );
 }

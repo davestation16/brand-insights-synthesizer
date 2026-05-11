@@ -9,11 +9,13 @@ const ADMIN_DOMAIN = "@station16.com";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
+type Instructions = Partial<Record<"values" | "personality" | "perception" | "aesthetics", string>>;
 type SurveyTemplate = {
   personalityTraits: string[];
   perceptionTraits: string[];
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
+  instructions: Instructions;
 };
 
 const EMPTY_TEMPLATE: SurveyTemplate = {
@@ -21,6 +23,7 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   perceptionTraits: [],
   valuesSpectrum: [],
   aesthetics: {},
+  instructions: {},
 };
 
 const interpolate = (text: string, name: string) =>
@@ -45,6 +48,8 @@ export default function ClientSurvey() {
   const [tempCode, setTempCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [template, setTemplate] = useState<SurveyTemplate>(EMPTY_TEMPLATE);
+  const [respondentName, setRespondentName] = useState("");
+  const [respondentEmail, setRespondentEmail] = useState("");
 
   useEffect(() => {
     if (!uid) return;
@@ -110,7 +115,13 @@ export default function ClientSurvey() {
     setSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("submit-survey", {
-        body: { clientId: client.id, responses, accessCode: tempCode },
+        body: {
+          clientId: client.id,
+          responses,
+          accessCode: tempCode,
+          respondentName: respondentName.trim() || null,
+          respondentEmail: respondentEmail.trim() || null,
+        },
       });
       if (error) throw error;
       setCompleted(true);
@@ -141,23 +152,45 @@ export default function ClientSurvey() {
             like?"
           </p>
         </div>
-        <div className="max-w-md">
-          <label className="s16-eyebrow mb-4 block">Your Role</label>
-          <select
-            required
-            className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
-            value={responses.role || ""}
-            onChange={(e) => updateResponse("role", e.target.value)}
-          >
-            <option value="" disabled>
-              Select your role...
-            </option>
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
+        <div className="max-w-md space-y-8">
+          <div>
+            <label className="s16-eyebrow mb-4 block">Your Name (optional)</label>
+            <input
+              type="text"
+              placeholder="Jane Doe"
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors"
+              value={respondentName}
+              onChange={(e) => setRespondentName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="s16-eyebrow mb-4 block">Email Address (optional)</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors"
+              value={respondentEmail}
+              onChange={(e) => setRespondentEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="s16-eyebrow mb-4 block">Your Role</label>
+            <select
+              required
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
+              value={responses.role || ""}
+              onChange={(e) => updateResponse("role", e.target.value)}
+            >
+              <option value="" disabled>
+                Select your role...
               </option>
-            ))}
-          </select>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     );
@@ -171,6 +204,11 @@ export default function ClientSurvey() {
           How well do the following attributes describe the brand personality, with 1 being 'not at all' and 5
           being 'absolutely'?
         </p>
+        {template.instructions?.personality && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.personality}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
         {template.personalityTraits.map((trait) => (
@@ -204,6 +242,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
+        {template.instructions?.values && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.values}
+          </p>
+        )}
       </div>
       {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
@@ -247,6 +290,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           How would you like your community to describe the brand?
         </p>
+        {template.instructions?.perception && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.perception}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
         {template.perceptionTraits.map((trait) => (
@@ -280,6 +328,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           Select the visual archetypes that resonate most with the brand identity.
         </p>
+        {template.instructions?.aesthetics && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.aesthetics}
+          </p>
+        )}
       </div>
       {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">

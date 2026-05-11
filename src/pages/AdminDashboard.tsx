@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Trash2, Copy, CheckCircle2 } from "lucide-react";
+import { X, Trash2, Copy, CheckCircle2, Users } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 interface Client {
   id: string;
@@ -291,6 +292,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </code>
                   </div>
 
+                  <RespondentsPopover clientId={client.id} />
                 </div>
               </motion.div>
             );
@@ -464,5 +466,90 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+type RespondentRow = {
+  respondent_name: string | null;
+  respondent_email: string | null;
+  submitted_at: string;
+};
+
+function RespondentsPopover({ clientId }: { clientId: string }) {
+  const [open, setOpen] = useState(false);
+  const [rows, setRows] = useState<RespondentRow[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleOpenChange = async (next: boolean) => {
+    setOpen(next);
+    if (next && rows === null) {
+      setLoading(true);
+      const { data } = await supabase
+        .from("surveys")
+        .select("respondent_name, respondent_email, submitted_at")
+        .eq("client_id", clientId)
+        .order("submitted_at", { ascending: false });
+      setRows((data as RespondentRow[]) ?? []);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <button className="s16-cta w-full justify-center bg-s16-bg-surface py-2 border border-s16-border text-xs flex items-center gap-2">
+          <Users className="w-3 h-3" /> Respondents
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className="p-3 border-b border-s16-border">
+          <p className="text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
+            Respondents
+          </p>
+        </div>
+        <div className="max-h-72 overflow-y-auto">
+          {loading && (
+            <p className="p-4 text-sm font-body text-s16-text-muted">Loading…</p>
+          )}
+          {!loading && rows && rows.length === 0 && (
+            <p className="p-4 text-sm font-body text-s16-text-muted italic">
+              No submissions yet.
+            </p>
+          )}
+          {!loading &&
+            rows &&
+            rows.map((r, i) => {
+              const hasIdentity = (r.respondent_name && r.respondent_name.trim()) ||
+                (r.respondent_email && r.respondent_email.trim());
+              return (
+                <div
+                  key={i}
+                  className="px-3 py-2 border-b border-s16-border-light last:border-b-0"
+                >
+                  {hasIdentity ? (
+                    <>
+                      <p className="font-body text-sm text-s16-text">
+                        {r.respondent_name?.trim() || "—"}
+                      </p>
+                      {r.respondent_email && (
+                        <p className="font-mono text-[11px] text-s16-text-muted break-all">
+                          {r.respondent_email}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p className="font-body text-sm italic text-s16-text-muted">
+                      Anonymous
+                    </p>
+                  )}
+                  <p className="text-[10px] font-ui uppercase tracking-widest text-s16-text-muted mt-1">
+                    {new Date(r.submitted_at).toLocaleString()}
+                  </p>
+                </div>
+              );
+            })}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }

@@ -84,6 +84,8 @@ export type Database = {
           client_id: string
           id: string
           processed_at: string | null
+          respondent_email: string | null
+          respondent_name: string | null
           responses: Json
           submitted_at: string
         }
@@ -93,6 +95,8 @@ export type Database = {
           client_id: string
           id?: string
           processed_at?: string | null
+          respondent_email?: string | null
+          respondent_name?: string | null
           responses?: Json
           submitted_at?: string
         }
@@ -102,6 +106,8 @@ export type Database = {
           client_id?: string
           id?: string
           processed_at?: string | null
+          respondent_email?: string | null
+          respondent_name?: string | null
           responses?: Json
           submitted_at?: string
         }
