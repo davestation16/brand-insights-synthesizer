@@ -221,7 +221,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         </p>
         {template.instructions?.personality && (
           <p className="font-body text-s16-text-muted text-base mt-4 italic">
-            {template.instructions.personality}
+            {interpolate(template.instructions.personality, client.name)}
           </p>
         )}
       </div>
@@ -259,7 +259,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         </p>
         {template.instructions?.values && (
           <p className="font-body text-s16-text-muted text-base mt-4 italic">
-            {template.instructions.values}
+            {interpolate(template.instructions.values, client.name)}
           </p>
         )}
       </div>
@@ -307,7 +307,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         </p>
         {template.instructions?.perception && (
           <p className="font-body text-s16-text-muted text-base mt-4 italic">
-            {template.instructions.perception}
+            {interpolate(template.instructions.perception, client.name)}
           </p>
         )}
       </div>
@@ -345,7 +345,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         </p>
         {template.instructions?.aesthetics && (
           <p className="font-body text-s16-text-muted text-base mt-4 italic">
-            {template.instructions.aesthetics}
+            {interpolate(template.instructions.aesthetics, client.name)}
           </p>
         )}
       </div>
