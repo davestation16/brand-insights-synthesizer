@@ -39,6 +39,7 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [drawerCategory, setDrawerCategory] = useState<LibraryCategory | null>(null);
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const uploadAestheticImage = async (file: File, cat: string, idx: number) => {
     const key = `${cat}-${idx}`;
