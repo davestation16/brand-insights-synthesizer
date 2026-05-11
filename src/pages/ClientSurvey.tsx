@@ -152,23 +152,45 @@ export default function ClientSurvey() {
             like?"
           </p>
         </div>
-        <div className="max-w-md">
-          <label className="s16-eyebrow mb-4 block">Your Role</label>
-          <select
-            required
-            className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
-            value={responses.role || ""}
-            onChange={(e) => updateResponse("role", e.target.value)}
-          >
-            <option value="" disabled>
-              Select your role...
-            </option>
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {role}
+        <div className="max-w-md space-y-8">
+          <div>
+            <label className="s16-eyebrow mb-4 block">Your Name (optional)</label>
+            <input
+              type="text"
+              placeholder="Jane Doe"
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors"
+              value={respondentName}
+              onChange={(e) => setRespondentName(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="s16-eyebrow mb-4 block">Email Address (optional)</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors"
+              value={respondentEmail}
+              onChange={(e) => setRespondentEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="s16-eyebrow mb-4 block">Your Role</label>
+            <select
+              required
+              className="w-full bg-s16-bg-warm border-b border-s16-border p-4 focus:outline-none focus:border-s16-accent font-body text-xl transition-colors appearance-none"
+              value={responses.role || ""}
+              onChange={(e) => updateResponse("role", e.target.value)}
+            >
+              <option value="" disabled>
+                Select your role...
               </option>
-            ))}
-          </select>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     );
