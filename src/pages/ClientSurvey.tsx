@@ -16,6 +16,7 @@ type SurveyTemplate = {
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
   instructions: Instructions;
+  intro: string;
 };
 
 const EMPTY_TEMPLATE: SurveyTemplate = {
@@ -24,6 +25,7 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   valuesSpectrum: [],
   aesthetics: {},
   instructions: {},
+  intro: "",
 };
 
 const interpolate = (text: string, name: string) =>
@@ -159,6 +161,13 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
 
     return (
       <div className="space-y-12">
+        {template.intro && (
+          <div className="mb-4 border border-s16-border bg-s16-bg-warm p-8">
+            <p className="font-body text-s16-text text-lg leading-relaxed whitespace-pre-wrap">
+              {interpolate(template.intro, client.name)}
+            </p>
+          </div>
+        )}
         <div className="mb-12">
           <h2 className="text-4xl mb-6">The Basics</h2>
           <p className="font-body text-s16-text-muted text-xl leading-relaxed italic border-l-4 border-s16-accent pl-8 py-2">

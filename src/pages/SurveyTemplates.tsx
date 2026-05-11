@@ -19,6 +19,7 @@ type TemplateContent = {
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
   instructions: Instructions;
+  intro: string;
 };
 
 const EMPTY: TemplateContent = {
@@ -27,6 +28,7 @@ const EMPTY: TemplateContent = {
   valuesSpectrum: [],
   aesthetics: {},
   instructions: {},
+  intro: "",
 };
 
 export default function SurveyTemplates({ user: _user }: { user: User }) {
@@ -328,6 +330,25 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           <p className="font-body text-s16-text-muted italic">Create your first industry to get started.</p>
         ) : (
         <>
+        {/* Survey Intro */}
+        <section className="mb-16">
+          <div className="flex justify-between items-end mb-6 border-b border-s16-border pb-4">
+            <h2 className="text-3xl">Survey Introduction</h2>
+          </div>
+          <label className="flex flex-col gap-1">
+            <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
+              Introductory Notes &amp; Instructions (shown at top of survey)
+            </span>
+            <textarea
+              value={content.intro ?? ""}
+              onChange={(e) => update({ intro: e.target.value })}
+              rows={6}
+              placeholder="Welcome message, context, and instructions for the whole survey. Use {{name}} to insert the client name…"
+              className="bg-s16-bg-warm border border-s16-border-light p-3 font-body text-sm focus:outline-none focus:border-s16-accent"
+            />
+          </label>
+        </section>
+
         {/* Values Spectrum */}
         <section className="mb-16">
           <SectionHeader
