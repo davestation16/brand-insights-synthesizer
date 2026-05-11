@@ -123,7 +123,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   };
 
   const handleSubmit = async () => {
-    if (isInternalPreview) {
+    if (isInternalPreview || isTemplatePreview) {
       setCompleted(true);
       return;
     }
