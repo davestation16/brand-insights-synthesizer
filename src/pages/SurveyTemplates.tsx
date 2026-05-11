@@ -9,11 +9,14 @@ import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templa
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
+type InstructionKey = "values" | "personality" | "perception" | "aesthetics";
+type Instructions = Partial<Record<InstructionKey, string>>;
 type TemplateContent = {
   personalityTraits: string[];
   perceptionTraits: string[];
   valuesSpectrum: ValueSpectrum[];
   aesthetics: Record<string, AestheticOption[]>;
+  instructions: Instructions;
 };
 
 const EMPTY: TemplateContent = {
@@ -21,6 +24,7 @@ const EMPTY: TemplateContent = {
   perceptionTraits: [],
   valuesSpectrum: [],
   aesthetics: {},
+  instructions: {},
 };
 
 export default function SurveyTemplates({ user: _user }: { user: User }) {
