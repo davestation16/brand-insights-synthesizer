@@ -53,14 +53,20 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   const [loading, setLoading] = useState(!isTemplatePreview);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [isVerified, setIsVerified] = useState(isTemplatePreview);
   const [tempCode, setTempCode] = useState("");
   const [codeError, setCodeError] = useState("");
-  const [template, setTemplate] = useState<SurveyTemplate>(EMPTY_TEMPLATE);
+  const [template, setTemplate] = useState<SurveyTemplate>(previewTemplate ?? EMPTY_TEMPLATE);
   const [respondentName, setRespondentName] = useState("");
   const [respondentEmail, setRespondentEmail] = useState("");
 
+  // Keep preview template in sync with live edits
   useEffect(() => {
+    if (previewTemplate) setTemplate(previewTemplate);
+  }, [previewTemplate]);
+
+  useEffect(() => {
+    if (isTemplatePreview) return;
     if (!uid) return;
     (async () => {
       const { data, error } = await supabase.functions.invoke("get-survey", {
