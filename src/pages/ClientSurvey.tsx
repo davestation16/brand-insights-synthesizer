@@ -242,6 +242,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           Imagine the following values on a spectrum. Which of these attributes would the brand value more?
         </p>
+        {template.instructions?.values && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.values}
+          </p>
+        )}
       </div>
       {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
