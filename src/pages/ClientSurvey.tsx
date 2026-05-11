@@ -48,6 +48,8 @@ export default function ClientSurvey() {
   const [tempCode, setTempCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [template, setTemplate] = useState<SurveyTemplate>(EMPTY_TEMPLATE);
+  const [respondentName, setRespondentName] = useState("");
+  const [respondentEmail, setRespondentEmail] = useState("");
 
   useEffect(() => {
     if (!uid) return;
