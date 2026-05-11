@@ -409,6 +409,10 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
               </button>
             </div>
           </div>
+          <InstructionsField
+            value={content.instructions?.aesthetics ?? ""}
+            onChange={(v) => updateInstruction("aesthetics", v)}
+          />
           {Object.keys(content.aesthetics).length === 0 && (
             <p className="font-body text-s16-text-muted italic">No aesthetic categories yet.</p>
           )}
