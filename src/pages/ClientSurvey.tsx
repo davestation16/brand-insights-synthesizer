@@ -29,19 +29,28 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
 const interpolate = (text: string, name: string) =>
   (text || "").split("{{name}}").join(name);
 
-export default function ClientSurvey() {
+type PreviewProps = {
+  previewTemplate?: SurveyTemplate;
+  previewClient?: { name: string; entity_type: string; include_aesthetics?: boolean };
+};
+
+export default function ClientSurvey({ previewTemplate, previewClient }: PreviewProps = {}) {
+  const isTemplatePreview = !!previewTemplate;
   const { uid } = useParams();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const isInternalPreview =
+    !isTemplatePreview &&
     searchParams.get("preview") === "1" &&
     !!user?.email &&
     user.email.toLowerCase().endsWith(ADMIN_DOMAIN);
 
-  const [client, setClient] = useState<any>(null);
+  const [client, setClient] = useState<any>(
+    isTemplatePreview ? { id: "preview", ...previewClient } : null,
+  );
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<any>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isTemplatePreview);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
