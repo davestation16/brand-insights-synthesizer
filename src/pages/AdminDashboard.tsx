@@ -330,12 +330,23 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
 
                 <div className="space-y-4 mt-6">
                   {client.status === "completed" ? (
-                    <button
-                      onClick={() => handleViewResults(client)}
-                      className="s16-cta w-full justify-center bg-s16-bg-surface py-3 border border-s16-border"
-                    >
-                      ↳ View Strategy
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => handleViewResults(client)}
+                        className="s16-cta w-full justify-center bg-s16-bg-surface py-3 border border-s16-border"
+                      >
+                        ↳ View Strategy
+                      </button>
+                      <button
+                        onClick={() => handleFinishSurveys(client)}
+                        disabled={finishingId === client.id}
+                        className="s16-cta w-full justify-center py-2 border border-s16-border-light text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {finishingId === client.id
+                          ? "↳ Regenerating..."
+                          : `↳ Regenerate Strategy (${client.response_count ?? 0} responses)`}
+                      </button>
+                    </div>
                   ) : (
                     <button
                       onClick={() => handleFinishSurveys(client)}
