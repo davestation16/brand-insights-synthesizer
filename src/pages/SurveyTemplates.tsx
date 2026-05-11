@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import station16Logo from "@/assets/station16-logo.png";
-import { Plus, Trash2, ArrowLeft, BookmarkPlus, FolderInput } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, BookmarkPlus, FolderInput, Eye } from "lucide-react";
 import { LibraryDrawer } from "@/components/LibraryDrawer";
 import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templateLibrary";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import ClientSurvey from "@/pages/ClientSurvey";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
