@@ -619,7 +619,7 @@ function InstructionsField({ value, onChange }: { value: string; onChange: (v: s
   return (
     <label className="flex flex-col gap-1 mb-6">
       <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-        Section Instructions (shown to respondents)
+        Section Description (shown to respondents)
       </span>
       <textarea
         value={value}
