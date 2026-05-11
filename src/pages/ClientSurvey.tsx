@@ -290,6 +290,11 @@ export default function ClientSurvey() {
         <p className="font-body text-s16-text-muted text-xl">
           How would you like your community to describe the brand?
         </p>
+        {template.instructions?.perception && (
+          <p className="font-body text-s16-text-muted text-base mt-4 italic">
+            {template.instructions.perception}
+          </p>
+        )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
         {template.perceptionTraits.map((trait) => (
