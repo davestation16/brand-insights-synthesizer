@@ -510,6 +510,26 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
         category={drawerCategory}
         onImport={(payload, mode) => drawerCategory && handleImport(drawerCategory, payload, mode)}
       />
+
+      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+        <SheetContent side="right" className="w-screen max-w-none sm:max-w-none p-0 overflow-y-auto bg-s16-bg">
+          <div className="sticky top-0 z-50 bg-s16-accent text-white text-center py-2 px-4 font-ui text-[10px] uppercase tracking-widest font-semibold">
+            Preview Mode · {activeType} · Unsaved edits visible · Submissions disabled
+          </div>
+          <div className="max-w-4xl mx-auto">
+            {previewOpen && activeType && (
+              <ClientSurvey
+                previewTemplate={content}
+                previewClient={{
+                  name: "Acme Corp",
+                  entity_type: activeType,
+                  include_aesthetics: true,
+                }}
+              />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
