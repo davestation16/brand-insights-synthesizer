@@ -115,7 +115,13 @@ export default function ClientSurvey() {
     setSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("submit-survey", {
-        body: { clientId: client.id, responses, accessCode: tempCode },
+        body: {
+          clientId: client.id,
+          responses,
+          accessCode: tempCode,
+          respondentName: respondentName.trim() || null,
+          respondentEmail: respondentEmail.trim() || null,
+        },
       });
       if (error) throw error;
       setCompleted(true);
