@@ -351,6 +351,52 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           </label>
         </section>
 
+        {/* Respondent Roles */}
+        <section className="mb-16">
+          <div className="flex justify-between items-end mb-6 border-b border-s16-border pb-4">
+            <h2 className="text-3xl">Respondent Roles</h2>
+            <button
+              onClick={() => update({ roles: [...(content.roles ?? []), ""] })}
+              className="text-[10px] font-ui uppercase tracking-widest text-s16-accent hover:underline flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" /> Add Role
+            </button>
+          </div>
+          <p className="font-body text-sm text-s16-text-muted mb-4 italic">
+            Define the role options shown in the "Your Role" dropdown on this survey.
+          </p>
+          <div className="space-y-2 max-w-md">
+            {(content.roles ?? []).map((role, idx) => (
+              <div key={idx} className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={role}
+                  onChange={(e) => {
+                    const next = [...(content.roles ?? [])];
+                    next[idx] = e.target.value;
+                    update({ roles: next });
+                  }}
+                  placeholder="e.g. Employee"
+                  className="flex-1 bg-s16-bg-warm border border-s16-border-light p-2 font-body text-sm focus:outline-none focus:border-s16-accent"
+                />
+                <button
+                  onClick={() =>
+                    update({ roles: (content.roles ?? []).filter((_, i) => i !== idx) })
+                  }
+                  className="text-s16-text-muted hover:text-s16-accent text-xs uppercase tracking-widest"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            {(content.roles ?? []).length === 0 && (
+              <p className="font-body text-sm text-s16-text-muted italic">
+                No roles defined. Add at least one role for respondents to choose from.
+              </p>
+            )}
+          </div>
+        </section>
+
         {/* Values Spectrum */}
         <section className="mb-16">
           <SectionHeader
