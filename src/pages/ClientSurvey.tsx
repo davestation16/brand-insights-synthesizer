@@ -33,6 +33,20 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
 const interpolate = (text: string, name: string) =>
   (text || "").split("{{name}}").join(name);
 
+// Resize Supabase Storage images on the fly to keep page weight low.
+const optimizeImage = (url?: string, width = 600) => {
+  if (!url) return url;
+  if (url.includes("/storage/v1/object/public/")) {
+    const transformed = url.replace(
+      "/storage/v1/object/public/",
+      "/storage/v1/render/image/public/",
+    );
+    const sep = transformed.includes("?") ? "&" : "?";
+    return `${transformed}${sep}width=${width}&quality=70&resize=contain`;
+  }
+  return url;
+};
+
 type PreviewProps = {
   previewTemplate?: SurveyTemplate;
   previewClient?: { name: string; entity_type: string; include_aesthetics?: boolean };
@@ -365,10 +379,12 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
                     ))}
                   </div>
                 ) : (
-                  <div className="aspect-[16/10] overflow-hidden transition-all duration-500">
+                  <div className="aspect-[16/10] overflow-hidden transition-all duration-500 bg-s16-bg-warm">
                     <img
-                      src={opt.image}
+                      src={optimizeImage(opt.image, 600)}
                       alt={opt.name}
+                      loading="lazy"
+                      decoding="async"
                       className={`w-full h-full object-cover transition-all duration-700 ${
                         responses[`aesthetic_${category}`] === opt.name
                           ? "scale-110 shadow-inner"
