@@ -379,10 +379,12 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
                     ))}
                   </div>
                 ) : (
-                  <div className="aspect-[16/10] overflow-hidden transition-all duration-500">
+                  <div className="aspect-[16/10] overflow-hidden transition-all duration-500 bg-s16-bg-warm">
                     <img
-                      src={opt.image}
+                      src={optimizeImage(opt.image, 600)}
                       alt={opt.name}
+                      loading="lazy"
+                      decoding="async"
                       className={`w-full h-full object-cover transition-all duration-700 ${
                         responses[`aesthetic_${category}`] === opt.name
                           ? "scale-110 shadow-inner"
