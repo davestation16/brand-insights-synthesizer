@@ -17,6 +17,7 @@ type SurveyTemplate = {
   aesthetics: Record<string, AestheticOption[]>;
   instructions: Instructions;
   intro: string;
+  roles: string[];
 };
 
 const EMPTY_TEMPLATE: SurveyTemplate = {
@@ -26,6 +27,7 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   aesthetics: {},
   instructions: {},
   intro: "",
+  roles: [],
 };
 
 const interpolate = (text: string, name: string) =>
