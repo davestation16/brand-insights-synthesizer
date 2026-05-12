@@ -8,6 +8,7 @@ import { LibraryDrawer } from "@/components/LibraryDrawer";
 import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templateLibrary";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ClientSurvey from "@/pages/ClientSurvey";
+import RichTextEditor from "@/components/RichTextEditor";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
@@ -337,16 +338,14 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           <div className="flex justify-between items-end mb-6 border-b border-s16-border pb-4">
             <h2 className="text-3xl">Survey Introduction</h2>
           </div>
-          <label className="flex flex-col gap-1">
+          <label className="flex flex-col gap-2">
             <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-              Introductory Notes &amp; Instructions (shown at top of survey)
+              Introductory Notes &amp; Instructions (shown at top of survey) — use {"{{name}}"} to insert client name
             </span>
-            <textarea
+            <RichTextEditor
               value={content.intro ?? ""}
-              onChange={(e) => update({ intro: e.target.value })}
-              rows={6}
-              placeholder="Welcome message, context, and instructions for the whole survey. Use {{name}} to insert the client name…"
-              className="bg-s16-bg-warm border border-s16-border-light p-3 font-body text-sm focus:outline-none focus:border-s16-accent"
+              onChange={(html) => update({ intro: html })}
+              placeholder="Welcome message, context, and instructions for the whole survey…"
             />
           </label>
         </section>

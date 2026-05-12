@@ -182,9 +182,10 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <div className="mb-12">
           <h2 className="text-4xl mb-6">The Basics</h2>
           {template.intro && (
-            <p className="font-body text-s16-text-muted text-xl leading-relaxed italic border-l-4 border-s16-accent pl-8 py-2 whitespace-pre-wrap">
-              {interpolate(template.intro, client.name)}
-            </p>
+            <div
+              className="font-body text-s16-text-muted text-xl leading-relaxed italic border-l-4 border-s16-accent pl-8 py-2 prose prose-lg max-w-none [&_p]:my-3 [&_a]:text-s16-accent [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_ul,&_ol]:pl-6"
+              dangerouslySetInnerHTML={{ __html: interpolate(template.intro, client.name) }}
+            />
           )}
         </div>
         <div className="max-w-md space-y-8">
