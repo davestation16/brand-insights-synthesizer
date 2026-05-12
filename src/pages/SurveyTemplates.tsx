@@ -8,6 +8,7 @@ import { LibraryDrawer } from "@/components/LibraryDrawer";
 import { saveSection, type LibraryCategory, CATEGORY_LABELS } from "@/lib/templateLibrary";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import ClientSurvey from "@/pages/ClientSurvey";
+import RichTextEditor from "@/components/RichTextEditor";
 
 type ValueSpectrum = { id: string; left: string; right: string; question: string };
 type AestheticOption = { name: string; image?: string; colors?: string[] };
