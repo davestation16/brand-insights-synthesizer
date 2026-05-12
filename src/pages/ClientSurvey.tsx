@@ -157,9 +157,11 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
 
   const renderBasics = () => {
     const roles =
-      client.entity_type === "Business"
-        ? ["Employee", "Client", "Prospective Client"]
-        : ["Employee", "Organization Member", "Neighbor"];
+      template.roles && template.roles.length > 0
+        ? template.roles.filter((r) => r.trim().length > 0)
+        : client.entity_type === "Business"
+          ? ["Employee", "Client", "Prospective Client"]
+          : ["Employee", "Organization Member", "Neighbor"];
 
     return (
       <div className="space-y-12">
