@@ -195,10 +195,12 @@ const styles = StyleSheet.create({
   },
   gridRow: {
     flexDirection: "row",
-    gap: 24,
   },
   gridCol: {
     flex: 1,
+  },
+  gridColGap: {
+    marginRight: 24,
   },
   trait: {
     fontFamily: "Cormorant Garamond",
@@ -253,8 +255,13 @@ const styles = StyleSheet.create({
   },
   bentoRow: {
     flexDirection: "row",
-    gap: 16,
     marginBottom: 16,
+  },
+  bentoGap: {
+    marginRight: 16,
+  },
+  bentoTopSpacing: {
+    marginTop: 16,
   },
   pillGiant: {
     flex: 1,
