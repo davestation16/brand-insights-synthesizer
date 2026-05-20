@@ -527,25 +527,28 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       {data.aesthetic && <Interstitial text="6. Aesthetic Projection" />}
       {data.aesthetic && (
         <LightSlide>
-          <SlideHeader>Visual Direction</SlideHeader>
-          <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
-          <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
-            <View style={[styles.cardFlex, styles.bentoGap]}>
-              <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
-              <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
+          <View wrap={false}>
+            <SlideHeader>Visual Direction</SlideHeader>
+            <Text style={styles.bodyTextSm}>{data.aesthetic.summary}</Text>
+            <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
+              <View style={[styles.cardFlex, styles.bentoGap]}>
+                <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
+                <Text style={styles.bodyTextSm}>{data.aesthetic.palette}</Text>
+              </View>
+              <View style={styles.cardFlex}>
+                <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
+                <Text style={styles.bodyTextSm}>{data.aesthetic.materials}</Text>
+              </View>
             </View>
-            <View style={styles.cardFlex}>
-              <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
-              <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
-            </View>
-          </View>
-          <View style={styles.bentoRow}>
-            <View style={styles.cardFlex}>
-              <Text style={styles.sectionLabel}>Design Style</Text>
-              <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
+            <View style={{ marginTop: 8 }}>
+              <View style={styles.cardFlex}>
+                <Text style={styles.sectionLabel}>Design Style</Text>
+                <Text style={styles.bodyTextSm}>{data.aesthetic.style}</Text>
+              </View>
             </View>
           </View>
         </LightSlide>
+
       )}
     </Document>
   );
