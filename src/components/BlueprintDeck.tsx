@@ -476,7 +476,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
               <Text style={styles.subheading}>How to Communicate</Text>
               <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
             </View>
-            <View style={styles.stackBlock}>
+            <View style={styles.stackBlock} wrap={false}>
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
@@ -484,6 +484,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
                 ))}
               </View>
             </View>
+
           </View>
         </View>
       </LightSlide>
