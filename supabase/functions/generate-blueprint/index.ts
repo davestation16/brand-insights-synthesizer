@@ -133,7 +133,9 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
 Rules for presentationData:
 - All strings must be plain prose (NO markdown, NO asterisks, NO bullet markers).
 - Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
-- Archetype "name" must start with "The " (e.g., "The Wizard").
+- Archetype "name" MUST be EXACTLY one of: "The Caregiver", "The Professor", "The Wizard", "The Damsel", "The Artisan", "The Jester", "The Organizer", "The Explorer", "The Love Interest", "The Liberator", "The Knight". No other value is acceptable.
+- Archetype "verbs" MUST match the associated verbs for the chosen character exactly as listed in the Supporting Character matrix above.
+- Archetype "description" must explicitly tie the chosen character's role and verbs to the specific persona vulnerability or quest identified in the 3-step workflow.
 - Personality objects must use "trait" for the trait name. Do not use "name".
 - voiceAndTone.adjectives must be single words (e.g., "Confident", "Warm", "Direct").
 - voiceAndTone.inPractice and voiceAndTone.communicationStrategy must each be 3-4 substantive sentences — put on a copywriter hat, no terse summaries.
