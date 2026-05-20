@@ -593,6 +593,33 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </p>
                   )}
                 </div>
+
+                <div className="mt-6 bg-s16-bg-surface border border-s16-border p-5">
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <p className="s16-eyebrow text-s16-text-muted">PDF Diagnostics</p>
+                    <button
+                      onClick={copyPdfDiagnostics}
+                      className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>{copiedId === "pdf-diagnostics" ? "Copied" : "Copy Log"}</span>
+                    </button>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto border border-s16-border-light bg-s16-bg p-3 font-mono text-[10px] leading-relaxed text-s16-text-muted">
+                    {pdfDiagnostics.length === 0 ? (
+                      <p>No PDF diagnostics captured yet.</p>
+                    ) : (
+                      pdfDiagnostics.slice(-12).map((entry, index) => (
+                        <div key={`${entry.timestamp}-${index}`} className="mb-3 last:mb-0 whitespace-pre-wrap">
+                          <span className={entry.level === "error" ? "text-red-600" : entry.level === "warn" ? "text-orange-600" : "text-s16-text-muted"}>
+                            [{entry.timestamp}] {entry.level.toUpperCase()} {entry.stage}: {entry.message}
+                          </span>
+                          {entry.details && <div className="mt-1 opacity-80">{entry.details}</div>}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="p-12">
