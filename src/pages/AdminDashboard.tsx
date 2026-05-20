@@ -133,6 +133,31 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!selectedStrategy || !selectedStrategy.blueprint) return;
+    setIsGeneratingPdf(true);
+    try {
+      const data = parseBlueprint(selectedStrategy.blueprint);
+      const blob = await pdf(
+        <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedStrategy.client.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-brand-blueprint.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("Failed to generate PDF: " + (err as Error).message);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
