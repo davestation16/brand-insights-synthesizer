@@ -47,6 +47,11 @@ const optimizeImage = (url?: string, width = 600) => {
   return url;
 };
 
+const originalImage = (url?: string) =>
+  url?.includes("/storage/v1/render/image/public/")
+    ? url.replace("/storage/v1/render/image/public/", "/storage/v1/object/public/").split("?")[0]
+    : url;
+
 type PreviewProps = {
   previewTemplate?: SurveyTemplate;
   previewClient?: { name: string; entity_type: string; include_aesthetics?: boolean };
@@ -393,7 +398,9 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
                       }`}
                       referrerPolicy="no-referrer"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = `https://picsum.photos/seed/${opt.name}/600/400`;
+                        const img = e.currentTarget as HTMLImageElement;
+                        const fallback = originalImage(opt.image);
+                        if (fallback && img.src !== fallback) img.src = fallback;
                       }}
                     />
                   </div>
