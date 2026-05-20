@@ -7,20 +7,12 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import type { ParsedBlueprint } from "@/lib/parseBlueprint";
 
-// Register Inter from the fontsource CDN (stable TTF per weight, CORS-friendly).
-Font.register({
-  family: "Inter",
-  fonts: [
-    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf", fontWeight: 400 },
-    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-500-normal.ttf", fontWeight: 500 },
-    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf", fontWeight: 700 },
-    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-900-normal.ttf", fontWeight: 900 },
-  ],
-});
+// Use Helvetica — built into @react-pdf/renderer, zero network fetch.
+const FONT = "Helvetica";
+const FONT_BOLD = "Helvetica-Bold";
 
 const INK = "#1A1A1A";
 const MUTED = "#666666";
@@ -30,7 +22,7 @@ const styles = StyleSheet.create({
   page: {
     backgroundColor: BG,
     color: INK,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     paddingHorizontal: 64,
     paddingVertical: 64,
   },
@@ -39,39 +31,39 @@ const styles = StyleSheet.create({
     letterSpacing: 3,
     color: MUTED,
     textTransform: "uppercase",
-    fontWeight: 500,
+    fontFamily: FONT_BOLD,
     marginBottom: 12,
   },
   rule: { borderBottomWidth: 1, borderBottomColor: INK, marginBottom: 28, width: 48 },
-  h1: { fontSize: 36, fontWeight: 700, letterSpacing: -0.5, marginBottom: 36, lineHeight: 1.1 },
-  body: { fontSize: 12, color: MUTED, lineHeight: 1.55 },
-  bodyInk: { fontSize: 12, color: INK, lineHeight: 1.55 },
+  h1: { fontSize: 36, fontFamily: FONT_BOLD, letterSpacing: -0.5, marginBottom: 36, lineHeight: 1.1 },
+  body: { fontSize: 12, color: MUTED, lineHeight: 1.55, fontFamily: FONT },
+  bodyInk: { fontSize: 12, color: INK, lineHeight: 1.55, fontFamily: FONT },
 
   // Cover
   coverPage: {
     backgroundColor: BG,
     color: INK,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     padding: 64,
     flexDirection: "column",
     justifyContent: "space-between",
   },
-  coverClient: { fontSize: 64, fontWeight: 900, letterSpacing: -1.5, lineHeight: 1.05 },
-  coverSubhead: { fontSize: 16, fontWeight: 500, color: MUTED, marginTop: 16, letterSpacing: 0.5 },
-  coverDate: { fontSize: 10, color: MUTED, letterSpacing: 2, textTransform: "uppercase" },
+  coverClient: { fontSize: 64, fontFamily: FONT_BOLD, letterSpacing: -1.5, lineHeight: 1.05 },
+  coverSubhead: { fontSize: 16, fontFamily: FONT, color: MUTED, marginTop: 16, letterSpacing: 0.5 },
+  coverDate: { fontSize: 10, fontFamily: FONT, color: MUTED, letterSpacing: 2, textTransform: "uppercase" },
 
   // Interstitial
   interPage: {
     backgroundColor: BG,
     color: INK,
-    fontFamily: "Inter",
+    fontFamily: FONT,
     padding: 64,
     alignItems: "center",
     justifyContent: "center",
   },
   interTitle: {
     fontSize: 84,
-    fontWeight: 900,
+    fontFamily: FONT_BOLD,
     letterSpacing: -2,
     textAlign: "center",
     lineHeight: 1.05,
@@ -80,8 +72,8 @@ const styles = StyleSheet.create({
 
   // Values
   valueRow: { marginBottom: 24 },
-  valueName: { fontSize: 22, fontWeight: 700, marginBottom: 6, letterSpacing: -0.3 },
-  valueDesc: { fontSize: 12, color: MUTED, lineHeight: 1.55, maxWidth: 560 },
+  valueName: { fontSize: 22, fontFamily: FONT_BOLD, marginBottom: 6, letterSpacing: -0.3 },
+  valueDesc: { fontSize: 12, fontFamily: FONT, color: MUTED, lineHeight: 1.55, maxWidth: 560 },
 
   // Pills
   pillsRow: { flexDirection: "row", flexWrap: "wrap", marginBottom: 36 },
@@ -94,11 +86,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginBottom: 10,
     fontSize: 11,
-    fontWeight: 500,
+    fontFamily: FONT_BOLD,
     letterSpacing: 0.5,
   },
-  pillText: { fontSize: 11, fontWeight: 500, letterSpacing: 0.5 },
-  summary: { fontSize: 16, color: INK, lineHeight: 1.5, maxWidth: 620, fontWeight: 400 },
+  pillText: { fontSize: 11, fontFamily: FONT_BOLD, letterSpacing: 0.5 },
+  summary: { fontSize: 16, color: INK, lineHeight: 1.5, maxWidth: 620, fontFamily: FONT },
 
   // Two-column
   columns: { flexDirection: "row", gap: 48 },
@@ -109,15 +101,15 @@ const styles = StyleSheet.create({
     color: MUTED,
     textTransform: "uppercase",
     marginBottom: 10,
-    fontWeight: 500,
+    fontFamily: FONT_BOLD,
   },
-  columnName: { fontSize: 32, fontWeight: 700, letterSpacing: -0.5, marginBottom: 14 },
-  columnWhy: { fontSize: 12, color: MUTED, lineHeight: 1.55 },
+  columnName: { fontSize: 32, fontFamily: FONT_BOLD, letterSpacing: -0.5, marginBottom: 14 },
+  columnWhy: { fontSize: 12, fontFamily: FONT, color: MUTED, lineHeight: 1.55 },
 
   // Voice
   voiceAdj: {
     fontSize: 48,
-    fontWeight: 900,
+    fontFamily: FONT_BOLD,
     letterSpacing: -1,
     lineHeight: 1.05,
     marginBottom: 10,
@@ -130,8 +122,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "#E5E5E5",
   },
-  personaTitle: { fontSize: 22, fontWeight: 700, marginBottom: 8, letterSpacing: -0.3 },
-  personaNarrative: { fontSize: 12, color: MUTED, lineHeight: 1.55 },
+  personaTitle: { fontSize: 22, fontFamily: FONT_BOLD, marginBottom: 8, letterSpacing: -0.3 },
+  personaNarrative: { fontSize: 12, fontFamily: FONT, color: MUTED, lineHeight: 1.55 },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
