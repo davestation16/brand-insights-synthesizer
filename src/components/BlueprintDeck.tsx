@@ -383,7 +383,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Core Values</SlideHeader>
         <View style={styles.gridWrap}>
           {data.coreValues.map((value, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
               <Text style={styles.cardTitle}>{value.name}</Text>
               <Text style={styles.bodyText}>{value.description}</Text>
             </View>
@@ -395,7 +395,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Key Attributes</SlideHeader>
         <View style={styles.bentoRow}>
           {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
-            <View key={`g-${index}`} style={styles.pillGiant} wrap={false}>
+            <View key={`g-${index}`} style={[styles.pillGiant, index === 0 ? styles.bentoGap : null]}>
               <Text style={styles.pillGiantText}>{pill}</Text>
             </View>
           ))}
@@ -403,7 +403,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         {data.keyAttributes.pills.slice(2).length > 0 && (
           <View style={styles.bentoRow}>
             {data.keyAttributes.pills.slice(2).map((pill, index) => (
-              <View key={`f-${index}`} style={styles.pillFlex} wrap={false}>
+              <View key={`f-${index}`} style={[styles.pillFlex, index < data.keyAttributes.pills.slice(2).length - 1 ? styles.bentoGap : null]}>
                 <Text style={styles.pillFlexText}>{pill}</Text>
               </View>
             ))}
@@ -417,11 +417,11 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <LightSlide>
         <SlideHeader>Alignment vs. Disconnect</SlideHeader>
         <View style={styles.gridWrap}>
-          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalf]}>
             <Text style={styles.cardTitle}>Alignment</Text>
             <Text style={styles.bodyText}>{data.perceptionGap.alignment}</Text>
           </View>
-          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalf]}>
             <Text style={styles.cardTitle}>Disconnect</Text>
             <Text style={styles.bodyText}>{data.perceptionGap.disconnect}</Text>
           </View>
