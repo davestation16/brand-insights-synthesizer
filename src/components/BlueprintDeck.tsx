@@ -591,8 +591,6 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
           </View>
         </LightSlide>
       )}
-
-      )}
     </Document>
   );
 }
