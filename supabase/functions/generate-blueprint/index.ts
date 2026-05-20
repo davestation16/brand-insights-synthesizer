@@ -183,49 +183,21 @@ ${JSON.stringify(allResponses, null, 2)}
 
 Segment respondents by their Role field as instructed, then return the JSON object with both "markdown" and "presentationData" now. Return ONLY the JSON object.`;
 
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-      }),
+    const gateway = createOpenAICompatible({
+      name: "lovable-ai",
+      baseURL: "https://ai.gateway.lovable.dev/v1",
+      headers: { "Lovable-API-Key": LOVABLE_API_KEY },
     });
 
-    if (!aiResp.ok) {
-      if (aiResp.status === 429) return json({ error: "Rate limits exceeded, please try again later." }, 429);
-      if (aiResp.status === 402) return json({ error: "Payment required, please add credits to your Lovable AI workspace." }, 402);
-      const t = await aiResp.text();
-      console.error("AI gateway error:", aiResp.status, t);
-      return json({ error: "AI gateway error" }, 500);
-    }
+    const { experimental_output: parsed } = await generateText({
+      model: gateway("google/gemini-2.5-pro"),
+      system: SYSTEM_PROMPT,
+      prompt: userPrompt,
+      experimental_output: Output.object({ schema: BlueprintOutputSchema }),
+    });
 
-    const aiData = await aiResp.json();
-    const raw: string = aiData?.choices?.[0]?.message?.content ?? "";
-    if (!raw) return json({ error: "AI returned empty response" }, 500);
-
-    // Tolerant parse: strip code fences if present
-    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
-    let parsed: { markdown?: string; presentationData?: unknown };
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
-      console.error("Failed to parse AI JSON:", e, raw.slice(0, 500));
-      return json({ error: "AI returned malformed JSON" }, 500);
-    }
-
-    const blueprint = typeof parsed.markdown === "string" ? parsed.markdown : "";
-    const presentationData = parsed.presentationData ?? null;
-    if (!blueprint || !presentationData) {
-      return json({ error: "AI response missing required fields" }, 500);
-    }
+    const blueprint = parsed.markdown;
+    const presentationData = parsed.presentationData;
 
     const { error: updateErr } = await supabase
       .from("clients")
