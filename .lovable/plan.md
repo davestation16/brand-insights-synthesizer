@@ -1,97 +1,51 @@
-# Tighten survey_templates RLS + verify updated_by
+## Layout Upgrades to `src/components/BlueprintDeck.tsx`
 
-The current `survey_templates` policies use `USING (true) WITH CHECK (true)` for INSERT and UPDATE, so any signed-in user can write to them. Lock writes to admins and require `updated_by = auth.uid()`.
+Scope: presentation-only edits to the PDF deck component. No backend, no data shape changes.
 
-## 1. Roles infrastructure (new)
+### 1. New style tokens
 
-There's no roles system today — admin status is inferred client-side from the `@station16.com` email. RLS can't trust that, so we add a server-side roles table.
+Add to the existing `StyleSheet.create`:
 
-```sql
-CREATE TYPE public.app_role AS ENUM ('admin', 'user');
+- `gridWrap`: `{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }`
+- `valueCardHalf`: spread `valueCard` + `{ width: '48%' }` (keeps the existing 32px padding and warm surface)
+- `attrWall`: `{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline', marginBottom: 24 }`
+- `attrDisplay`: `{ fontFamily: 'Cormorant Garamond', fontWeight: 500, fontSize: 56, textTransform: 'lowercase', color: '#f7893d', marginRight: 16, marginBottom: 8, lineHeight: 1.05 }`
+- `footer`: `{ position: 'absolute', bottom: 24, right: 48, fontFamily: 'Syne', fontWeight: 600, fontSize: 8, letterSpacing: 1, textTransform: 'lowercase', color: '#a8a39e' }`
 
-CREATE TABLE public.user_roles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  role public.app_role NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE (user_id, role)
-);
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+### 2. Slide 3 — Core Values (2-column wrap)
 
-CREATE FUNCTION public.has_role(_user_id uuid, _role public.app_role)
-RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
-$$;
+Replace the current two-`gridCol` split with a single `gridWrap` container mapping `data.coreValues` directly. Each card uses `valueCardHalf` and keeps `wrap={false}`.
 
-CREATE POLICY "Users can read their own roles" ON public.user_roles
-  FOR SELECT TO authenticated USING (user_id = auth.uid());
-CREATE POLICY "Admins can read all roles" ON public.user_roles
-  FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
+```text
+<View style={styles.gridWrap}>
+  {data.coreValues.map(v => (
+    <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>...</View>
+  ))}
+</View>
 ```
 
-Auto-grant admin to `@station16.com` accounts (matches the current client-side rule) and backfill existing users:
+### 3. Slide 11 — Target Personas (2-column wrap)
 
-```sql
-CREATE FUNCTION public.handle_new_user_role() RETURNS trigger
-LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-BEGIN
-  IF NEW.email IS NOT NULL AND lower(NEW.email) LIKE '%@station16.com' THEN
-    INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'admin')
-    ON CONFLICT DO NOTHING;
-  END IF;
-  RETURN NEW;
-END; $$;
+Same treatment: wrap persona cards in `gridWrap`, apply `valueCardHalf` width to each card. Odd third item naturally flows to the next row at 48% width (left-aligned via `space-between`, which is the desired behavior).
 
-CREATE TRIGGER on_auth_user_created_grant_role
-AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION public.handle_new_user_role();
+### 4. Slide 4 — Key Attributes (Typographic Wall)
 
-INSERT INTO public.user_roles (user_id, role)
-SELECT id, 'admin' FROM auth.users WHERE lower(email) LIKE '%@station16.com'
-ON CONFLICT DO NOTHING;
-```
+Replace the uniform `pillContainer` with `attrWall`:
 
-## 2. Replace the `survey_templates` write policies
+- First 2 entries of `data.keyAttributes.pills` → `<Text style={styles.attrDisplay}>` (massive Cormorant display).
+- Remaining entries → existing `styles.pill` (unchanged Syne UI pill).
+- Both live inside the same `attrWall` flex row with `alignItems: 'baseline'` so the pills sit visually anchored to the display text baseline.
+- Summary paragraph (`bodyText`) stays below, unchanged.
 
-```sql
-DROP POLICY "Authenticated can insert templates" ON public.survey_templates;
-DROP POLICY "Authenticated can update templates" ON public.survey_templates;
+Guard for arrays shorter than 2 (use `.slice(0, 2)` and `.slice(2)` — natural no-op if fewer items).
 
-CREATE POLICY "Admins can insert templates" ON public.survey_templates
-  FOR INSERT TO authenticated
-  WITH CHECK (public.has_role(auth.uid(), 'admin') AND updated_by = auth.uid());
+### 5. Global footer on light slides
 
-CREATE POLICY "Admins can update templates" ON public.survey_templates
-  FOR UPDATE TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'))
-  WITH CHECK (public.has_role(auth.uid(), 'admin') AND updated_by = auth.uid());
-```
+Add `<Text style={styles.footer} fixed>station16.com</Text>` inside `LightSlide`, after `{children}`. `fixed` ensures it renders on every page if a slide wraps. Footer appears only on `pageLight` (cover and interstitials are dark and intentionally clean).
 
-Result:
-- Only users with the `admin` role can insert or update.
-- The new/updated row's `updated_by` must equal the caller's `auth.uid()` — clients can't impersonate another admin or leave it null/stale.
-- SELECT remains public (the public survey page needs to read templates).
+### Out of scope
 
-## 3. Client change in `SurveyTemplates.tsx`
-
-The save call must now set `updated_by` to the signed-in user's id. Update the `save()` function:
-
-```ts
-const { data: { user } } = await supabase.auth.getUser();
-if (!user) { alert("Not signed in"); return; }
-const { error } = await supabase
-  .from("survey_templates")
-  .update({
-    content: content as any,
-    updated_at: new Date().toISOString(),
-    updated_by: user.id,
-  })
-  .eq("entity_type", activeType);
-```
-
-Without this, RLS will reject the update.
-
-## Notes
-
-- The two existing seeded rows have `updated_by = null`; that's fine since RLS only checks the value on writes, not on reads.
-- The `clients` and `surveys` tables keep their current "any authenticated user" policies — they're out of scope for this request, but the same `has_role(...)` pattern is now available if you want to lock those down next.
-- Linter will still warn about the public-read-true policy on `survey_templates`; that one is intentional (anonymous survey takers must read templates).
+- No font registration changes
+- No changes to dark/interstitial/cover slides
+- No backend / JSON schema changes
+- No changes to other slides (Personality, Voice, Archetypes layouts remain as-is)
