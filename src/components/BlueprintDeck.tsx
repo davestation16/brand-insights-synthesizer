@@ -283,31 +283,24 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Core Values</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol}>
-            {data.coreValues.slice(0, Math.ceil(data.coreValues.length / 2)).map((value, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{value.name}</Text>
-                <Text style={styles.bodyText}>{value.description}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.gridCol}>
-            {data.coreValues.slice(Math.ceil(data.coreValues.length / 2)).map((value, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{value.name}</Text>
-                <Text style={styles.bodyText}>{value.description}</Text>
-              </View>
-            ))}
-          </View>
+        <View style={styles.gridWrap}>
+          {data.coreValues.map((value, index) => (
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+              <Text style={styles.cardTitle}>{value.name}</Text>
+              <Text style={styles.bodyText}>{value.description}</Text>
+            </View>
+          ))}
         </View>
       </LightSlide>
 
       <LightSlide>
         <Header>Key Attributes</Header>
-        <View style={styles.pillContainer}>
-          {data.keyAttributes.pills.map((pill, index) => (
-            <Text key={index} style={styles.pill} wrap={false}>{pill}</Text>
+        <View style={styles.attrWall}>
+          {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
+            <Text key={`d-${index}`} style={styles.attrDisplay} wrap={false}>{pill}</Text>
+          ))}
+          {data.keyAttributes.pills.slice(2).map((pill, index) => (
+            <Text key={`p-${index}`} style={styles.pill} wrap={false}>{pill}</Text>
           ))}
         </View>
         <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
