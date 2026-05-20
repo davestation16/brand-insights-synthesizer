@@ -54,16 +54,25 @@ export interface PresentationPersona {
 }
 
 export interface PresentationData {
-  perceptionGap?: { alignment: string; disconnect: string };
+  perceptionGap: { alignment: string; disconnect: string };
   coreValues: PresentationValue[];
   keyAttributes: { pills: string[]; summary: string };
   primaryPersonality: PresentationPersonality;
   secondaryPersonality: PresentationPersonality;
-  voiceAdjectives: string[];
-  voiceParagraph: string;
+  voiceAndTone: {
+    adjectives: string[];
+    inPractice: string;
+    communicationStrategy: string;
+    dosAndDonts: string[];
+  };
   primaryArchetype: PresentationArchetype;
   secondaryArchetypes: PresentationArchetype[];
-  aestheticDirection?: string | null;
+  aesthetic: {
+    summary: string;
+    palette: string;
+    materials: string;
+    style: string;
+  } | null;
   personas: PresentationPersona[];
 }
 
@@ -284,6 +293,38 @@ const styles = StyleSheet.create({
     padding: 32,
     border: "1pt solid #e8e7e5",
   },
+  subheading: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 18,
+    color: "#1a1917",
+    marginBottom: 6,
+  },
+  bodyTextSm: {
+    fontFamily: "Lora",
+    fontSize: 12,
+    lineHeight: 1.55,
+    color: "#7a7570",
+    marginTop: 6,
+  },
+  stackBlock: {
+    marginBottom: 16,
+  },
+  dosDontsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 6,
+  },
+  dosDontsPill: {
+    backgroundColor: "#eeebe3",
+    borderRadius: 4,
+    padding: "4pt 10pt",
+    marginRight: 6,
+    marginBottom: 6,
+    fontFamily: "Lora",
+    fontSize: 10,
+    color: "#5a5550",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
@@ -364,8 +405,23 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
       </LightSlide>
 
+      <Interstitial text="2. The Perception Gap" />
 
-      <Interstitial text="2. Personality & Voice" />
+      <LightSlide>
+        <SlideHeader>Alignment vs. Disconnect</SlideHeader>
+        <View style={styles.gridWrap}>
+          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <Text style={styles.cardTitle}>Alignment</Text>
+            <Text style={styles.bodyText}>{data.perceptionGap.alignment}</Text>
+          </View>
+          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <Text style={styles.cardTitle}>Disconnect</Text>
+            <Text style={styles.bodyText}>{data.perceptionGap.disconnect}</Text>
+          </View>
+        </View>
+      </LightSlide>
+
+      <Interstitial text="3. Personality & Voice" />
 
       <LightSlide>
         <Header>Core Personality</Header>
@@ -388,18 +444,32 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <View style={styles.gridRow}>
           <View style={styles.gridCol}>
             <Text style={styles.sectionLabel}>Adjectives</Text>
-            {data.voiceAdjectives.map((word, index) => (
+            {data.voiceAndTone.adjectives.map((word, index) => (
               <Text key={index} style={styles.voiceWord} wrap={false}>{word}</Text>
             ))}
           </View>
           <View style={styles.gridCol}>
-            <Text style={styles.sectionLabel}>In Practice</Text>
-            <Text style={styles.bodyText}>{data.voiceParagraph}</Text>
+            <View style={styles.stackBlock}>
+              <Text style={styles.subheading}>Voice in Practice</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.inPractice}</Text>
+            </View>
+            <View style={styles.stackBlock}>
+              <Text style={styles.subheading}>How to Communicate</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
+            </View>
+            <View style={styles.stackBlock}>
+              <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
+              <View style={styles.dosDontsWrap}>
+                {data.voiceAndTone.dosAndDonts.map((item, index) => (
+                  <Text key={index} style={styles.dosDontsPill} wrap={false}>{item}</Text>
+                ))}
+              </View>
+            </View>
           </View>
         </View>
       </LightSlide>
 
-      <Interstitial text="3. The Supporting Character" />
+      <Interstitial text="4. The Supporting Character" />
 
       <LightSlide>
         <SlideHeader>Brand Archetypes</SlideHeader>
@@ -420,7 +490,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         </View>
       </LightSlide>
 
-      <Interstitial text="4. Target Audience" />
+      <Interstitial text="5. Target Audience" />
 
       <LightSlide>
         <SlideHeader>Target Personas</SlideHeader>
@@ -433,6 +503,32 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
           ))}
         </View>
       </LightSlide>
+
+      {data.aesthetic && (
+        <>
+          <Interstitial text="6. Aesthetic Projection" />
+          <LightSlide>
+            <SlideHeader>Visual Direction</SlideHeader>
+            <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
+            <View style={[styles.bentoRow, { marginTop: 16 }]}>
+              <View style={styles.cardFlex} wrap={false}>
+                <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
+                <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
+              </View>
+              <View style={styles.cardFlex} wrap={false}>
+                <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
+                <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
+              </View>
+            </View>
+            <View style={styles.bentoRow}>
+              <View style={styles.cardFlex} wrap={false}>
+                <Text style={styles.sectionLabel}>Design Style</Text>
+                <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
+              </View>
+            </View>
+          </LightSlide>
+        </>
+      )}
     </Document>
   );
 }
