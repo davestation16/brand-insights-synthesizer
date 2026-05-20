@@ -79,7 +79,7 @@ PROPRIETARY 3-STEP REVERSE-ENGINEERING WORKFLOW — execute in this order before
 3. Read the provided client context (name, entity type, aggregated responses) to ensure the chosen character accurately reflects the actual economic or spiritual value the brand offers, bypassing flat or superficial industry clichés.
 
 * **Primary Supporting Character:** chosen archetype + how it applies (must be one of the 11).
-* **Secondary Character(s):** 1-2 more if needed (each must be one of the 11).
+* **Secondary Character(s):** 2-4 additional characters (each must be one of the 11). Always return at least 2 and no more than 4.
 
 ### 6. Visual & Aesthetic Projection
 CONDITIONAL: only include if response data contains keys prefixed with "aesthetic_". Otherwise OMIT this section and renumber Personas as 6.
