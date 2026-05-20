@@ -343,6 +343,43 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#5a5550",
   },
+  personaCard3Up: {
+    flex: 1,
+    backgroundColor: "#f4f1ea",
+    paddingTop: 24,
+    paddingBottom: 24,
+    paddingLeft: 16,
+    paddingRight: 16,
+    border: "1pt solid #e8e7e5",
+  },
+  quadrantRow: {
+    flexDirection: "row",
+  },
+  quadrantColLeft: {
+    flex: 1,
+    flexDirection: "column",
+    marginRight: 24,
+  },
+  quadrantColRight: {
+    flex: 1.5,
+    flexDirection: "column",
+  },
+  quadrantBlock: {
+    marginBottom: 16,
+  },
+  personaRow: {
+    flexDirection: "row",
+  },
+  personaGap: {
+    marginRight: 12,
+  },
+  aestheticRow: {
+    flexDirection: "row",
+    marginTop: 16,
+  },
+  aestheticGap: {
+    marginRight: 16,
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
@@ -460,23 +497,15 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Voice + Tone</Header>
-          <View style={styles.gridRow}>
-          <View style={[styles.gridCol, styles.gridColGap]}>
-            <Text style={styles.sectionLabel}>Adjectives</Text>
-            {data.voiceAndTone.adjectives.map((word, index) => (
-              <Text key={index} style={styles.voiceWord}>{word}</Text>
-            ))}
-          </View>
-          <View style={styles.gridCol}>
-            <View style={styles.stackBlock}>
-              <Text style={styles.subheading}>Voice in Practice</Text>
-              <Text style={styles.bodyTextSm}>{data.voiceAndTone.inPractice}</Text>
+        <View wrap={false} style={styles.quadrantRow}>
+          <View style={styles.quadrantColLeft}>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.sectionLabel}>Adjectives</Text>
+              {data.voiceAndTone.adjectives.map((word, index) => (
+                <Text key={index} style={styles.voiceWord}>{word}</Text>
+              ))}
             </View>
-            <View style={styles.stackBlock}>
-              <Text style={styles.subheading}>How to Communicate</Text>
-              <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
-            </View>
-            <View style={styles.stackBlock} wrap={false}>
+            <View style={styles.quadrantBlock}>
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
@@ -484,7 +513,16 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
                 ))}
               </View>
             </View>
-
+          </View>
+          <View style={styles.quadrantColRight}>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.subheading}>Voice in Practice</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.inPractice}</Text>
+            </View>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.subheading}>How to Communicate</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
+            </View>
           </View>
         </View>
       </LightSlide>
@@ -514,11 +552,17 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <SlideHeader>Target Personas</SlideHeader>
-        <View style={styles.gridWrap}>
+        <View wrap={false} style={styles.personaRow}>
           {data.personas.map((persona, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
+            <View
+              key={index}
+              style={[
+                styles.personaCard3Up,
+                index < data.personas.length - 1 ? styles.personaGap : null,
+              ]}
+            >
               <Text style={styles.cardTitle}>{persona.title}</Text>
-              <Text style={styles.bodyText}>{persona.narrative}</Text>
+              <Text style={styles.bodyTextSm}>{persona.narrative}</Text>
             </View>
           ))}
         </View>
@@ -530,17 +574,15 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
           <View wrap={false}>
             <SlideHeader>Visual Direction</SlideHeader>
             <Text style={styles.bodyTextSm}>{data.aesthetic.summary}</Text>
-            <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
-              <View style={[styles.cardFlex, styles.bentoGap]}>
+            <View style={styles.aestheticRow}>
+              <View style={[styles.cardFlex, styles.aestheticGap]}>
                 <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.palette}</Text>
               </View>
-              <View style={styles.cardFlex}>
+              <View style={[styles.cardFlex, styles.aestheticGap]}>
                 <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.materials}</Text>
               </View>
-            </View>
-            <View style={{ marginTop: 8 }}>
               <View style={styles.cardFlex}>
                 <Text style={styles.sectionLabel}>Design Style</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.style}</Text>
@@ -548,7 +590,6 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
             </View>
           </View>
         </LightSlide>
-
       )}
     </Document>
   );
