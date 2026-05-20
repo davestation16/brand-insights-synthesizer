@@ -7,8 +7,26 @@ import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { pdf } from "@react-pdf/renderer";
-import { BlueprintDeck } from "@/components/BlueprintDeck";
+import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
 import { parseBlueprint } from "@/lib/parseBlueprint";
+
+// Legacy fallback: convert the old Markdown-parsed shape into PresentationData
+// so blueprints generated before the JSON migration still render in the PDF.
+function legacyToPresentationData(md: string): PresentationData {
+  const p = parseBlueprint(md);
+  return {
+    coreValues: p.coreValues,
+    keyAttributes: { pills: p.attributes.pills, summary: p.attributes.summary },
+    primaryPersonality: p.primaryPersonality,
+    secondaryPersonality: p.secondaryPersonality,
+    voiceAdjectives: p.voiceAdjectives,
+    voiceParagraph: p.voiceParagraph,
+    primaryArchetype: p.primaryArchetype,
+    secondaryArchetypes: p.secondaryArchetypes,
+    personas: p.personas,
+    aestheticDirection: null,
+  };
+}
 
 interface Client {
   id: string;
@@ -19,6 +37,7 @@ interface Client {
   status: "pending" | "completed";
   response_count: number;
   blueprint: string | null;
+  presentation_data: PresentationData | unknown | null;
   created_at: string;
   include_aesthetics: boolean;
 }
@@ -26,6 +45,7 @@ interface Client {
 interface StrategyView {
   client: Client;
   blueprint: string;
+  presentationData: PresentationData | null;
   contributors: Record<string, number>;
 }
 
@@ -139,7 +159,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
     setIsGeneratingPdf(true);
     try {
-      const data = parseBlueprint(selectedStrategy.blueprint);
+      const data: PresentationData =
+        (selectedStrategy.presentationData as PresentationData | null) ??
+        legacyToPresentationData(selectedStrategy.blueprint);
       const blob = await pdf(
         <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
       ).toBlob();
@@ -213,6 +235,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     setSelectedStrategy({
       client: fresh,
       blueprint: fresh.blueprint || "",
+      presentationData: (fresh.presentation_data as PresentationData | null) ?? null,
       contributors,
     });
   };

@@ -23,6 +23,7 @@ export type Database = {
           id: string
           include_aesthetics: boolean
           name: string
+          presentation_data: Json | null
           response_count: number
           status: string
           survey_uid: string
@@ -35,6 +36,7 @@ export type Database = {
           id?: string
           include_aesthetics?: boolean
           name: string
+          presentation_data?: Json | null
           response_count?: number
           status?: string
           survey_uid: string
@@ -47,6 +49,7 @@ export type Database = {
           id?: string
           include_aesthetics?: boolean
           name?: string
+          presentation_data?: Json | null
           response_count?: number
           status?: string
           survey_uid?: string
