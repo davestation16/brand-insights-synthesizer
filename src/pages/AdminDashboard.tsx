@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Trash2, Copy, CheckCircle2, Users } from "lucide-react";
+import { X, Trash2, Copy, CheckCircle2, Users, Download, Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { pdf } from "@react-pdf/renderer";
+import { BlueprintDeck } from "@/components/BlueprintDeck";
+import { parseBlueprint } from "@/lib/parseBlueprint";
 
 interface Client {
   id: string;
@@ -130,6 +133,31 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+
+  const handleDownloadPdf = async () => {
+    if (!selectedStrategy || !selectedStrategy.blueprint) return;
+    setIsGeneratingPdf(true);
+    try {
+      const data = parseBlueprint(selectedStrategy.blueprint);
+      const blob = await pdf(
+        <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${selectedStrategy.client.name.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-brand-blueprint.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("Failed to generate PDF: " + (err as Error).message);
+    } finally {
+      setIsGeneratingPdf(false);
+    }
+  };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -410,12 +438,31 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                   <span className="s16-eyebrow">Strategy Blueprint</span>
                   <h3 className="text-2xl mt-1">{selectedStrategy.client.name}</h3>
                 </div>
-                <button
-                  onClick={() => setSelectedStrategy(null)}
-                  className="p-2 hover:bg-s16-bg-warm rounded-full transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleDownloadPdf}
+                    disabled={isGeneratingPdf || !selectedStrategy.blueprint}
+                    className="s16-cta flex items-center gap-2 bg-s16-bg-surface border border-s16-border px-4 py-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingPdf ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Generating Deck...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Download Presentation (PDF)</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setSelectedStrategy(null)}
+                    className="p-2 hover:bg-s16-bg-warm rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
 
               <div className="px-12 pt-10">
