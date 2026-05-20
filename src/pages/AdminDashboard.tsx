@@ -8,24 +8,20 @@ import station16Logo from "@/assets/station16-logo.png";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { pdf } from "@react-pdf/renderer";
 import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
-import { parseBlueprint } from "@/lib/parseBlueprint";
 
-// Legacy fallback: convert the old Markdown-parsed shape into PresentationData
-// so blueprints generated before the JSON migration still render in the PDF.
-function legacyToPresentationData(md: string): PresentationData {
-  const p = parseBlueprint(md);
-  return {
-    coreValues: p.coreValues,
-    keyAttributes: { pills: p.attributes.pills, summary: p.attributes.summary },
-    primaryPersonality: p.primaryPersonality,
-    secondaryPersonality: p.secondaryPersonality,
-    voiceAdjectives: p.voiceAdjectives,
-    voiceParagraph: p.voiceParagraph,
-    primaryArchetype: p.primaryArchetype,
-    secondaryArchetypes: p.secondaryArchetypes,
-    personas: p.personas,
-    aestheticDirection: null,
-  };
+function isPresentationData(value: unknown): value is PresentationData {
+  const data = value as PresentationData | null;
+  return Boolean(
+    data &&
+      Array.isArray(data.coreValues) &&
+      Array.isArray(data.keyAttributes?.pills) &&
+      typeof data.primaryPersonality?.trait === "string" &&
+      typeof data.secondaryPersonality?.trait === "string" &&
+      Array.isArray(data.voiceAdjectives) &&
+      typeof data.primaryArchetype?.name === "string" &&
+      Array.isArray(data.secondaryArchetypes) &&
+      Array.isArray(data.personas),
+  );
 }
 
 interface Client {
@@ -159,11 +155,11 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
     setIsGeneratingPdf(true);
     try {
-      const data: PresentationData =
-        (selectedStrategy.presentationData as PresentationData | null) ??
-        legacyToPresentationData(selectedStrategy.blueprint);
+      if (!isPresentationData(selectedStrategy.presentationData)) {
+        throw new Error("This strategy was generated before structured deck data was available. Please regenerate the strategy, then download the PDF.");
+      }
       const blob = await pdf(
-        <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
+        <BlueprintDeck clientName={selectedStrategy.client.name} data={selectedStrategy.presentationData} />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -235,7 +231,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     setSelectedStrategy({
       client: fresh,
       blueprint: fresh.blueprint || "",
-      presentationData: (fresh.presentation_data as PresentationData | null) ?? null,
+      presentationData: isPresentationData(fresh.presentation_data) ? fresh.presentation_data : null,
       contributors,
     });
   };

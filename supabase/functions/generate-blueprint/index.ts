@@ -4,6 +4,9 @@
 // `presentationData` object (consumed by the PDF deck).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { generateText, Output } from "npm:ai";
+import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible";
+import { z } from "npm:zod";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,8 +84,8 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "pills": [string],           // 3-6 short trait words
     "summary": string            // one sentence blending them
   },
-  "primaryPersonality": { "name": string, "why": string },
-  "secondaryPersonality": { "name": string, "why": string },
+  "primaryPersonality": { "trait": string, "why": string },
+  "secondaryPersonality": { "trait": string, "why": string },
   "voiceAdjectives": [string],   // exactly 3
   "voiceParagraph": string,
   "primaryArchetype": { "name": string, "description": string },
@@ -99,9 +102,44 @@ Rules for presentationData:
 - All strings must be plain prose (NO markdown, NO asterisks, NO bullet markers).
 - Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
 - Archetype "name" must start with "The " (e.g., "The Wizard").
+- Personality objects must use "trait" for the trait name. Do not use "name".
 - voiceAdjectives must be single words (e.g., "Confident", "Warm", "Direct").
 - pills must be short single words or two-word phrases.
 - Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
+
+const PresentationDataSchema = z.object({
+  perceptionGap: z.object({
+    alignment: z.string(),
+    disconnect: z.string(),
+  }),
+  coreValues: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+  })).min(3).max(4),
+  keyAttributes: z.object({
+    pills: z.array(z.string()).min(3).max(6),
+    summary: z.string(),
+  }),
+  primaryPersonality: z.object({ trait: z.string(), why: z.string() }),
+  secondaryPersonality: z.object({ trait: z.string(), why: z.string() }),
+  voiceAdjectives: z.array(z.string()).length(3),
+  voiceParagraph: z.string(),
+  primaryArchetype: z.object({ name: z.string(), description: z.string() }),
+  secondaryArchetypes: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+  })).max(2),
+  aestheticDirection: z.string().nullable(),
+  personas: z.array(z.object({
+    title: z.string(),
+    narrative: z.string(),
+  })).min(2).max(3),
+});
+
+const BlueprintOutputSchema = z.object({
+  markdown: z.string(),
+  presentationData: PresentationDataSchema,
+});
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -145,49 +183,21 @@ ${JSON.stringify(allResponses, null, 2)}
 
 Segment respondents by their Role field as instructed, then return the JSON object with both "markdown" and "presentationData" now. Return ONLY the JSON object.`;
 
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-      }),
+    const gateway = createOpenAICompatible({
+      name: "lovable-ai",
+      baseURL: "https://ai.gateway.lovable.dev/v1",
+      headers: { "Lovable-API-Key": LOVABLE_API_KEY },
     });
 
-    if (!aiResp.ok) {
-      if (aiResp.status === 429) return json({ error: "Rate limits exceeded, please try again later." }, 429);
-      if (aiResp.status === 402) return json({ error: "Payment required, please add credits to your Lovable AI workspace." }, 402);
-      const t = await aiResp.text();
-      console.error("AI gateway error:", aiResp.status, t);
-      return json({ error: "AI gateway error" }, 500);
-    }
+    const { output: parsed } = await generateText({
+      model: gateway("google/gemini-2.5-pro"),
+      system: SYSTEM_PROMPT,
+      prompt: userPrompt,
+      output: Output.object({ schema: BlueprintOutputSchema }),
+    });
 
-    const aiData = await aiResp.json();
-    const raw: string = aiData?.choices?.[0]?.message?.content ?? "";
-    if (!raw) return json({ error: "AI returned empty response" }, 500);
-
-    // Tolerant parse: strip code fences if present
-    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
-    let parsed: { markdown?: string; presentationData?: unknown };
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e) {
-      console.error("Failed to parse AI JSON:", e, raw.slice(0, 500));
-      return json({ error: "AI returned malformed JSON" }, 500);
-    }
-
-    const blueprint = typeof parsed.markdown === "string" ? parsed.markdown : "";
-    const presentationData = parsed.presentationData ?? null;
-    if (!blueprint || !presentationData) {
-      return json({ error: "AI response missing required fields" }, 500);
-    }
+    const blueprint = parsed.markdown;
+    const presentationData = parsed.presentationData;
 
     const { error: updateErr } = await supabase
       .from("clients")
