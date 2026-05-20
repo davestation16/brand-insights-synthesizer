@@ -1,5 +1,7 @@
 // Generate a Brand Strategy Blueprint by aggregating all stakeholder survey
 // responses for a given client and passing them through the Lovable AI Gateway.
+// Returns BOTH a Markdown report (for the UI) AND a strictly typed JSON
+// `presentationData` object (consumed by the PDF deck).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -21,59 +23,85 @@ Before analyzing, categorize each respondent in allResponses into one of three d
 2. INVOLVED: Client (if Entity Type is Business) or Organization Member (if Entity Type is Organization)
 3. PROXIMATE: Prospective Client (if Entity Type is Business) or Neighbor (if Entity Type is Organization)
 
-You must look for trends, alignments, and disconnects between these three groups (e.g., Do Internal employees view the brand as 'Daring', while Proximate audiences view it as 'Traditional'?).
+You must look for trends, alignments, and disconnects between these three groups.
 
-Return a beautifully structured Markdown report using the following exact sections and headings:
+═══════════════════════════════════════════════════════════════════
+OUTPUT FORMAT — STRICTLY ENFORCED
+═══════════════════════════════════════════════════════════════════
+
+Return a SINGLE valid JSON object (no surrounding prose, no markdown code fences) with EXACTLY two top-level keys:
+
+{
+  "markdown": "<the full markdown report — see structure below>",
+  "presentationData": { ... see schema below ... }
+}
+
+The "markdown" string must use the following exact section headings:
 
 ### 1. Perception Gap Analysis (Internal vs. External)
-* **The Alignment:** Where do all groups fundamentally agree on the brand's identity?
-* **The Disconnect:** Highlight major discrepancies. What is the Internal team seeing that the Proximate audience is missing (or vice versa)?
+* **The Alignment:** Where all groups agree.
+* **The Disconnect:** Major discrepancies between Internal/Involved/Proximate.
 
 ### 2. The Brand's Soul (Values & Attributes)
-* **Core Values:** Based on the spectrum questions, identify the 3-4 defining values of the brand. Note any heavy splits between respondents.
-* **Key Attributes:** Look at the 1-5 personality scale. List the top highest-rated attributes overall and write a one-sentence summary of how these traits blend together.
+* **Core Values:** 3-4 defining values (nested bullets).
+* **Key Attributes:** Top highest-rated traits with a one-sentence blend summary.
 
 ### 3. Core Brand Personality
-* **Primary Personality:** Choose one dominant trait based on the 'Community Perception' data (Sincere, Exciting, Competent, Sophisticated, or Rugged). Explain why.
-* **Secondary Personality:** Choose the runner-up trait and explain how it balances the Primary.
+* **Primary Personality:** Dominant trait + why.
+* **Secondary Personality:** Runner-up + how it balances primary.
 
 ### 4. Voice + Tone
-* Define the brand's voice using 3 distinct adjectives.
-* Write a brief paragraph explaining *how* the brand should communicate to bridge any gaps identified in the Gap Analysis.
+* 3 adjectives + paragraph on bridging gaps.
 
 ### 5. Brand Archetypes (The Supporting Character)
-
-CRITICAL INSTRUCTION: Do NOT use standard Jungian archetypes. You must evaluate the brand based strictly on the custom "Supporting Character Matrix" provided below.
-
-Context: The client/customer is the "Hero". The Brand is the "Supporting Character". This archetype defines the nature of the relationship between the hero and the brand, informs the topic of conversation, and is entirely independent of the brand's personality.
-
-Based on the survey data, select 1 to 3 of the following Supporting Character Archetypes that best fit what the brand does for its customers:
-
-* **The Caregiver:** Assists in meeting physical needs: food, clothing, shelter, medical care. (Keywords: Nurture, Provide)
-* **The Professor:** Provides knowledge, wisdom, a listening ear. (Keywords: Instruct, Listen, Mentor)
-* **The Wizard:** Creates "magical" solutions to problems, both impossible and everyday. (Keywords: Create, Solve, Simplify)
-* **The Damsel:** Provides a reason for the adventure and a sense of fulfillment when aided. (Keywords: Need, Fulfill)
-* **The Artisan:** Provides items to ease the quest; gives advice about the correct tool to use. (Keywords: Source, Procure)
-* **The Jester:** Provides entertainment, as well as wisdom. (Keywords: Entertain, Amuse)
-* **The Organizer:** Establishes community, maintains community, sets standards within a community. (Keywords: Organize, Maintain)
-* **The Explorer:** Informs about the wider world; brings back knowledge and goods from other places. (Keywords: Introduce, Infuse)
-* **The Love Interest:** Gives the protagonist something to chase, to desire, to work for. (Keywords: Seduce, Thrill)
-* **The Liberator:** Rescues from captivity, provides escape from everyday world. (Keywords: Free, Save)
-* **The Knight:** Protects hero, stands in between hero and danger. (Keywords: Protect, Secure)
-
-Output requirements:
-* **Primary Supporting Character:** State the chosen archetype and write a brief sentence applying its exact definition from the matrix above to the brand's specific services/products.
-* **Secondary Character(s):** List 1 or 2 additional archetypes if the brand's relationship requires a blend, and explain how they interact with the primary role.
+Use ONLY the custom Supporting Character Matrix (not Jungian):
+The Caregiver, The Professor, The Wizard, The Damsel, The Artisan, The Jester, The Organizer, The Explorer, The Love Interest, The Liberator, The Knight.
+* **Primary Supporting Character:** chosen archetype + how it applies.
+* **Secondary Character(s):** 1-2 more if needed.
 
 ### 6. Visual & Aesthetic Projection
-* CONDITIONAL: ONLY include this section if the response data actually contains aesthetic answers (keys prefixed with "aesthetic_"). If no aesthetic data is present, completely OMIT this entire section (including the heading) and renumber Target Audience Personas as section 6.
-* Synthesize the aesthetic choices (Palette, Material, House, Vehicle, Dress, etc.) into a creative direction summary.
+CONDITIONAL: only include if response data contains keys prefixed with "aesthetic_". Otherwise OMIT this section and renumber Personas as 6.
 
 ### 7. Target Audience Personas
-* Based on the Entity Type and Proximate/Involved data, invent 2 realistic Target Audience profiles.
-* Give each a catchy title (e.g., 'The Local-Minded' or 'The Efficiency Seeker') and write a two-sentence narrative about their desires and why this specific brand appeals to them.
+2-3 invented profiles with catchy titles + two-sentence narratives.
 
-If no aesthetic data is present, omit section 6 and renumber Target Audience Personas as section 6. Be specific, cite patterns from the data, and avoid generic marketing fluff.`;
+═══════════════════════════════════════════════════════════════════
+PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
+═══════════════════════════════════════════════════════════════════
+
+"presentationData": {
+  "perceptionGap": {
+    "alignment": string,         // 1-2 sentences
+    "disconnect": string         // 1-2 sentences
+  },
+  "coreValues": [                // 3-4 items
+    { "name": string, "description": string }
+  ],
+  "keyAttributes": {
+    "pills": [string],           // 3-6 short trait words
+    "summary": string            // one sentence blending them
+  },
+  "primaryPersonality": { "name": string, "why": string },
+  "secondaryPersonality": { "name": string, "why": string },
+  "voiceAdjectives": [string],   // exactly 3
+  "voiceParagraph": string,
+  "primaryArchetype": { "name": string, "description": string },
+  "secondaryArchetypes": [       // 0-2 items
+    { "name": string, "description": string }
+  ],
+  "aestheticDirection": string | null,   // null if no aesthetic_* data
+  "personas": [                  // 2-3 items
+    { "title": string, "narrative": string }
+  ]
+}
+
+Rules for presentationData:
+- All strings must be plain prose (NO markdown, NO asterisks, NO bullet markers).
+- Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
+- Archetype "name" must start with "The " (e.g., "The Wizard").
+- voiceAdjectives must be single words (e.g., "Confident", "Warm", "Direct").
+- pills must be short single words or two-word phrases.
+- Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -115,7 +143,7 @@ Total Respondents: ${allResponses.length}
 allResponses:
 ${JSON.stringify(allResponses, null, 2)}
 
-Segment respondents by their Role field as instructed, then generate the Brand Strategy Blueprint now.`;
+Segment respondents by their Role field as instructed, then return the JSON object with both "markdown" and "presentationData" now. Return ONLY the JSON object.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -129,6 +157,7 @@ Segment respondents by their Role field as instructed, then generate the Brand S
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userPrompt },
         ],
+        response_format: { type: "json_object" },
       }),
     });
 
@@ -141,16 +170,36 @@ Segment respondents by their Role field as instructed, then generate the Brand S
     }
 
     const aiData = await aiResp.json();
-    const blueprint: string = aiData?.choices?.[0]?.message?.content ?? "";
-    if (!blueprint) return json({ error: "AI returned empty blueprint" }, 500);
+    const raw: string = aiData?.choices?.[0]?.message?.content ?? "";
+    if (!raw) return json({ error: "AI returned empty response" }, 500);
+
+    // Tolerant parse: strip code fences if present
+    const cleaned = raw.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+    let parsed: { markdown?: string; presentationData?: unknown };
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      console.error("Failed to parse AI JSON:", e, raw.slice(0, 500));
+      return json({ error: "AI returned malformed JSON" }, 500);
+    }
+
+    const blueprint = typeof parsed.markdown === "string" ? parsed.markdown : "";
+    const presentationData = parsed.presentationData ?? null;
+    if (!blueprint || !presentationData) {
+      return json({ error: "AI response missing required fields" }, 500);
+    }
 
     const { error: updateErr } = await supabase
       .from("clients")
-      .update({ blueprint, status: "completed" })
+      .update({
+        blueprint,
+        presentation_data: presentationData,
+        status: "completed",
+      })
       .eq("id", clientId);
     if (updateErr) return json({ error: updateErr.message }, 500);
 
-    return json({ success: true, blueprint });
+    return json({ success: true, blueprint, presentationData });
   } catch (e) {
     console.error(e);
     return json({ error: (e as Error).message }, 500);
