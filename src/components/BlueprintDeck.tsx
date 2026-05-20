@@ -432,13 +432,13 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Core Personality</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol} wrap={false}>
+          <View style={styles.gridRow}>
+          <View style={[styles.gridCol, styles.gridColGap]}>
             <Text style={styles.sectionLabel}>Primary Personality</Text>
             <Text style={styles.trait}>{data.primaryPersonality.trait}</Text>
             <Text style={styles.bodyText}>{data.primaryPersonality.why}</Text>
           </View>
-          <View style={styles.gridCol} wrap={false}>
+          <View style={styles.gridCol}>
             <Text style={styles.sectionLabel}>Secondary Personality</Text>
             <Text style={styles.trait}>{data.secondaryPersonality.trait}</Text>
             <Text style={styles.bodyText}>{data.secondaryPersonality.why}</Text>
@@ -448,8 +448,8 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Voice + Tone</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol}>
+          <View style={styles.gridRow}>
+          <View style={[styles.gridCol, styles.gridColGap]}>
             <Text style={styles.sectionLabel}>Adjectives</Text>
             {data.voiceAndTone.adjectives.map((word, index) => (
               <Text key={index} style={styles.voiceWord} wrap={false}>{word}</Text>
@@ -481,7 +481,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <LightSlide>
         <SlideHeader>Brand Archetypes</SlideHeader>
         <View style={styles.bentoRow}>
-          <View style={styles.cardFlex} wrap={false}>
+          <View style={styles.cardFlex}>
             <Text style={styles.sectionLabel}>Primary Supporting Character</Text>
             <Text style={styles.trait}>{data.primaryArchetype.name}</Text>
             <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
@@ -489,7 +489,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         </View>
         <View style={styles.bentoRow}>
           {data.secondaryArchetypes.map((archetype, index) => (
-            <View key={index} style={styles.cardFlex} wrap={false}>
+            <View key={index} style={[styles.cardFlex, index < data.secondaryArchetypes.length - 1 ? styles.bentoGap : null]}>
               <Text style={styles.cardTitle}>{archetype.name}</Text>
               <Text style={styles.bodyText}>{archetype.description}</Text>
             </View>
@@ -503,7 +503,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Target Personas</SlideHeader>
         <View style={styles.gridWrap}>
           {data.personas.map((persona, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
               <Text style={styles.cardTitle}>{persona.title}</Text>
               <Text style={styles.bodyText}>{persona.narrative}</Text>
             </View>
