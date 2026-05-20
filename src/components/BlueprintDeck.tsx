@@ -1,4 +1,5 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import type { ReactNode } from "react";
 
 const noHyphen = (word: string) => [word];
 
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
 
-function Slide({ children }: { children: React.ReactNode }) {
+function Slide({ children }: { children: ReactNode }) {
   return (
     <Page {...PAGE_PROPS} style={styles.page}>
       {children}
