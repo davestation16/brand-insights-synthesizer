@@ -332,7 +332,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <Interstitial text="1. The Brand's Soul" />
 
       <LightSlide>
-        <Header>Core Values</Header>
+        <SlideHeader>Core Values</SlideHeader>
         <View style={styles.gridWrap}>
           {data.coreValues.map((value, index) => (
             <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
@@ -344,17 +344,26 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       </LightSlide>
 
       <LightSlide>
-        <Header>Key Attributes</Header>
-        <View style={styles.attrWall}>
+        <SlideHeader>Key Attributes</SlideHeader>
+        <View style={styles.bentoRow}>
           {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
-            <Text key={`d-${index}`} style={styles.attrDisplay} wrap={false}>{pill}</Text>
-          ))}
-          {data.keyAttributes.pills.slice(2).map((pill, index) => (
-            <Text key={`p-${index}`} style={styles.pill} wrap={false}>{pill}</Text>
+            <View key={`g-${index}`} style={styles.pillGiant} wrap={false}>
+              <Text style={styles.pillGiantText}>{pill}</Text>
+            </View>
           ))}
         </View>
+        {data.keyAttributes.pills.slice(2).length > 0 && (
+          <View style={styles.bentoRow}>
+            {data.keyAttributes.pills.slice(2).map((pill, index) => (
+              <View key={`f-${index}`} style={styles.pillFlex} wrap={false}>
+                <Text style={styles.pillFlexText}>{pill}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
       </LightSlide>
+
 
       <Interstitial text="2. Personality & Voice" />
 
