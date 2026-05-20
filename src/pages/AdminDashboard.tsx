@@ -184,17 +184,71 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfDiagnostics, setPdfDiagnostics] = useState<PdfDiagnosticEntry[]>(() => readPdfDiagnostics());
+
+  const addPdfDiagnostic = (
+    level: PdfDiagnosticEntry["level"],
+    stage: string,
+    message: string,
+    details?: unknown,
+  ) => {
+    const entry: PdfDiagnosticEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      stage,
+      message,
+      details: formatDiagnosticDetails(details),
+    };
+    setPdfDiagnostics((current) => {
+      const next = [...current, entry].slice(-80);
+      writePdfDiagnostics(next);
+      return next;
+    });
+    const consoleMethod = level === "error" ? console.error : level === "warn" ? console.warn : console.info;
+    consoleMethod(`[PDF diagnostics] ${stage}: ${message}`, details ?? "");
+  };
+
+  const copyPdfDiagnostics = () => {
+    const payload = pdfDiagnostics
+      .map((entry) => `[${entry.timestamp}] ${entry.level.toUpperCase()} ${entry.stage}: ${entry.message}${entry.details ? `\n${entry.details}` : ""}`)
+      .join("\n\n");
+    navigator.clipboard.writeText(payload || "No PDF diagnostics captured yet.");
+    setCopiedId("pdf-diagnostics");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const handleDownloadPdf = async () => {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
+    addPdfDiagnostic("info", "download:start", `Starting PDF generation for ${selectedStrategy.client.name}`, {
+      clientId: selectedStrategy.client.id,
+      hasPresentationData: Boolean(selectedStrategy.presentationData),
+      blueprintLength: selectedStrategy.blueprint.length,
+      sections: selectedStrategy.presentationData
+        ? {
+            coreValues: selectedStrategy.presentationData.coreValues?.length,
+            attributes: selectedStrategy.presentationData.keyAttributes?.pills?.length,
+            secondaryArchetypes: selectedStrategy.presentationData.secondaryArchetypes?.length,
+            personas: selectedStrategy.presentationData.personas?.length,
+            hasAesthetic: Boolean(selectedStrategy.presentationData.aesthetic),
+          }
+        : null,
+    });
     setIsGeneratingPdf(true);
     try {
       if (!isPresentationData(selectedStrategy.presentationData)) {
         throw new Error("This strategy was generated before structured deck data was available. Please regenerate the strategy, then download the PDF.");
       }
-      const blob = await pdf(
+      addPdfDiagnostic("info", "download:render", "Creating React-PDF document instance.");
+      const deckInstance = pdf(
         <BlueprintDeck clientName={selectedStrategy.client.name} data={selectedStrategy.presentationData} />,
-      ).toBlob();
+      );
+      addPdfDiagnostic("info", "download:blob", "Converting document to PDF blob.");
+      const startedAt = performance.now();
+      const blob = await deckInstance.toBlob();
+      addPdfDiagnostic("info", "download:blob:complete", `PDF blob created in ${Math.round(performance.now() - startedAt)}ms.`, {
+        size: blob.size,
+        type: blob.type,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -203,7 +257,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      addPdfDiagnostic("info", "download:complete", "PDF download triggered successfully.");
     } catch (err) {
+      addPdfDiagnostic("error", "download:error", "PDF generation failed before completion.", err);
       console.error("PDF generation failed:", err);
       alert("Failed to generate PDF: " + (err as Error).message);
     } finally {
