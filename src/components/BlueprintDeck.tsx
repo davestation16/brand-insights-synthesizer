@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f4f1ea",
     padding: 32,
-    border: "1pt solid #e8e7e5",
+    border: "1pt solid rgba(26, 25, 23, 0.10)",
   },
   subheading: {
     fontFamily: "Cormorant Garamond",
@@ -320,8 +320,8 @@ const styles = StyleSheet.create({
   },
   bodyTextSm: {
     fontFamily: "Lora",
-    fontSize: 12,
-    lineHeight: 1.55,
+    fontSize: 11,
+    lineHeight: 1.5,
     color: "#7a7570",
     marginTop: 6,
   },
