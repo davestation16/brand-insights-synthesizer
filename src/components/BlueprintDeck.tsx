@@ -538,31 +538,20 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
             <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
           </View>
         </View>
-        {(() => {
-          const secs = data.secondaryArchetypes;
-          const groups = secs.length === 4 ? [secs.slice(0, 2), secs.slice(2, 4)] : [secs];
-          return groups.map((group, gIdx) => {
-            const row = (
-              <View style={styles.bentoRow} wrap={false}>
-                {group.map((archetype, index) => (
-                  <View
-                    key={index}
-                    style={[styles.cardFlex, index < group.length - 1 ? styles.bentoGap : null]}
-                  >
-                    <Text style={styles.cardTitle}>{archetype.name}</Text>
-                    <Text style={styles.bodyText}>{archetype.description}</Text>
-                  </View>
-                ))}
-              </View>
-            );
-            if (gIdx === 0) return <React.Fragment key={gIdx}>{row}</React.Fragment>;
-            return (
-              <React.Fragment key={gIdx}>
-                {/* continuation slide for 4-archetype layouts */}
-              </React.Fragment>
-            );
-          });
-        })()}
+        <View style={styles.bentoRow} wrap={false}>
+          {(data.secondaryArchetypes.length === 4
+            ? data.secondaryArchetypes.slice(0, 2)
+            : data.secondaryArchetypes
+          ).map((archetype, index, arr) => (
+            <View
+              key={index}
+              style={[styles.cardFlex, index < arr.length - 1 ? styles.bentoGap : null]}
+            >
+              <Text style={styles.cardTitle}>{archetype.name}</Text>
+              <Text style={styles.bodyText}>{archetype.description}</Text>
+            </View>
+          ))}
+        </View>
       </LightSlide>
       {data.secondaryArchetypes.length === 4 && (
         <LightSlide>
