@@ -207,6 +207,41 @@ const styles = StyleSheet.create({
     color: "#1a1917",
     marginBottom: 6,
   },
+  gridWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  valueCardHalf: {
+    width: "48%",
+  },
+  attrWall: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    marginBottom: 24,
+  },
+  attrDisplay: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 56,
+    textTransform: "lowercase",
+    color: "#f7893d",
+    marginRight: 16,
+    marginBottom: 8,
+    lineHeight: 1.05,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 24,
+    right: 48,
+    fontFamily: "Syne",
+    fontWeight: 600,
+    fontSize: 8,
+    letterSpacing: 1,
+    textTransform: "lowercase",
+    color: "#a8a39e",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
@@ -215,6 +250,7 @@ function LightSlide({ children }: { children: ReactNode }) {
   return (
     <Page {...PAGE_PROPS} style={styles.pageLight}>
       {children}
+      <Text style={styles.footer} fixed>station16.com</Text>
     </Page>
   );
 }
@@ -247,31 +283,24 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Core Values</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol}>
-            {data.coreValues.slice(0, Math.ceil(data.coreValues.length / 2)).map((value, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{value.name}</Text>
-                <Text style={styles.bodyText}>{value.description}</Text>
-              </View>
-            ))}
-          </View>
-          <View style={styles.gridCol}>
-            {data.coreValues.slice(Math.ceil(data.coreValues.length / 2)).map((value, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{value.name}</Text>
-                <Text style={styles.bodyText}>{value.description}</Text>
-              </View>
-            ))}
-          </View>
+        <View style={styles.gridWrap}>
+          {data.coreValues.map((value, index) => (
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+              <Text style={styles.cardTitle}>{value.name}</Text>
+              <Text style={styles.bodyText}>{value.description}</Text>
+            </View>
+          ))}
         </View>
       </LightSlide>
 
       <LightSlide>
         <Header>Key Attributes</Header>
-        <View style={styles.pillContainer}>
-          {data.keyAttributes.pills.map((pill, index) => (
-            <Text key={index} style={styles.pill} wrap={false}>{pill}</Text>
+        <View style={styles.attrWall}>
+          {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
+            <Text key={`d-${index}`} style={styles.attrDisplay} wrap={false}>{pill}</Text>
+          ))}
+          {data.keyAttributes.pills.slice(2).map((pill, index) => (
+            <Text key={`p-${index}`} style={styles.pill} wrap={false}>{pill}</Text>
           ))}
         </View>
         <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
@@ -337,12 +366,14 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Target Personas</Header>
-        {data.personas.map((persona, index) => (
-          <View key={index} style={styles.valueCard} wrap={false}>
-            <Text style={styles.cardTitle}>{persona.title}</Text>
-            <Text style={styles.bodyText}>{persona.narrative}</Text>
-          </View>
-        ))}
+        <View style={styles.gridWrap}>
+          {data.personas.map((persona, index) => (
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+              <Text style={styles.cardTitle}>{persona.title}</Text>
+              <Text style={styles.bodyText}>{persona.narrative}</Text>
+            </View>
+          ))}
+        </View>
       </LightSlide>
     </Document>
   );
