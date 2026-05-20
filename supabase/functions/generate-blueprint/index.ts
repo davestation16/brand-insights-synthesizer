@@ -166,9 +166,14 @@ const PresentationDataSchema = z.object({
     communicationStrategy: z.string(),
     dosAndDonts: z.array(z.string()).min(3).max(4),
   }),
-  primaryArchetype: z.object({ name: z.string(), description: z.string() }),
+  primaryArchetype: z.object({
+    name: SupportingCharacterEnum,
+    verbs: z.array(z.string()).min(2).max(3),
+    description: z.string(),
+  }),
   secondaryArchetypes: z.array(z.object({
-    name: z.string(),
+    name: SupportingCharacterEnum,
+    verbs: z.array(z.string()).min(2).max(3),
     description: z.string(),
   })).max(2),
   aesthetic: z.object({
