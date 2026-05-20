@@ -57,10 +57,29 @@ The "markdown" string must use the following exact section headings:
 * 3 adjectives + paragraph on bridging gaps.
 
 ### 5. Brand Archetypes (The Supporting Character)
-Use ONLY the custom Supporting Character Matrix (not Jungian):
-The Caregiver, The Professor, The Wizard, The Damsel, The Artisan, The Jester, The Organizer, The Explorer, The Love Interest, The Liberator, The Knight.
-* **Primary Supporting Character:** chosen archetype + how it applies.
-* **Secondary Character(s):** 1-2 more if needed.
+
+STRICT CLOSED LIST — You MUST choose primary and secondary archetypes ONLY from these 11 proprietary Supporting Characters. Any other archetype name (e.g., The Ruler, The Creator, The Outlaw, The Hero, The Sage, The Innocent, The Everyman, The Lover, The Magician, The Rebel — generic Jungian/Jung-Pearson archetypes) is STRICTLY FORBIDDEN and will cause the output to be rejected.
+
+The 11 allowed Supporting Characters (name — role — associated verbs):
+1. The Caregiver — Assists in meeting physical needs: food, clothing, shelter, medical care. — Verbs: Nurture, Provide
+2. The Professor — Provides knowledge, wisdom, and a listening ear. — Verbs: Instruct, Listen, Mentor
+3. The Wizard — Creates "magical" solutions to problems, both impossible and everyday (simplifying complex technology or operations). — Verbs: Create, Solve, Simplify
+4. The Damsel — In need of assistance; provides a reason for the protagonist's adventure and a sense of fulfillment when aided (highly relevant for non-profits or donor engagement). — Verbs: Need, Fulfill
+5. The Artisan — Provides necessary items to ease the protagonist's quest; can source items and provide advice about the correct tool to use. — Verbs: Source, Procure
+6. The Jester — Provides entertainment, as well as wisdom. — Verbs: Entertain, Amuse
+7. The Organizer — Establishes community, maintains community, sets standards within a community. — Verbs: Organize, Maintain
+8. The Explorer — Informs about the wider world; brings back knowledge and goods from other places. — Verbs: Introduce, Infuse
+9. The Love Interest — Gives the protagonist something to chase, to desire, to work for. — Verbs: Seduce, Thrill
+10. The Liberator — Rescues the hero from captivity; provides an escape from the everyday world. — Verbs: Free, Save
+11. The Knight — Protects the hero; stands in between the hero and danger (perfect for legal, security, or high-risk financial compliance shields). — Verbs: Protect, Secure
+
+PROPRIETARY 3-STEP REVERSE-ENGINEERING WORKFLOW — execute in this order before naming the archetype:
+1. Review the generated target audience personas and isolate their deepest vulnerability, frustration, or core quest.
+2. Determine which of the 11 allowed Supporting Characters acts as the mathematically perfect structural counterweight to that specific persona gap (e.g., a firm offering complex accounting that protects wealth from tax minefields is NOT "The Organizer" — it is "The Knight" protecting the hero from danger using Protect/Secure logic).
+3. Read the provided client context (name, entity type, aggregated responses) to ensure the chosen character accurately reflects the actual economic or spiritual value the brand offers, bypassing flat or superficial industry clichés.
+
+* **Primary Supporting Character:** chosen archetype + how it applies (must be one of the 11).
+* **Secondary Character(s):** 1-2 more if needed (each must be one of the 11).
 
 ### 6. Visual & Aesthetic Projection
 CONDITIONAL: only include if response data contains keys prefixed with "aesthetic_". Otherwise OMIT this section and renumber Personas as 6.
@@ -92,9 +111,13 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "communicationStrategy": string,     // 3-4 sentences on how to bridge the perception gap or communicate through transitions
     "dosAndDonts": [string]              // 3-4 action rules prefixed "DO: ..." or "DON'T: ..."
   },
-  "primaryArchetype": { "name": string, "description": string },
-  "secondaryArchetypes": [       // 0-2 items
-    { "name": string, "description": string }
+  "primaryArchetype": {
+    "name": string,              // STRICT: exactly one of the 11 allowed Supporting Characters (must start with "The ")
+    "verbs": [string],           // the associated verbs for that character, taken verbatim from the matrix above
+    "description": string        // deep agency-grade copy block explaining exactly how this specific supporting character role solves the target persona's quest or anxiety
+  },
+  "secondaryArchetypes": [       // 0-2 items, each from the same 11-option closed list
+    { "name": string, "verbs": [string], "description": string }
   ],
   "aesthetic": {                 // null if NO aesthetic_* keys exist in responses
     "summary": string,           // one overarching visual vibe sentence
@@ -110,7 +133,9 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
 Rules for presentationData:
 - All strings must be plain prose (NO markdown, NO asterisks, NO bullet markers).
 - Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
-- Archetype "name" must start with "The " (e.g., "The Wizard").
+- Archetype "name" MUST be EXACTLY one of: "The Caregiver", "The Professor", "The Wizard", "The Damsel", "The Artisan", "The Jester", "The Organizer", "The Explorer", "The Love Interest", "The Liberator", "The Knight". No other value is acceptable.
+- Archetype "verbs" MUST match the associated verbs for the chosen character exactly as listed in the Supporting Character matrix above.
+- Archetype "description" must explicitly tie the chosen character's role and verbs to the specific persona vulnerability or quest identified in the 3-step workflow.
 - Personality objects must use "trait" for the trait name. Do not use "name".
 - voiceAndTone.adjectives must be single words (e.g., "Confident", "Warm", "Direct").
 - voiceAndTone.inPractice and voiceAndTone.communicationStrategy must each be 3-4 substantive sentences — put on a copywriter hat, no terse summaries.
@@ -119,6 +144,20 @@ Rules for presentationData:
 - pills must be short single words or two-word phrases.
 - aesthetic: return null ONLY if no aesthetic_* keys are present in the responses; otherwise populate all four fields with substantive prose.
 - Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
+
+const SupportingCharacterEnum = z.enum([
+  "The Caregiver",
+  "The Professor",
+  "The Wizard",
+  "The Damsel",
+  "The Artisan",
+  "The Jester",
+  "The Organizer",
+  "The Explorer",
+  "The Love Interest",
+  "The Liberator",
+  "The Knight",
+]);
 
 const PresentationDataSchema = z.object({
   perceptionGap: z.object({
@@ -141,9 +180,14 @@ const PresentationDataSchema = z.object({
     communicationStrategy: z.string(),
     dosAndDonts: z.array(z.string()).min(3).max(4),
   }),
-  primaryArchetype: z.object({ name: z.string(), description: z.string() }),
+  primaryArchetype: z.object({
+    name: SupportingCharacterEnum,
+    verbs: z.array(z.string()).min(2).max(3),
+    description: z.string(),
+  }),
   secondaryArchetypes: z.array(z.object({
-    name: z.string(),
+    name: SupportingCharacterEnum,
+    verbs: z.array(z.string()).min(2).max(3),
     description: z.string(),
   })).max(2),
   aesthetic: z.object({
