@@ -116,7 +116,7 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "verbs": [string],           // the associated verbs for that character, taken verbatim from the matrix above
     "description": string        // deep agency-grade copy block explaining exactly how this specific supporting character role solves the target persona's quest or anxiety
   },
-  "secondaryArchetypes": [       // 0-2 items, each from the same 11-option closed list
+  "secondaryArchetypes": [       // 2-4 items (REQUIRED minimum of 2), each from the same 11-option closed list
     { "name": string, "verbs": [string], "description": string }
   ],
   "aesthetic": {                 // null if NO aesthetic_* keys exist in responses
