@@ -452,7 +452,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
           <View style={[styles.gridCol, styles.gridColGap]}>
             <Text style={styles.sectionLabel}>Adjectives</Text>
             {data.voiceAndTone.adjectives.map((word, index) => (
-              <Text key={index} style={styles.voiceWord} wrap={false}>{word}</Text>
+              <Text key={index} style={styles.voiceWord}>{word}</Text>
             ))}
           </View>
           <View style={styles.gridCol}>
@@ -468,7 +468,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
-                  <Text key={index} style={styles.dosDontsPill} wrap={false}>{item}</Text>
+                  <Text key={index} style={styles.dosDontsPill}>{item}</Text>
                 ))}
               </View>
             </View>
@@ -516,18 +516,18 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <LightSlide>
           <SlideHeader>Visual Direction</SlideHeader>
           <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
-          <View style={[styles.bentoRow, { marginTop: 16 }]}>
-            <View style={styles.cardFlex} wrap={false}>
+          <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
+            <View style={[styles.cardFlex, styles.bentoGap]}>
               <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
               <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
             </View>
-            <View style={styles.cardFlex} wrap={false}>
+            <View style={styles.cardFlex}>
               <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
               <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
             </View>
           </View>
           <View style={styles.bentoRow}>
-            <View style={styles.cardFlex} wrap={false}>
+            <View style={styles.cardFlex}>
               <Text style={styles.sectionLabel}>Design Style</Text>
               <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
             </View>
