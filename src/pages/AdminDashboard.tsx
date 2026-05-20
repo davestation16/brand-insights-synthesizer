@@ -159,7 +159,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
     setIsGeneratingPdf(true);
     try {
-      const data = parseBlueprint(selectedStrategy.blueprint);
+      const data: PresentationData =
+        (selectedStrategy.presentationData as PresentationData | null) ??
+        legacyToPresentationData(selectedStrategy.blueprint);
       const blob = await pdf(
         <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
       ).toBlob();
