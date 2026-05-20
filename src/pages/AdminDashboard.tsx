@@ -45,6 +45,40 @@ interface StrategyView {
   contributors: Record<string, number>;
 }
 
+type PdfDiagnosticEntry = {
+  timestamp: string;
+  level: "info" | "warn" | "error";
+  stage: string;
+  message: string;
+  details?: string;
+};
+
+const PDF_DIAGNOSTICS_KEY = "station16_pdf_diagnostics";
+
+function formatDiagnosticDetails(value: unknown): string | undefined {
+  if (!value) return undefined;
+  if (value instanceof Error) return `${value.name}: ${value.message}\n${value.stack ?? ""}`.trim();
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function readPdfDiagnostics(): PdfDiagnosticEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(PDF_DIAGNOSTICS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writePdfDiagnostics(entries: PdfDiagnosticEntry[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PDF_DIAGNOSTICS_KEY, JSON.stringify(entries.slice(-80)));
+}
+
 function pluralizeRole(role: string): string {
   if (/s$/i.test(role)) return role;
   if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
@@ -56,6 +90,10 @@ type RespondentRow = {
   respondent_email: string | null;
   submitted_at: string;
 };
+
+type SurveyTemplateRow = { entity_type: string };
+type SurveyResponseRow = { responses: { role?: string } | null };
+type GenerateBlueprintResponse = { error?: string };
 
 function RespondentsPopover({ clientId }: { clientId: string }) {
   const [open, setOpen] = useState(false);
@@ -150,17 +188,71 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [finishingId, setFinishingId] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [pdfDiagnostics, setPdfDiagnostics] = useState<PdfDiagnosticEntry[]>(() => readPdfDiagnostics());
+
+  const addPdfDiagnostic = (
+    level: PdfDiagnosticEntry["level"],
+    stage: string,
+    message: string,
+    details?: unknown,
+  ) => {
+    const entry: PdfDiagnosticEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      stage,
+      message,
+      details: formatDiagnosticDetails(details),
+    };
+    setPdfDiagnostics((current) => {
+      const next = [...current, entry].slice(-80);
+      writePdfDiagnostics(next);
+      return next;
+    });
+    const consoleMethod = level === "error" ? console.error : level === "warn" ? console.warn : console.info;
+    consoleMethod(`[PDF diagnostics] ${stage}: ${message}`, details ?? "");
+  };
+
+  const copyPdfDiagnostics = () => {
+    const payload = pdfDiagnostics
+      .map((entry) => `[${entry.timestamp}] ${entry.level.toUpperCase()} ${entry.stage}: ${entry.message}${entry.details ? `\n${entry.details}` : ""}`)
+      .join("\n\n");
+    navigator.clipboard.writeText(payload || "No PDF diagnostics captured yet.");
+    setCopiedId("pdf-diagnostics");
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   const handleDownloadPdf = async () => {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
+    addPdfDiagnostic("info", "download:start", `Starting PDF generation for ${selectedStrategy.client.name}`, {
+      clientId: selectedStrategy.client.id,
+      hasPresentationData: Boolean(selectedStrategy.presentationData),
+      blueprintLength: selectedStrategy.blueprint.length,
+      sections: selectedStrategy.presentationData
+        ? {
+            coreValues: selectedStrategy.presentationData.coreValues?.length,
+            attributes: selectedStrategy.presentationData.keyAttributes?.pills?.length,
+            secondaryArchetypes: selectedStrategy.presentationData.secondaryArchetypes?.length,
+            personas: selectedStrategy.presentationData.personas?.length,
+            hasAesthetic: Boolean(selectedStrategy.presentationData.aesthetic),
+          }
+        : null,
+    });
     setIsGeneratingPdf(true);
     try {
       if (!isPresentationData(selectedStrategy.presentationData)) {
         throw new Error("This strategy was generated before structured deck data was available. Please regenerate the strategy, then download the PDF.");
       }
-      const blob = await pdf(
+      addPdfDiagnostic("info", "download:render", "Creating React-PDF document instance.");
+      const deckInstance = pdf(
         <BlueprintDeck clientName={selectedStrategy.client.name} data={selectedStrategy.presentationData} />,
-      ).toBlob();
+      );
+      addPdfDiagnostic("info", "download:blob", "Converting document to PDF blob.");
+      const startedAt = performance.now();
+      const blob = await deckInstance.toBlob();
+      addPdfDiagnostic("info", "download:blob:complete", `PDF blob created in ${Math.round(performance.now() - startedAt)}ms.`, {
+        size: blob.size,
+        type: blob.type,
+      });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -169,7 +261,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      addPdfDiagnostic("info", "download:complete", "PDF download triggered successfully.");
     } catch (err) {
+      addPdfDiagnostic("error", "download:error", "PDF generation failed before completion.", err);
       console.error("PDF generation failed:", err);
       alert("Failed to generate PDF: " + (err as Error).message);
     } finally {
@@ -195,7 +289,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     load();
     (async () => {
       const { data } = await supabase.from("survey_templates").select("entity_type").order("entity_type");
-      const types = ((data as any[]) ?? []).map((r) => r.entity_type);
+      const types = ((data as SurveyTemplateRow[]) ?? []).map((r) => r.entity_type);
       setIndustries(types);
       setNewClient((p) => ({ ...p, entityType: p.entityType || types[0] || "" }));
     })();
@@ -223,7 +317,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       .eq("client_id", client.id);
 
     const contributors: Record<string, number> = {};
-    (surveys ?? []).forEach((s: any) => {
+    ((surveys as SurveyResponseRow[] | null) ?? []).forEach((s) => {
       const role = s?.responses?.role;
       if (role) contributors[role] = (contributors[role] ?? 0) + 1;
     });
@@ -248,8 +342,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     const { data, error } = await supabase.functions.invoke("generate-blueprint", {
       body: { clientId: client.id },
     });
-    if (error || (data as any)?.error) {
-      alert("Failed to generate strategy: " + (error?.message || (data as any)?.error));
+    const result = data as GenerateBlueprintResponse | null;
+    if (error || result?.error) {
+      alert("Failed to generate strategy: " + (error?.message || result?.error));
       setFinishingId(null);
       return;
     }
@@ -502,6 +597,33 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                         .join(", ")}
                     </p>
                   )}
+                </div>
+
+                <div className="mt-6 bg-s16-bg-surface border border-s16-border p-5">
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <p className="s16-eyebrow text-s16-text-muted">PDF Diagnostics</p>
+                    <button
+                      onClick={copyPdfDiagnostics}
+                      className="flex items-center gap-1 text-[10px] font-ui font-semibold uppercase tracking-widest text-s16-accent hover:opacity-70 transition-opacity"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>{copiedId === "pdf-diagnostics" ? "Copied" : "Copy Log"}</span>
+                    </button>
+                  </div>
+                  <div className="max-h-40 overflow-y-auto border border-s16-border-light bg-s16-bg p-3 font-mono text-[10px] leading-relaxed text-s16-text-muted">
+                    {pdfDiagnostics.length === 0 ? (
+                      <p>No PDF diagnostics captured yet.</p>
+                    ) : (
+                      pdfDiagnostics.slice(-12).map((entry, index) => (
+                        <div key={`${entry.timestamp}-${index}`} className="mb-3 last:mb-0 whitespace-pre-wrap">
+                          <span className={entry.level === "error" ? "text-red-600" : entry.level === "warn" ? "text-orange-600" : "text-s16-text-muted"}>
+                            [{entry.timestamp}] {entry.level.toUpperCase()} {entry.stage}: {entry.message}
+                          </span>
+                          {entry.details && <div className="mt-1 opacity-80">{entry.details}</div>}
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
 
