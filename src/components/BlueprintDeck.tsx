@@ -54,16 +54,25 @@ export interface PresentationPersona {
 }
 
 export interface PresentationData {
-  perceptionGap?: { alignment: string; disconnect: string };
+  perceptionGap: { alignment: string; disconnect: string };
   coreValues: PresentationValue[];
   keyAttributes: { pills: string[]; summary: string };
   primaryPersonality: PresentationPersonality;
   secondaryPersonality: PresentationPersonality;
-  voiceAdjectives: string[];
-  voiceParagraph: string;
+  voiceAndTone: {
+    adjectives: string[];
+    inPractice: string;
+    communicationStrategy: string;
+    dosAndDonts: string[];
+  };
   primaryArchetype: PresentationArchetype;
   secondaryArchetypes: PresentationArchetype[];
-  aestheticDirection?: string | null;
+  aesthetic: {
+    summary: string;
+    palette: string;
+    materials: string;
+    style: string;
+  } | null;
   personas: PresentationPersona[];
 }
 
