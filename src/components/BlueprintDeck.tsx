@@ -343,6 +343,43 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: "#5a5550",
   },
+  personaCard3Up: {
+    flex: 1,
+    backgroundColor: "#f4f1ea",
+    paddingTop: 24,
+    paddingBottom: 24,
+    paddingLeft: 16,
+    paddingRight: 16,
+    border: "1pt solid #e8e7e5",
+  },
+  quadrantRow: {
+    flexDirection: "row",
+  },
+  quadrantColLeft: {
+    flex: 1,
+    flexDirection: "column",
+    marginRight: 24,
+  },
+  quadrantColRight: {
+    flex: 1.5,
+    flexDirection: "column",
+  },
+  quadrantBlock: {
+    marginBottom: 16,
+  },
+  personaRow: {
+    flexDirection: "row",
+  },
+  personaGap: {
+    marginRight: 12,
+  },
+  aestheticRow: {
+    flexDirection: "row",
+    marginTop: 16,
+  },
+  aestheticGap: {
+    marginRight: 16,
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
