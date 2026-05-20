@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "#E5E5E5",
   },
-  personaTitle: { fontSize: 22, fontWeight: 700, marginBottom: 8, letterSpacing: -0.3 },
-  personaNarrative: { fontSize: 12, color: MUTED, lineHeight: 1.55 },
+  personaTitle: { fontSize: 22, fontFamily: FONT_BOLD, marginBottom: 8, letterSpacing: -0.3 },
+  personaNarrative: { fontSize: 12, fontFamily: FONT, color: MUTED, lineHeight: 1.55 },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
