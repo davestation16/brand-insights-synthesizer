@@ -4,6 +4,9 @@
 // `presentationData` object (consumed by the PDF deck).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { generateText, Output } from "npm:ai";
+import { createOpenAICompatible } from "npm:@ai-sdk/openai-compatible";
+import { z } from "npm:zod";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -81,8 +84,8 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "pills": [string],           // 3-6 short trait words
     "summary": string            // one sentence blending them
   },
-  "primaryPersonality": { "name": string, "why": string },
-  "secondaryPersonality": { "name": string, "why": string },
+  "primaryPersonality": { "trait": string, "why": string },
+  "secondaryPersonality": { "trait": string, "why": string },
   "voiceAdjectives": [string],   // exactly 3
   "voiceParagraph": string,
   "primaryArchetype": { "name": string, "description": string },
@@ -99,9 +102,44 @@ Rules for presentationData:
 - All strings must be plain prose (NO markdown, NO asterisks, NO bullet markers).
 - Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
 - Archetype "name" must start with "The " (e.g., "The Wizard").
+- Personality objects must use "trait" for the trait name. Do not use "name".
 - voiceAdjectives must be single words (e.g., "Confident", "Warm", "Direct").
 - pills must be short single words or two-word phrases.
 - Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
+
+const PresentationDataSchema = z.object({
+  perceptionGap: z.object({
+    alignment: z.string(),
+    disconnect: z.string(),
+  }),
+  coreValues: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+  })).min(3).max(4),
+  keyAttributes: z.object({
+    pills: z.array(z.string()).min(3).max(6),
+    summary: z.string(),
+  }),
+  primaryPersonality: z.object({ trait: z.string(), why: z.string() }),
+  secondaryPersonality: z.object({ trait: z.string(), why: z.string() }),
+  voiceAdjectives: z.array(z.string()).length(3),
+  voiceParagraph: z.string(),
+  primaryArchetype: z.object({ name: z.string(), description: z.string() }),
+  secondaryArchetypes: z.array(z.object({
+    name: z.string(),
+    description: z.string(),
+  })).max(2),
+  aestheticDirection: z.string().nullable(),
+  personas: z.array(z.object({
+    title: z.string(),
+    narrative: z.string(),
+  })).min(2).max(3),
+});
+
+const BlueprintOutputSchema = z.object({
+  markdown: z.string(),
+  presentationData: PresentationDataSchema,
+});
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
