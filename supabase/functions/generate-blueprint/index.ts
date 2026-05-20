@@ -145,6 +145,20 @@ Rules for presentationData:
 - aesthetic: return null ONLY if no aesthetic_* keys are present in the responses; otherwise populate all four fields with substantive prose.
 - Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
 
+const SupportingCharacterEnum = z.enum([
+  "The Caregiver",
+  "The Professor",
+  "The Wizard",
+  "The Damsel",
+  "The Artisan",
+  "The Jester",
+  "The Organizer",
+  "The Explorer",
+  "The Love Interest",
+  "The Liberator",
+  "The Knight",
+]);
+
 const PresentationDataSchema = z.object({
   perceptionGap: z.object({
     alignment: z.string(),
