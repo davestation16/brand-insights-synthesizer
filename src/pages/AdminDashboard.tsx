@@ -155,11 +155,11 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     if (!selectedStrategy || !selectedStrategy.blueprint) return;
     setIsGeneratingPdf(true);
     try {
-      const data: PresentationData =
-        (selectedStrategy.presentationData as PresentationData | null) ??
-        legacyToPresentationData(selectedStrategy.blueprint);
+      if (!isPresentationData(selectedStrategy.presentationData)) {
+        throw new Error("This strategy was generated before structured deck data was available. Please regenerate the strategy, then download the PDF.");
+      }
       const blob = await pdf(
-        <BlueprintDeck clientName={selectedStrategy.client.name} data={data} />,
+        <BlueprintDeck clientName={selectedStrategy.client.name} data={selectedStrategy.presentationData} />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -231,7 +231,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     setSelectedStrategy({
       client: fresh,
       blueprint: fresh.blueprint || "",
-      presentationData: (fresh.presentation_data as PresentationData | null) ?? null,
+      presentationData: isPresentationData(fresh.presentation_data) ? fresh.presentation_data : null,
       contributors,
     });
   };
