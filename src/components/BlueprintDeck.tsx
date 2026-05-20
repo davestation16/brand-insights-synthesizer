@@ -11,14 +11,14 @@ import {
 } from "@react-pdf/renderer";
 import type { ParsedBlueprint } from "@/lib/parseBlueprint";
 
-// Register Inter from Google Fonts CDN (TTF mirror that react-pdf can consume).
+// Register Inter from the fontsource CDN (stable TTF per weight, CORS-friendly).
 Font.register({
   family: "Inter",
   fonts: [
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.ttf", fontWeight: 400 },
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa2JL7SUc.ttf", fontWeight: 500 },
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7W0Q5n-wU.ttf", fontWeight: 700 },
-    { src: "https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7SUc.ttf", fontWeight: 900 },
+    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-400-normal.ttf", fontWeight: 400 },
+    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-500-normal.ttf", fontWeight: 500 },
+    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-700-normal.ttf", fontWeight: 700 },
+    { src: "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-900-normal.ttf", fontWeight: 900 },
   ],
 });
 
