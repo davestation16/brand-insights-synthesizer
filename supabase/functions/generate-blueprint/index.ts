@@ -41,9 +41,29 @@ Return a beautifully structured Markdown report using the following exact sectio
 * Define the brand's voice using 3 distinct adjectives.
 * Write a brief paragraph explaining *how* the brand should communicate to bridge any gaps identified in the Gap Analysis.
 
-### 5. Brand Archetypes
-* **Primary Archetype:** Select the most fitting standard brand archetype (e.g., Caregiver, Liberator, Creator, Sage, etc.) based on the data. Explain why.
-* **Supporting Archetype:** Select a secondary archetype that adds nuance.
+### 5. Brand Archetypes (The Supporting Character)
+
+CRITICAL INSTRUCTION: Do NOT use standard Jungian archetypes. You must evaluate the brand based strictly on the custom "Supporting Character Matrix" provided below.
+
+Context: The client/customer is the "Hero". The Brand is the "Supporting Character". This archetype defines the nature of the relationship between the hero and the brand, informs the topic of conversation, and is entirely independent of the brand's personality.
+
+Based on the survey data, select 1 to 3 of the following Supporting Character Archetypes that best fit what the brand does for its customers:
+
+* **The Caregiver:** Assists in meeting physical needs: food, clothing, shelter, medical care. (Keywords: Nurture, Provide)
+* **The Professor:** Provides knowledge, wisdom, a listening ear. (Keywords: Instruct, Listen, Mentor)
+* **The Wizard:** Creates "magical" solutions to problems, both impossible and everyday. (Keywords: Create, Solve, Simplify)
+* **The Damsel:** Provides a reason for the adventure and a sense of fulfillment when aided. (Keywords: Need, Fulfill)
+* **The Artisan:** Provides items to ease the quest; gives advice about the correct tool to use. (Keywords: Source, Procure)
+* **The Jester:** Provides entertainment, as well as wisdom. (Keywords: Entertain, Amuse)
+* **The Organizer:** Establishes community, maintains community, sets standards within a community. (Keywords: Organize, Maintain)
+* **The Explorer:** Informs about the wider world; brings back knowledge and goods from other places. (Keywords: Introduce, Infuse)
+* **The Love Interest:** Gives the protagonist something to chase, to desire, to work for. (Keywords: Seduce, Thrill)
+* **The Liberator:** Rescues from captivity, provides escape from everyday world. (Keywords: Free, Save)
+* **The Knight:** Protects hero, stands in between hero and danger. (Keywords: Protect, Secure)
+
+Output requirements:
+* **Primary Supporting Character:** State the chosen archetype and write a brief sentence applying its exact definition from the matrix above to the brand's specific services/products.
+* **Secondary Character(s):** List 1 or 2 additional archetypes if the brand's relationship requires a blend, and explain how they interact with the primary role.
 
 ### 6. Visual & Aesthetic Projection
 * CONDITIONAL: ONLY include this section if the response data actually contains aesthetic answers (keys prefixed with "aesthetic_"). If no aesthetic data is present, completely OMIT this entire section (including the heading) and renumber Target Audience Personas as section 6.
