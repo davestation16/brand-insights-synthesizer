@@ -427,17 +427,18 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <SlideHeader>Alignment vs. Disconnect</SlideHeader>
-        <View style={styles.gridWrap}>
-          <View style={[styles.valueCard, styles.valueCardHalf]}>
+        <View style={styles.gridWrap} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalfCompact]}>
             <Text style={styles.cardTitle}>Alignment</Text>
-            <Text style={styles.bodyText}>{data.perceptionGap.alignment}</Text>
+            <Text style={styles.bodyTextCompact}>{data.perceptionGap.alignment}</Text>
           </View>
-          <View style={[styles.valueCard, styles.valueCardHalf]}>
+          <View style={[styles.valueCard, styles.valueCardHalfCompact]}>
             <Text style={styles.cardTitle}>Disconnect</Text>
-            <Text style={styles.bodyText}>{data.perceptionGap.disconnect}</Text>
+            <Text style={styles.bodyTextCompact}>{data.perceptionGap.disconnect}</Text>
           </View>
         </View>
       </LightSlide>
+
 
       <Interstitial text="3. Personality & Voice" />
 
