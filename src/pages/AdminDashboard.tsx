@@ -235,6 +235,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     setSelectedStrategy({
       client: fresh,
       blueprint: fresh.blueprint || "",
+      presentationData: (fresh.presentation_data as PresentationData | null) ?? null,
       contributors,
     });
   };
