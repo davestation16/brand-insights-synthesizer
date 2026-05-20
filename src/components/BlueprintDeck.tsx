@@ -366,12 +366,14 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Target Personas</Header>
-        {data.personas.map((persona, index) => (
-          <View key={index} style={styles.valueCard} wrap={false}>
-            <Text style={styles.cardTitle}>{persona.title}</Text>
-            <Text style={styles.bodyText}>{persona.narrative}</Text>
-          </View>
-        ))}
+        <View style={styles.gridWrap}>
+          {data.personas.map((persona, index) => (
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+              <Text style={styles.cardTitle}>{persona.title}</Text>
+              <Text style={styles.bodyText}>{persona.narrative}</Text>
+            </View>
+          ))}
+        </View>
       </LightSlide>
     </Document>
   );
