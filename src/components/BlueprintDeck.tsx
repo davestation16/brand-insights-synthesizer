@@ -242,6 +242,48 @@ const styles = StyleSheet.create({
     textTransform: "lowercase",
     color: "#a8a39e",
   },
+  bentoRow: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 16,
+  },
+  pillGiant: {
+    flex: 1,
+    backgroundColor: "#eeebe3",
+    border: "1pt solid #e8e7e5",
+    borderRadius: 8,
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillGiantText: {
+    fontFamily: "Cormorant Garamond",
+    fontSize: 48,
+    color: "#f7893d",
+    textTransform: "lowercase",
+  },
+  pillFlex: {
+    flex: 1,
+    backgroundColor: "#eeebe3",
+    border: "1pt solid #e8e7e5",
+    borderRadius: 4,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillFlexText: {
+    fontFamily: "Syne",
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#1a1917",
+  },
+  cardFlex: {
+    flex: 1,
+    backgroundColor: "#f4f1ea",
+    padding: 32,
+    border: "1pt solid #e8e7e5",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
