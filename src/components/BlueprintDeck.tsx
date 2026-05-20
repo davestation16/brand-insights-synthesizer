@@ -242,6 +242,48 @@ const styles = StyleSheet.create({
     textTransform: "lowercase",
     color: "#a8a39e",
   },
+  bentoRow: {
+    flexDirection: "row",
+    gap: 16,
+    marginBottom: 16,
+  },
+  pillGiant: {
+    flex: 1,
+    backgroundColor: "#eeebe3",
+    border: "1pt solid #e8e7e5",
+    borderRadius: 8,
+    padding: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillGiantText: {
+    fontFamily: "Cormorant Garamond",
+    fontSize: 48,
+    color: "#f7893d",
+    textTransform: "lowercase",
+  },
+  pillFlex: {
+    flex: 1,
+    backgroundColor: "#eeebe3",
+    border: "1pt solid #e8e7e5",
+    borderRadius: 4,
+    padding: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillFlexText: {
+    fontFamily: "Syne",
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#1a1917",
+  },
+  cardFlex: {
+    flex: 1,
+    backgroundColor: "#f4f1ea",
+    padding: 32,
+    border: "1pt solid #e8e7e5",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
@@ -257,6 +299,14 @@ function LightSlide({ children }: { children: ReactNode }) {
 
 function Header({ children }: { children: string }) {
   return <Text style={styles.slideHeader}>{children}</Text>;
+}
+
+function SlideHeader({ children }: { children: string }) {
+  return (
+    <View fixed>
+      <Text style={styles.slideHeader}>{children}</Text>
+    </View>
+  );
 }
 
 function Interstitial({ text }: { text: string }) {
@@ -282,7 +332,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <Interstitial text="1. The Brand's Soul" />
 
       <LightSlide>
-        <Header>Core Values</Header>
+        <SlideHeader>Core Values</SlideHeader>
         <View style={styles.gridWrap}>
           {data.coreValues.map((value, index) => (
             <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
@@ -294,17 +344,26 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       </LightSlide>
 
       <LightSlide>
-        <Header>Key Attributes</Header>
-        <View style={styles.attrWall}>
+        <SlideHeader>Key Attributes</SlideHeader>
+        <View style={styles.bentoRow}>
           {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
-            <Text key={`d-${index}`} style={styles.attrDisplay} wrap={false}>{pill}</Text>
-          ))}
-          {data.keyAttributes.pills.slice(2).map((pill, index) => (
-            <Text key={`p-${index}`} style={styles.pill} wrap={false}>{pill}</Text>
+            <View key={`g-${index}`} style={styles.pillGiant} wrap={false}>
+              <Text style={styles.pillGiantText}>{pill}</Text>
+            </View>
           ))}
         </View>
+        {data.keyAttributes.pills.slice(2).length > 0 && (
+          <View style={styles.bentoRow}>
+            {data.keyAttributes.pills.slice(2).map((pill, index) => (
+              <View key={`f-${index}`} style={styles.pillFlex} wrap={false}>
+                <Text style={styles.pillFlexText}>{pill}</Text>
+              </View>
+            ))}
+          </View>
+        )}
         <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
       </LightSlide>
+
 
       <Interstitial text="2. Personality & Voice" />
 
@@ -343,29 +402,28 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <Interstitial text="3. The Supporting Character" />
 
       <LightSlide>
-        <Header>Brand Archetypes</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol} wrap={false}>
+        <SlideHeader>Brand Archetypes</SlideHeader>
+        <View style={styles.bentoRow}>
+          <View style={styles.cardFlex} wrap={false}>
             <Text style={styles.sectionLabel}>Primary Supporting Character</Text>
             <Text style={styles.trait}>{data.primaryArchetype.name}</Text>
             <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
           </View>
-          <View style={styles.gridCol}>
-            <Text style={styles.sectionLabel}>Secondary Character(s)</Text>
-            {data.secondaryArchetypes.map((archetype, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{archetype.name}</Text>
-                <Text style={styles.bodyText}>{archetype.description}</Text>
-              </View>
-            ))}
-          </View>
+        </View>
+        <View style={styles.bentoRow}>
+          {data.secondaryArchetypes.map((archetype, index) => (
+            <View key={index} style={styles.cardFlex} wrap={false}>
+              <Text style={styles.cardTitle}>{archetype.name}</Text>
+              <Text style={styles.bodyText}>{archetype.description}</Text>
+            </View>
+          ))}
         </View>
       </LightSlide>
 
       <Interstitial text="4. Target Audience" />
 
       <LightSlide>
-        <Header>Target Personas</Header>
+        <SlideHeader>Target Personas</SlideHeader>
         <View style={styles.gridWrap}>
           {data.personas.map((persona, index) => (
             <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
