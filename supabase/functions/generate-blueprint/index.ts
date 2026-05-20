@@ -111,9 +111,13 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "communicationStrategy": string,     // 3-4 sentences on how to bridge the perception gap or communicate through transitions
     "dosAndDonts": [string]              // 3-4 action rules prefixed "DO: ..." or "DON'T: ..."
   },
-  "primaryArchetype": { "name": string, "description": string },
-  "secondaryArchetypes": [       // 0-2 items
-    { "name": string, "description": string }
+  "primaryArchetype": {
+    "name": string,              // STRICT: exactly one of the 11 allowed Supporting Characters (must start with "The ")
+    "verbs": [string],           // the associated verbs for that character, taken verbatim from the matrix above
+    "description": string        // deep agency-grade copy block explaining exactly how this specific supporting character role solves the target persona's quest or anxiety
+  },
+  "secondaryArchetypes": [       // 0-2 items, each from the same 11-option closed list
+    { "name": string, "verbs": [string], "description": string }
   ],
   "aesthetic": {                 // null if NO aesthetic_* keys exist in responses
     "summary": string,           // one overarching visual vibe sentence
