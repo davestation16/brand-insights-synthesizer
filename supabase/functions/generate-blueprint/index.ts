@@ -189,11 +189,11 @@ Segment respondents by their Role field as instructed, then return the JSON obje
       headers: { "Lovable-API-Key": LOVABLE_API_KEY },
     });
 
-    const { experimental_output: parsed } = await generateText({
+    const { output: parsed } = await generateText({
       model: gateway("google/gemini-2.5-pro"),
       system: SYSTEM_PROMPT,
       prompt: userPrompt,
-      experimental_output: Output.object({ schema: BlueprintOutputSchema }),
+      output: Output.object({ schema: BlueprintOutputSchema }),
     });
 
     const blueprint = parsed.markdown;
