@@ -402,29 +402,28 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <Interstitial text="3. The Supporting Character" />
 
       <LightSlide>
-        <Header>Brand Archetypes</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol} wrap={false}>
+        <SlideHeader>Brand Archetypes</SlideHeader>
+        <View style={styles.bentoRow}>
+          <View style={styles.cardFlex} wrap={false}>
             <Text style={styles.sectionLabel}>Primary Supporting Character</Text>
             <Text style={styles.trait}>{data.primaryArchetype.name}</Text>
             <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
           </View>
-          <View style={styles.gridCol}>
-            <Text style={styles.sectionLabel}>Secondary Character(s)</Text>
-            {data.secondaryArchetypes.map((archetype, index) => (
-              <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle}>{archetype.name}</Text>
-                <Text style={styles.bodyText}>{archetype.description}</Text>
-              </View>
-            ))}
-          </View>
+        </View>
+        <View style={styles.bentoRow}>
+          {data.secondaryArchetypes.map((archetype, index) => (
+            <View key={index} style={styles.cardFlex} wrap={false}>
+              <Text style={styles.cardTitle}>{archetype.name}</Text>
+              <Text style={styles.bodyText}>{archetype.description}</Text>
+            </View>
+          ))}
         </View>
       </LightSlide>
 
       <Interstitial text="4. Target Audience" />
 
       <LightSlide>
-        <Header>Target Personas</Header>
+        <SlideHeader>Target Personas</SlideHeader>
         <View style={styles.gridWrap}>
           {data.personas.map((persona, index) => (
             <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
