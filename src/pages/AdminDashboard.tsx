@@ -45,6 +45,40 @@ interface StrategyView {
   contributors: Record<string, number>;
 }
 
+type PdfDiagnosticEntry = {
+  timestamp: string;
+  level: "info" | "warn" | "error";
+  stage: string;
+  message: string;
+  details?: string;
+};
+
+const PDF_DIAGNOSTICS_KEY = "station16_pdf_diagnostics";
+
+function formatDiagnosticDetails(value: unknown): string | undefined {
+  if (!value) return undefined;
+  if (value instanceof Error) return `${value.name}: ${value.message}\n${value.stack ?? ""}`.trim();
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function readPdfDiagnostics(): PdfDiagnosticEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    return JSON.parse(localStorage.getItem(PDF_DIAGNOSTICS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writePdfDiagnostics(entries: PdfDiagnosticEntry[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PDF_DIAGNOSTICS_KEY, JSON.stringify(entries.slice(-80)));
+}
+
 function pluralizeRole(role: string): string {
   if (/s$/i.test(role)) return role;
   if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
