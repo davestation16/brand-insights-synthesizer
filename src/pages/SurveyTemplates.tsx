@@ -24,6 +24,21 @@ type TemplateContent = {
   roles: string[];
 };
 
+const normalizeImageForStorage = (file: File) =>
+  new Promise<Blob>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("Could not process image"))), "image/jpeg", 0.82);
+    };
+    img.onerror = () => reject(new Error("Could not read image"));
+    img.src = URL.createObjectURL(file);
+  });
+
 const EMPTY: TemplateContent = {
   personalityTraits: [],
   perceptionTraits: [],
@@ -50,11 +65,12 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
     const key = `${cat}-${idx}`;
     setUploadingKey(key);
     try {
-      const safeName = file.name.replace(/[^a-zA-Z0-9.]/g, "");
-      const path = `${Date.now()}-${safeName}`;
+      const imageBlob = await normalizeImageForStorage(file);
+      const safeName = file.name.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9]/g, "");
+      const path = `${Date.now()}-${safeName || "image"}.jpg`;
       const { error: upErr } = await supabase.storage
         .from("survey_images")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
+        .upload(path, imageBlob, { cacheControl: "3600", contentType: "image/jpeg", upsert: false });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("survey_images").getPublicUrl(path);
       updateAesthetic(cat, idx, { image: data.publicUrl });
