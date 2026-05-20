@@ -226,6 +226,17 @@ const styles = StyleSheet.create({
   valueCardHalf: {
     width: "48%",
   },
+  valueCardHalfCompact: {
+    width: "48%",
+    padding: 20,
+  },
+  bodyTextCompact: {
+    fontFamily: "Lora",
+    fontSize: 12,
+    lineHeight: 1.45,
+    color: "#7a7570",
+    marginTop: 8,
+  },
   attrWall: {
     flexDirection: "row",
     flexWrap: "wrap",
