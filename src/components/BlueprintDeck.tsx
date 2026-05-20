@@ -293,6 +293,38 @@ const styles = StyleSheet.create({
     padding: 32,
     border: "1pt solid #e8e7e5",
   },
+  subheading: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 18,
+    color: "#1a1917",
+    marginBottom: 6,
+  },
+  bodyTextSm: {
+    fontFamily: "Lora",
+    fontSize: 12,
+    lineHeight: 1.55,
+    color: "#7a7570",
+    marginTop: 6,
+  },
+  stackBlock: {
+    marginBottom: 16,
+  },
+  dosDontsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 6,
+  },
+  dosDontsPill: {
+    backgroundColor: "#eeebe3",
+    borderRadius: 4,
+    padding: "4pt 10pt",
+    marginRight: 6,
+    marginBottom: 6,
+    fontFamily: "Lora",
+    fontSize: 10,
+    color: "#5a5550",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
