@@ -189,7 +189,7 @@ const PresentationDataSchema = z.object({
     name: SupportingCharacterEnum,
     verbs: z.array(z.string()).min(2).max(3),
     description: z.string(),
-  })).max(2),
+  })).min(2).max(4),
   aesthetic: z.object({
     summary: z.string(),
     palette: z.string(),
