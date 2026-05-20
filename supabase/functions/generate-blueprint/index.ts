@@ -74,8 +74,8 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
 
 "presentationData": {
   "perceptionGap": {
-    "alignment": string,         // 1-2 sentences
-    "disconnect": string         // 1-2 sentences
+    "alignment": string,         // 3-4 sentence paragraph synthesizing where Internal/Involved/Proximate agree
+    "disconnect": string         // 3-4 sentence paragraph on key friction or perception gaps (e.g., innovation, sophistication)
   },
   "coreValues": [                // 3-4 items
     { "name": string, "description": string }
@@ -86,13 +86,22 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
   },
   "primaryPersonality": { "trait": string, "why": string },
   "secondaryPersonality": { "trait": string, "why": string },
-  "voiceAdjectives": [string],   // exactly 3
-  "voiceParagraph": string,
+  "voiceAndTone": {
+    "adjectives": [string],              // exactly 3 single words
+    "inPractice": string,                // 3-4 sentences describing exactly how the brand sounds across marketing channels
+    "communicationStrategy": string,     // 3-4 sentences on how to bridge the perception gap or communicate through transitions
+    "dosAndDonts": [string]              // 3-4 action rules prefixed "DO: ..." or "DON'T: ..."
+  },
   "primaryArchetype": { "name": string, "description": string },
   "secondaryArchetypes": [       // 0-2 items
     { "name": string, "description": string }
   ],
-  "aestheticDirection": string | null,   // null if no aesthetic_* data
+  "aesthetic": {                 // null if NO aesthetic_* keys exist in responses
+    "summary": string,           // one overarching visual vibe sentence
+    "palette": string,           // color breakdown + psychological mood
+    "materials": string,         // material cues and tactile textures
+    "style": string              // core architectural / design approach rules
+  } | null,
   "personas": [                  // 2-3 items
     { "title": string, "narrative": string }
   ]
@@ -103,8 +112,12 @@ Rules for presentationData:
 - Keep value/persona descriptions to 1-3 sentences each so they fit a slide.
 - Archetype "name" must start with "The " (e.g., "The Wizard").
 - Personality objects must use "trait" for the trait name. Do not use "name".
-- voiceAdjectives must be single words (e.g., "Confident", "Warm", "Direct").
+- voiceAndTone.adjectives must be single words (e.g., "Confident", "Warm", "Direct").
+- voiceAndTone.inPractice and voiceAndTone.communicationStrategy must each be 3-4 substantive sentences — put on a copywriter hat, no terse summaries.
+- voiceAndTone.dosAndDonts: each item starts with "DO:" or "DON'T:" followed by an actionable operational rule.
+- perceptionGap.alignment and perceptionGap.disconnect must each be a full 3-4 sentence paragraph.
 - pills must be short single words or two-word phrases.
+- aesthetic: return null ONLY if no aesthetic_* keys are present in the responses; otherwise populate all four fields with substantive prose.
 - Return ONLY the JSON object. No prose before or after. No \`\`\`json fences.`;
 
 const PresentationDataSchema = z.object({
@@ -122,14 +135,23 @@ const PresentationDataSchema = z.object({
   }),
   primaryPersonality: z.object({ trait: z.string(), why: z.string() }),
   secondaryPersonality: z.object({ trait: z.string(), why: z.string() }),
-  voiceAdjectives: z.array(z.string()).length(3),
-  voiceParagraph: z.string(),
+  voiceAndTone: z.object({
+    adjectives: z.array(z.string()).length(3),
+    inPractice: z.string(),
+    communicationStrategy: z.string(),
+    dosAndDonts: z.array(z.string()).min(3).max(4),
+  }),
   primaryArchetype: z.object({ name: z.string(), description: z.string() }),
   secondaryArchetypes: z.array(z.object({
     name: z.string(),
     description: z.string(),
   })).max(2),
-  aestheticDirection: z.string().nullable(),
+  aesthetic: z.object({
+    summary: z.string(),
+    palette: z.string(),
+    materials: z.string(),
+    style: z.string(),
+  }).nullable(),
   personas: z.array(z.object({
     title: z.string(),
     narrative: z.string(),
