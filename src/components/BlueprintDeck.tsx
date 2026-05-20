@@ -226,6 +226,17 @@ const styles = StyleSheet.create({
   valueCardHalf: {
     width: "48%",
   },
+  valueCardHalfCompact: {
+    width: "48%",
+    padding: 20,
+  },
+  bodyTextCompact: {
+    fontFamily: "Lora",
+    fontSize: 12,
+    lineHeight: 1.45,
+    color: "#7a7570",
+    marginTop: 8,
+  },
   attrWall: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -298,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f4f1ea",
     padding: 32,
-    border: "1pt solid #e8e7e5",
+    border: "1pt solid rgba(26, 25, 23, 0.10)",
   },
   subheading: {
     fontFamily: "Cormorant Garamond",
@@ -309,8 +320,8 @@ const styles = StyleSheet.create({
   },
   bodyTextSm: {
     fontFamily: "Lora",
-    fontSize: 12,
-    lineHeight: 1.55,
+    fontSize: 11,
+    lineHeight: 1.5,
     color: "#7a7570",
     marginTop: 6,
   },
@@ -416,17 +427,18 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <SlideHeader>Alignment vs. Disconnect</SlideHeader>
-        <View style={styles.gridWrap}>
-          <View style={[styles.valueCard, styles.valueCardHalf]}>
+        <View style={styles.gridWrap} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalfCompact]}>
             <Text style={styles.cardTitle}>Alignment</Text>
-            <Text style={styles.bodyText}>{data.perceptionGap.alignment}</Text>
+            <Text style={styles.bodyTextCompact}>{data.perceptionGap.alignment}</Text>
           </View>
-          <View style={[styles.valueCard, styles.valueCardHalf]}>
+          <View style={[styles.valueCard, styles.valueCardHalfCompact]}>
             <Text style={styles.cardTitle}>Disconnect</Text>
-            <Text style={styles.bodyText}>{data.perceptionGap.disconnect}</Text>
+            <Text style={styles.bodyTextCompact}>{data.perceptionGap.disconnect}</Text>
           </View>
         </View>
       </LightSlide>
+
 
       <Interstitial text="3. Personality & Voice" />
 
@@ -464,7 +476,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
               <Text style={styles.subheading}>How to Communicate</Text>
               <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
             </View>
-            <View style={styles.stackBlock}>
+            <View style={styles.stackBlock} wrap={false}>
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
@@ -472,6 +484,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
                 ))}
               </View>
             </View>
+
           </View>
         </View>
       </LightSlide>
