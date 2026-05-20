@@ -37,7 +37,7 @@ interface Client {
   status: "pending" | "completed";
   response_count: number;
   blueprint: string | null;
-  presentation_data: PresentationData | null;
+  presentation_data: PresentationData | unknown | null;
   created_at: string;
   include_aesthetics: boolean;
 }
