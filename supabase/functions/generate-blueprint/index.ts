@@ -190,10 +190,11 @@ Segment respondents by their Role field as instructed, then return the JSON obje
     });
 
     const { output: parsed } = await generateText({
-      model: gateway("google/gemini-2.5-pro"),
+      model: gateway("google/gemini-2.5-flash"),
       system: SYSTEM_PROMPT,
       prompt: userPrompt,
       output: Output.object({ schema: BlueprintOutputSchema }),
+      maxRetries: 2,
     });
 
     const blueprint = parsed.markdown;
