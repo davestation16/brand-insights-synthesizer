@@ -497,23 +497,15 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Voice + Tone</Header>
-          <View style={styles.gridRow}>
-          <View style={[styles.gridCol, styles.gridColGap]}>
-            <Text style={styles.sectionLabel}>Adjectives</Text>
-            {data.voiceAndTone.adjectives.map((word, index) => (
-              <Text key={index} style={styles.voiceWord}>{word}</Text>
-            ))}
-          </View>
-          <View style={styles.gridCol}>
-            <View style={styles.stackBlock}>
-              <Text style={styles.subheading}>Voice in Practice</Text>
-              <Text style={styles.bodyTextSm}>{data.voiceAndTone.inPractice}</Text>
+        <View wrap={false} style={styles.quadrantRow}>
+          <View style={styles.quadrantColLeft}>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.sectionLabel}>Adjectives</Text>
+              {data.voiceAndTone.adjectives.map((word, index) => (
+                <Text key={index} style={styles.voiceWord}>{word}</Text>
+              ))}
             </View>
-            <View style={styles.stackBlock}>
-              <Text style={styles.subheading}>How to Communicate</Text>
-              <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
-            </View>
-            <View style={styles.stackBlock} wrap={false}>
+            <View style={styles.quadrantBlock}>
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
@@ -521,7 +513,16 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
                 ))}
               </View>
             </View>
-
+          </View>
+          <View style={styles.quadrantColRight}>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.subheading}>Voice in Practice</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.inPractice}</Text>
+            </View>
+            <View style={styles.quadrantBlock}>
+              <Text style={styles.subheading}>How to Communicate</Text>
+              <Text style={styles.bodyTextSm}>{data.voiceAndTone.communicationStrategy}</Text>
+            </View>
           </View>
         </View>
       </LightSlide>
