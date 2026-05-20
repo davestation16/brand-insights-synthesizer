@@ -1,7 +1,37 @@
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
 
-const noHyphen = (word: string) => [word];
+// Local font registration — served from /public/fonts to avoid Google Fonts 404s.
+const fontBase =
+  typeof window !== "undefined" ? `${window.location.origin}/fonts` : "/fonts";
+
+Font.register({
+  family: "Cormorant Garamond",
+  fonts: [
+    { src: `${fontBase}/CormorantGaramond-Regular.ttf`, fontWeight: 400 },
+    { src: `${fontBase}/CormorantGaramond-Medium.ttf`, fontWeight: 500 },
+    { src: `${fontBase}/CormorantGaramond-Italic.ttf`, fontWeight: 400, fontStyle: "italic" },
+  ],
+});
+
+Font.register({
+  family: "Syne",
+  fonts: [
+    { src: `${fontBase}/Syne-SemiBold.ttf`, fontWeight: 600 },
+    { src: `${fontBase}/Syne-Bold.ttf`, fontWeight: 700 },
+  ],
+});
+
+Font.register({
+  family: "Lora",
+  fonts: [
+    { src: `${fontBase}/Lora-Regular.ttf`, fontWeight: 400 },
+    { src: `${fontBase}/Lora-Italic.ttf`, fontWeight: 400, fontStyle: "italic" },
+  ],
+});
+
+// Disable hyphenation globally so headers never break as "Audi-ence".
+Font.registerHyphenationCallback((word) => [word]);
 
 export interface PresentationValue {
   name: string;
@@ -38,147 +68,165 @@ export interface PresentationData {
 }
 
 const styles = StyleSheet.create({
-  page: {
-    padding: 50,
-    backgroundColor: "#FFFFFF",
-    fontFamily: "Helvetica",
+  pageLight: {
+    padding: 48,
+    backgroundColor: "#fdfcf9",
+    color: "#1a1917",
   },
-  coverContainer: {
-    flex: 1,
-    justifyContent: "center",
-    borderTop: "4pt solid #1A1A1A",
-  },
-  interstitialContainer: {
-    flex: 1,
+  pageDark: {
+    padding: 48,
+    backgroundColor: "#0f0e0c",
+    color: "#f4f1eb",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#1A1A1A",
   },
-  interstitialText: {
-    fontSize: 48,
-    color: "#FFFFFF",
-    fontWeight: "bold",
-    fontFamily: "Helvetica-Bold",
-    textAlign: "center",
+  eyebrow: {
+    fontFamily: "Syne",
+    fontWeight: 600,
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    color: "#f7893d",
+    marginBottom: 16,
+  },
+  sectionLabel: {
+    fontFamily: "Syne",
+    fontWeight: 600,
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 2,
+    color: "#f7893d",
+    marginBottom: 12,
   },
   slideHeader: {
-    fontSize: 28,
-    fontWeight: "bold",
-    fontFamily: "Helvetica-Bold",
-    color: "#1A1A1A",
-    borderBottom: "2pt solid #1A1A1A",
-    paddingBottom: 10,
-    marginBottom: 20,
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 42,
+    lineHeight: 1.1,
+    marginBottom: 24,
+    color: "#1a1917",
   },
-  gridRow: {
-    flexDirection: "row",
-    gap: 20,
+  interstitialText: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 56,
+    color: "#f4f1eb",
+    textAlign: "center",
   },
-  gridCol: {
-    flex: 1,
+  bodyText: {
+    fontFamily: "Lora",
+    fontSize: 14,
+    lineHeight: 1.6,
+    color: "#7a7570",
+    marginTop: 12,
   },
   valueCard: {
-    backgroundColor: "#F8F9FA",
-    padding: 15,
-    marginBottom: 15,
-    borderLeft: "4pt solid #1A1A1A",
+    backgroundColor: "#f4f1ea",
+    padding: 32,
+    marginBottom: 24,
+    border: "1pt solid #e8e7e5",
+  },
+  cardTitle: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 24,
+    marginBottom: 8,
+    color: "#1a1917",
   },
   pillContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    marginBottom: 15,
+    marginBottom: 24,
   },
   pill: {
-    border: "1pt solid #1A1A1A",
-    borderRadius: 20,
-    padding: "6pt 14pt",
-    fontSize: 12,
-    fontWeight: "bold",
-    fontFamily: "Helvetica-Bold",
+    backgroundColor: "#eeebe3",
+    border: "1pt solid #e8e7e5",
+    borderRadius: 4,
+    padding: "6pt 12pt",
+    marginRight: 8,
+    marginBottom: 8,
+    fontFamily: "Syne",
+    fontWeight: 600,
+    fontSize: 10,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#1a1917",
+  },
+  // Supporting tokens
+  coverContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 60,
   },
   coverKicker: {
+    fontFamily: "Syne",
+    fontWeight: 600,
     fontSize: 10,
-    color: "#666666",
     textTransform: "uppercase",
     letterSpacing: 2,
-    marginBottom: 28,
-    fontFamily: "Helvetica-Bold",
+    color: "#f7893d",
+    marginBottom: 24,
+    textAlign: "center",
   },
   coverTitle: {
-    fontSize: 54,
-    lineHeight: 1.02,
-    color: "#1A1A1A",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 16,
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 64,
+    lineHeight: 1.05,
+    color: "#f4f1eb",
+    textAlign: "center",
+    marginBottom: 20,
   },
   coverSubtitle: {
-    fontSize: 16,
-    color: "#666666",
-    fontFamily: "Helvetica",
-  },
-  sectionLabel: {
-    fontSize: 9,
-    color: "#666666",
-    textTransform: "uppercase",
-    letterSpacing: 2,
-    marginBottom: 8,
-    fontFamily: "Helvetica-Bold",
-  },
-  cardTitle: {
-    fontSize: 18,
-    color: "#1A1A1A",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 7,
-  },
-  body: {
-    fontSize: 12,
-    lineHeight: 1.45,
-    color: "#4B4B4B",
-    fontFamily: "Helvetica",
-  },
-  bodyLarge: {
+    fontFamily: "Lora",
     fontSize: 14,
-    lineHeight: 1.45,
-    color: "#1A1A1A",
-    fontFamily: "Helvetica",
+    color: "#a8a39e",
+    textAlign: "center",
+  },
+  gridRow: {
+    flexDirection: "row",
+    gap: 24,
+  },
+  gridCol: {
+    flex: 1,
   },
   trait: {
-    fontSize: 34,
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 36,
     lineHeight: 1.05,
-    color: "#1A1A1A",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 12,
+    color: "#1a1917",
+    marginBottom: 8,
   },
   voiceWord: {
-    fontSize: 34,
-    lineHeight: 1.05,
-    color: "#1A1A1A",
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 8,
+    fontFamily: "Lora",
+    fontStyle: "italic",
+    fontSize: 32,
+    lineHeight: 1.15,
+    color: "#1a1917",
+    marginBottom: 6,
   },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
 
-function Slide({ children }: { children: ReactNode }) {
+function LightSlide({ children }: { children: ReactNode }) {
   return (
-    <Page {...PAGE_PROPS} style={styles.page}>
+    <Page {...PAGE_PROPS} style={styles.pageLight}>
       {children}
     </Page>
   );
 }
 
 function Header({ children }: { children: string }) {
-  return <Text style={styles.slideHeader} hyphenationCallback={noHyphen}>{children}</Text>;
+  return <Text style={styles.slideHeader}>{children}</Text>;
 }
 
 function Interstitial({ text }: { text: string }) {
   return (
-    <Page {...PAGE_PROPS} style={{ backgroundColor: "#1A1A1A" }}>
-      <View style={styles.interstitialContainer}>
-        <Text style={styles.interstitialText} hyphenationCallback={noHyphen}>{text}</Text>
-      </View>
+    <Page {...PAGE_PROPS} style={styles.pageDark}>
+      <Text style={styles.interstitialText}>{text}</Text>
     </Page>
   );
 }
@@ -186,113 +234,116 @@ function Interstitial({ text }: { text: string }) {
 export function BlueprintDeck({ clientName, data }: { clientName: string; data: PresentationData }) {
   return (
     <Document title={`${clientName} — Brand Strategy Blueprint`} author="Station16">
-      <Slide>
+      {/* Cover — dark */}
+      <Page {...PAGE_PROPS} style={styles.pageDark}>
         <View style={styles.coverContainer}>
           <Text style={styles.coverKicker}>Station16 · Brand Strategy Blueprint</Text>
-          <Text style={styles.coverTitle} hyphenationCallback={noHyphen}>{clientName}</Text>
+          <Text style={styles.coverTitle}>{clientName}</Text>
           <Text style={styles.coverSubtitle}>AI Analysis Presentation Deck</Text>
         </View>
-      </Slide>
+      </Page>
 
       <Interstitial text="1. The Brand's Soul" />
 
-      <Slide>
+      <LightSlide>
         <Header>Core Values</Header>
         <View style={styles.gridRow}>
           <View style={styles.gridCol}>
-            {data.coreValues.slice(0, 2).map((value, index) => (
+            {data.coreValues.slice(0, Math.ceil(data.coreValues.length / 2)).map((value, index) => (
               <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle} hyphenationCallback={noHyphen}>{value.name}</Text>
-                <Text style={styles.body}>{value.description}</Text>
+                <Text style={styles.cardTitle}>{value.name}</Text>
+                <Text style={styles.bodyText}>{value.description}</Text>
               </View>
             ))}
           </View>
           <View style={styles.gridCol}>
-            {data.coreValues.slice(2).map((value, index) => (
+            {data.coreValues.slice(Math.ceil(data.coreValues.length / 2)).map((value, index) => (
               <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle} hyphenationCallback={noHyphen}>{value.name}</Text>
-                <Text style={styles.body}>{value.description}</Text>
+                <Text style={styles.cardTitle}>{value.name}</Text>
+                <Text style={styles.bodyText}>{value.description}</Text>
               </View>
             ))}
           </View>
         </View>
-      </Slide>
+      </LightSlide>
 
-      <Slide>
+      <LightSlide>
         <Header>Key Attributes</Header>
         <View style={styles.pillContainer}>
           {data.keyAttributes.pills.map((pill, index) => (
-            <Text key={index} style={styles.pill} wrap={false} hyphenationCallback={noHyphen}>{pill}</Text>
+            <Text key={index} style={styles.pill} wrap={false}>{pill}</Text>
           ))}
         </View>
-        <Text style={styles.bodyLarge}>{data.keyAttributes.summary}</Text>
-      </Slide>
+        <Text style={styles.bodyText}>{data.keyAttributes.summary}</Text>
+      </LightSlide>
 
       <Interstitial text="2. Personality & Voice" />
 
-      <Slide>
+      <LightSlide>
         <Header>Core Personality</Header>
         <View style={styles.gridRow}>
           <View style={styles.gridCol} wrap={false}>
             <Text style={styles.sectionLabel}>Primary Personality</Text>
-            <Text style={styles.trait} hyphenationCallback={noHyphen}>{data.primaryPersonality.trait}</Text>
-            <Text style={styles.body}>{data.primaryPersonality.why}</Text>
+            <Text style={styles.trait}>{data.primaryPersonality.trait}</Text>
+            <Text style={styles.bodyText}>{data.primaryPersonality.why}</Text>
           </View>
           <View style={styles.gridCol} wrap={false}>
             <Text style={styles.sectionLabel}>Secondary Personality</Text>
-            <Text style={styles.trait} hyphenationCallback={noHyphen}>{data.secondaryPersonality.trait}</Text>
-            <Text style={styles.body}>{data.secondaryPersonality.why}</Text>
+            <Text style={styles.trait}>{data.secondaryPersonality.trait}</Text>
+            <Text style={styles.bodyText}>{data.secondaryPersonality.why}</Text>
           </View>
         </View>
-      </Slide>
+      </LightSlide>
 
-      <Slide>
+      <LightSlide>
         <Header>Voice + Tone</Header>
         <View style={styles.gridRow}>
           <View style={styles.gridCol}>
+            <Text style={styles.sectionLabel}>Adjectives</Text>
             {data.voiceAdjectives.map((word, index) => (
-              <Text key={index} style={styles.voiceWord} wrap={false} hyphenationCallback={noHyphen}>{word}</Text>
+              <Text key={index} style={styles.voiceWord} wrap={false}>{word}</Text>
             ))}
           </View>
           <View style={styles.gridCol}>
-            <Text style={styles.bodyLarge}>{data.voiceParagraph}</Text>
+            <Text style={styles.sectionLabel}>In Practice</Text>
+            <Text style={styles.bodyText}>{data.voiceParagraph}</Text>
           </View>
         </View>
-      </Slide>
+      </LightSlide>
 
       <Interstitial text="3. The Supporting Character" />
 
-      <Slide>
+      <LightSlide>
         <Header>Brand Archetypes</Header>
         <View style={styles.gridRow}>
           <View style={styles.gridCol} wrap={false}>
             <Text style={styles.sectionLabel}>Primary Supporting Character</Text>
-            <Text style={styles.trait} hyphenationCallback={noHyphen}>{data.primaryArchetype.name}</Text>
-            <Text style={styles.body}>{data.primaryArchetype.description}</Text>
+            <Text style={styles.trait}>{data.primaryArchetype.name}</Text>
+            <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
           </View>
           <View style={styles.gridCol}>
             <Text style={styles.sectionLabel}>Secondary Character(s)</Text>
             {data.secondaryArchetypes.map((archetype, index) => (
               <View key={index} style={styles.valueCard} wrap={false}>
-                <Text style={styles.cardTitle} hyphenationCallback={noHyphen}>{archetype.name}</Text>
-                <Text style={styles.body}>{archetype.description}</Text>
+                <Text style={styles.cardTitle}>{archetype.name}</Text>
+                <Text style={styles.bodyText}>{archetype.description}</Text>
               </View>
             ))}
           </View>
         </View>
-      </Slide>
+      </LightSlide>
 
       <Interstitial text="4. Target Audience" />
 
-      <Slide>
+      <LightSlide>
         <Header>Target Personas</Header>
         {data.personas.map((persona, index) => (
           <View key={index} style={styles.valueCard} wrap={false}>
-            <Text style={styles.cardTitle} hyphenationCallback={noHyphen}>{persona.title}</Text>
-            <Text style={styles.body}>{persona.narrative}</Text>
+            <Text style={styles.cardTitle}>{persona.title}</Text>
+            <Text style={styles.bodyText}>{persona.narrative}</Text>
           </View>
         ))}
-      </Slide>
+      </LightSlide>
     </Document>
   );
 }
