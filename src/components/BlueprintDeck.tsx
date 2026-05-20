@@ -504,30 +504,28 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         </View>
       </LightSlide>
 
+      {data.aesthetic && <Interstitial text="6. Aesthetic Projection" />}
       {data.aesthetic && (
-        <>
-          <Interstitial text="6. Aesthetic Projection" />
-          <LightSlide>
-            <SlideHeader>Visual Direction</SlideHeader>
-            <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
-            <View style={[styles.bentoRow, { marginTop: 16 }]}>
-              <View style={styles.cardFlex} wrap={false}>
-                <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
-                <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
-              </View>
-              <View style={styles.cardFlex} wrap={false}>
-                <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
-                <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
-              </View>
+        <LightSlide>
+          <SlideHeader>Visual Direction</SlideHeader>
+          <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
+          <View style={[styles.bentoRow, { marginTop: 16 }]}>
+            <View style={styles.cardFlex} wrap={false}>
+              <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
+              <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
             </View>
-            <View style={styles.bentoRow}>
-              <View style={styles.cardFlex} wrap={false}>
-                <Text style={styles.sectionLabel}>Design Style</Text>
-                <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
-              </View>
+            <View style={styles.cardFlex} wrap={false}>
+              <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
+              <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
             </View>
-          </LightSlide>
-        </>
+          </View>
+          <View style={styles.bentoRow}>
+            <View style={styles.cardFlex} wrap={false}>
+              <Text style={styles.sectionLabel}>Design Style</Text>
+              <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
+            </View>
+          </View>
+        </LightSlide>
       )}
     </Document>
   );
