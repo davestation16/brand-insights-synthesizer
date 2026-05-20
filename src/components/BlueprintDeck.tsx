@@ -301,6 +301,14 @@ function Header({ children }: { children: string }) {
   return <Text style={styles.slideHeader}>{children}</Text>;
 }
 
+function SlideHeader({ children }: { children: string }) {
+  return (
+    <View fixed>
+      <Text style={styles.slideHeader}>{children}</Text>
+    </View>
+  );
+}
+
 function Interstitial({ text }: { text: string }) {
   return (
     <Page {...PAGE_PROPS} style={styles.pageDark}>
