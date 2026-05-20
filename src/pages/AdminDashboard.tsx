@@ -91,6 +91,10 @@ type RespondentRow = {
   submitted_at: string;
 };
 
+type SurveyTemplateRow = { entity_type: string };
+type SurveyResponseRow = { responses: { role?: string } | null };
+type GenerateBlueprintResponse = { error?: string };
+
 function RespondentsPopover({ clientId }: { clientId: string }) {
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<RespondentRow[] | null>(null);
@@ -285,7 +289,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     load();
     (async () => {
       const { data } = await supabase.from("survey_templates").select("entity_type").order("entity_type");
-      const types = ((data as any[]) ?? []).map((r) => r.entity_type);
+      const types = ((data as SurveyTemplateRow[]) ?? []).map((r) => r.entity_type);
       setIndustries(types);
       setNewClient((p) => ({ ...p, entityType: p.entityType || types[0] || "" }));
     })();
@@ -313,7 +317,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       .eq("client_id", client.id);
 
     const contributors: Record<string, number> = {};
-    (surveys ?? []).forEach((s: any) => {
+    ((surveys as SurveyResponseRow[] | null) ?? []).forEach((s) => {
       const role = s?.responses?.role;
       if (role) contributors[role] = (contributors[role] ?? 0) + 1;
     });
@@ -338,8 +342,9 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     const { data, error } = await supabase.functions.invoke("generate-blueprint", {
       body: { clientId: client.id },
     });
-    if (error || (data as any)?.error) {
-      alert("Failed to generate strategy: " + (error?.message || (data as any)?.error));
+    const result = data as GenerateBlueprintResponse | null;
+    if (error || result?.error) {
+      alert("Failed to generate strategy: " + (error?.message || result?.error));
       setFinishingId(null);
       return;
     }
