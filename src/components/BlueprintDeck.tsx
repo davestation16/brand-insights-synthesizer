@@ -195,10 +195,12 @@ const styles = StyleSheet.create({
   },
   gridRow: {
     flexDirection: "row",
-    gap: 24,
   },
   gridCol: {
     flex: 1,
+  },
+  gridColGap: {
+    marginRight: 24,
   },
   trait: {
     fontFamily: "Cormorant Garamond",
@@ -253,8 +255,13 @@ const styles = StyleSheet.create({
   },
   bentoRow: {
     flexDirection: "row",
-    gap: 16,
     marginBottom: 16,
+  },
+  bentoGap: {
+    marginRight: 16,
+  },
+  bentoTopSpacing: {
+    marginTop: 16,
   },
   pillGiant: {
     flex: 1,
@@ -376,7 +383,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Core Values</SlideHeader>
         <View style={styles.gridWrap}>
           {data.coreValues.map((value, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
               <Text style={styles.cardTitle}>{value.name}</Text>
               <Text style={styles.bodyText}>{value.description}</Text>
             </View>
@@ -388,7 +395,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Key Attributes</SlideHeader>
         <View style={styles.bentoRow}>
           {data.keyAttributes.pills.slice(0, 2).map((pill, index) => (
-            <View key={`g-${index}`} style={styles.pillGiant} wrap={false}>
+            <View key={`g-${index}`} style={[styles.pillGiant, index === 0 ? styles.bentoGap : null]}>
               <Text style={styles.pillGiantText}>{pill}</Text>
             </View>
           ))}
@@ -396,7 +403,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         {data.keyAttributes.pills.slice(2).length > 0 && (
           <View style={styles.bentoRow}>
             {data.keyAttributes.pills.slice(2).map((pill, index) => (
-              <View key={`f-${index}`} style={styles.pillFlex} wrap={false}>
+              <View key={`f-${index}`} style={[styles.pillFlex, index < data.keyAttributes.pills.slice(2).length - 1 ? styles.bentoGap : null]}>
                 <Text style={styles.pillFlexText}>{pill}</Text>
               </View>
             ))}
@@ -410,11 +417,11 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <LightSlide>
         <SlideHeader>Alignment vs. Disconnect</SlideHeader>
         <View style={styles.gridWrap}>
-          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalf]}>
             <Text style={styles.cardTitle}>Alignment</Text>
             <Text style={styles.bodyText}>{data.perceptionGap.alignment}</Text>
           </View>
-          <View style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+          <View style={[styles.valueCard, styles.valueCardHalf]}>
             <Text style={styles.cardTitle}>Disconnect</Text>
             <Text style={styles.bodyText}>{data.perceptionGap.disconnect}</Text>
           </View>
@@ -425,13 +432,13 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Core Personality</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol} wrap={false}>
+          <View style={styles.gridRow}>
+          <View style={[styles.gridCol, styles.gridColGap]}>
             <Text style={styles.sectionLabel}>Primary Personality</Text>
             <Text style={styles.trait}>{data.primaryPersonality.trait}</Text>
             <Text style={styles.bodyText}>{data.primaryPersonality.why}</Text>
           </View>
-          <View style={styles.gridCol} wrap={false}>
+          <View style={styles.gridCol}>
             <Text style={styles.sectionLabel}>Secondary Personality</Text>
             <Text style={styles.trait}>{data.secondaryPersonality.trait}</Text>
             <Text style={styles.bodyText}>{data.secondaryPersonality.why}</Text>
@@ -441,11 +448,11 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <Header>Voice + Tone</Header>
-        <View style={styles.gridRow}>
-          <View style={styles.gridCol}>
+          <View style={styles.gridRow}>
+          <View style={[styles.gridCol, styles.gridColGap]}>
             <Text style={styles.sectionLabel}>Adjectives</Text>
             {data.voiceAndTone.adjectives.map((word, index) => (
-              <Text key={index} style={styles.voiceWord} wrap={false}>{word}</Text>
+              <Text key={index} style={styles.voiceWord}>{word}</Text>
             ))}
           </View>
           <View style={styles.gridCol}>
@@ -461,7 +468,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
               <Text style={styles.subheading}>Do's &amp; Don'ts</Text>
               <View style={styles.dosDontsWrap}>
                 {data.voiceAndTone.dosAndDonts.map((item, index) => (
-                  <Text key={index} style={styles.dosDontsPill} wrap={false}>{item}</Text>
+                  <Text key={index} style={styles.dosDontsPill}>{item}</Text>
                 ))}
               </View>
             </View>
@@ -474,7 +481,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
       <LightSlide>
         <SlideHeader>Brand Archetypes</SlideHeader>
         <View style={styles.bentoRow}>
-          <View style={styles.cardFlex} wrap={false}>
+          <View style={styles.cardFlex}>
             <Text style={styles.sectionLabel}>Primary Supporting Character</Text>
             <Text style={styles.trait}>{data.primaryArchetype.name}</Text>
             <Text style={styles.bodyText}>{data.primaryArchetype.description}</Text>
@@ -482,7 +489,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         </View>
         <View style={styles.bentoRow}>
           {data.secondaryArchetypes.map((archetype, index) => (
-            <View key={index} style={styles.cardFlex} wrap={false}>
+            <View key={index} style={[styles.cardFlex, index < data.secondaryArchetypes.length - 1 ? styles.bentoGap : null]}>
               <Text style={styles.cardTitle}>{archetype.name}</Text>
               <Text style={styles.bodyText}>{archetype.description}</Text>
             </View>
@@ -496,7 +503,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <SlideHeader>Target Personas</SlideHeader>
         <View style={styles.gridWrap}>
           {data.personas.map((persona, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]} wrap={false}>
+            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
               <Text style={styles.cardTitle}>{persona.title}</Text>
               <Text style={styles.bodyText}>{persona.narrative}</Text>
             </View>
@@ -509,18 +516,18 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
         <LightSlide>
           <SlideHeader>Visual Direction</SlideHeader>
           <Text style={styles.bodyText}>{data.aesthetic.summary}</Text>
-          <View style={[styles.bentoRow, { marginTop: 16 }]}>
-            <View style={styles.cardFlex} wrap={false}>
+          <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
+            <View style={[styles.cardFlex, styles.bentoGap]}>
               <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
               <Text style={styles.bodyText}>{data.aesthetic.palette}</Text>
             </View>
-            <View style={styles.cardFlex} wrap={false}>
+            <View style={styles.cardFlex}>
               <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
               <Text style={styles.bodyText}>{data.aesthetic.materials}</Text>
             </View>
           </View>
           <View style={styles.bentoRow}>
-            <View style={styles.cardFlex} wrap={false}>
+            <View style={styles.cardFlex}>
               <Text style={styles.sectionLabel}>Design Style</Text>
               <Text style={styles.bodyText}>{data.aesthetic.style}</Text>
             </View>
