@@ -79,7 +79,7 @@ PROPRIETARY 3-STEP REVERSE-ENGINEERING WORKFLOW — execute in this order before
 3. Read the provided client context (name, entity type, aggregated responses) to ensure the chosen character accurately reflects the actual economic or spiritual value the brand offers, bypassing flat or superficial industry clichés.
 
 * **Primary Supporting Character:** chosen archetype + how it applies (must be one of the 11).
-* **Secondary Character(s):** 1-2 more if needed (each must be one of the 11).
+* **Secondary Character(s):** 2-4 additional characters (each must be one of the 11). Always return at least 2 and no more than 4.
 
 ### 6. Visual & Aesthetic Projection
 CONDITIONAL: only include if response data contains keys prefixed with "aesthetic_". Otherwise OMIT this section and renumber Personas as 6.
@@ -116,7 +116,7 @@ PRESENTATION DATA SCHEMA — POPULATE EVERY FIELD
     "verbs": [string],           // the associated verbs for that character, taken verbatim from the matrix above
     "description": string        // deep agency-grade copy block explaining exactly how this specific supporting character role solves the target persona's quest or anxiety
   },
-  "secondaryArchetypes": [       // 0-2 items, each from the same 11-option closed list
+  "secondaryArchetypes": [       // 2-4 items (REQUIRED minimum of 2), each from the same 11-option closed list
     { "name": string, "verbs": [string], "description": string }
   ],
   "aesthetic": {                 // null if NO aesthetic_* keys exist in responses
@@ -189,7 +189,7 @@ const PresentationDataSchema = z.object({
     name: SupportingCharacterEnum,
     verbs: z.array(z.string()).min(2).max(3),
     description: z.string(),
-  })).max(2),
+  })).min(2).max(4),
   aesthetic: z.object({
     summary: z.string(),
     palette: z.string(),
