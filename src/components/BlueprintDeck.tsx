@@ -207,6 +207,41 @@ const styles = StyleSheet.create({
     color: "#1a1917",
     marginBottom: 6,
   },
+  gridWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  valueCardHalf: {
+    width: "48%",
+  },
+  attrWall: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    marginBottom: 24,
+  },
+  attrDisplay: {
+    fontFamily: "Cormorant Garamond",
+    fontWeight: 500,
+    fontSize: 56,
+    textTransform: "lowercase",
+    color: "#f7893d",
+    marginRight: 16,
+    marginBottom: 8,
+    lineHeight: 1.05,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 24,
+    right: 48,
+    fontFamily: "Syne",
+    fontWeight: 600,
+    fontSize: 8,
+    letterSpacing: 1,
+    textTransform: "lowercase",
+    color: "#a8a39e",
+  },
 });
 
 const PAGE_PROPS = { size: "LETTER" as const, orientation: "landscape" as const };
@@ -215,6 +250,7 @@ function LightSlide({ children }: { children: ReactNode }) {
   return (
     <Page {...PAGE_PROPS} style={styles.pageLight}>
       {children}
+      <Text style={styles.footer} fixed>station16.com</Text>
     </Page>
   );
 }
