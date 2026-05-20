@@ -17,7 +17,7 @@ function isPresentationData(value: unknown): value is PresentationData {
       Array.isArray(data.keyAttributes?.pills) &&
       typeof data.primaryPersonality?.trait === "string" &&
       typeof data.secondaryPersonality?.trait === "string" &&
-      Array.isArray(data.voiceAdjectives) &&
+      Array.isArray(data.voiceAndTone?.adjectives) &&
       typeof data.primaryArchetype?.name === "string" &&
       Array.isArray(data.secondaryArchetypes) &&
       Array.isArray(data.personas),
