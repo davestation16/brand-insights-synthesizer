@@ -552,11 +552,17 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
 
       <LightSlide>
         <SlideHeader>Target Personas</SlideHeader>
-        <View style={styles.gridWrap}>
+        <View wrap={false} style={styles.personaRow}>
           {data.personas.map((persona, index) => (
-            <View key={index} style={[styles.valueCard, styles.valueCardHalf]}>
+            <View
+              key={index}
+              style={[
+                styles.personaCard3Up,
+                index < data.personas.length - 1 ? styles.personaGap : null,
+              ]}
+            >
               <Text style={styles.cardTitle}>{persona.title}</Text>
-              <Text style={styles.bodyText}>{persona.narrative}</Text>
+              <Text style={styles.bodyTextSm}>{persona.narrative}</Text>
             </View>
           ))}
         </View>
@@ -568,17 +574,15 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
           <View wrap={false}>
             <SlideHeader>Visual Direction</SlideHeader>
             <Text style={styles.bodyTextSm}>{data.aesthetic.summary}</Text>
-            <View style={[styles.bentoRow, styles.bentoTopSpacing]}>
-              <View style={[styles.cardFlex, styles.bentoGap]}>
+            <View style={styles.aestheticRow}>
+              <View style={[styles.cardFlex, styles.aestheticGap]}>
                 <Text style={styles.sectionLabel}>Palette &amp; Mood</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.palette}</Text>
               </View>
-              <View style={styles.cardFlex}>
+              <View style={[styles.cardFlex, styles.aestheticGap]}>
                 <Text style={styles.sectionLabel}>Materials &amp; Textures</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.materials}</Text>
               </View>
-            </View>
-            <View style={{ marginTop: 8 }}>
               <View style={styles.cardFlex}>
                 <Text style={styles.sectionLabel}>Design Style</Text>
                 <Text style={styles.bodyTextSm}>{data.aesthetic.style}</Text>
@@ -586,6 +590,7 @@ export function BlueprintDeck({ clientName, data }: { clientName: string; data: 
             </View>
           </View>
         </LightSlide>
+      )}
 
       )}
     </Document>
