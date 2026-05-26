@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Copy, CheckCircle2, Users, Download, Loader2 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { pdf } from "@react-pdf/renderer";
 import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
+import StrategyEditor from "@/components/StrategyEditor";
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 function isPresentationData(value: unknown): value is PresentationData {
   const data = value as PresentationData | null;
@@ -189,6 +191,59 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [finishingId, setFinishingId] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfDiagnostics, setPdfDiagnostics] = useState<PdfDiagnosticEntry[]>(() => readPdfDiagnostics());
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const savedTimeoutRef = useRef<number | null>(null);
+  const inFlightRef = useRef<Promise<void> | null>(null);
+  const queuedRef = useRef<PresentationData | null>(null);
+
+  const persistPresentationData = async (clientId: string, data: PresentationData) => {
+    setSaveStatus("saving");
+    const run = async (payload: PresentationData) => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ presentation_data: payload as unknown as never })
+        .eq("id", clientId);
+      if (error) throw error;
+    };
+    try {
+      if (inFlightRef.current) {
+        queuedRef.current = data;
+        return;
+      }
+      inFlightRef.current = run(data);
+      await inFlightRef.current;
+      inFlightRef.current = null;
+      // Drain queue
+      while (queuedRef.current) {
+        const next = queuedRef.current;
+        queuedRef.current = null;
+        inFlightRef.current = run(next);
+        await inFlightRef.current;
+        inFlightRef.current = null;
+      }
+      setSaveStatus("saved");
+      if (savedTimeoutRef.current) window.clearTimeout(savedTimeoutRef.current);
+      savedTimeoutRef.current = window.setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      inFlightRef.current = null;
+      queuedRef.current = null;
+      setSaveStatus("error");
+      console.error("Failed to save presentation data:", err);
+    }
+  };
+
+  const handleEditorCommit = (next: PresentationData) => {
+    if (!selectedStrategy) return;
+    // Optimistic: update local state and clients list immediately so PDF reflects edits
+    setSelectedStrategy({ ...selectedStrategy, presentationData: next });
+    setClients((prev) =>
+      prev.map((c) =>
+        c.id === selectedStrategy.client.id ? { ...c, presentation_data: next } : c,
+      ),
+    );
+    void persistPresentationData(selectedStrategy.client.id, next);
+  };
+
 
   const addPdfDiagnostic = (
     level: PdfDiagnosticEntry["level"],
@@ -553,6 +608,19 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                   <h3 className="text-2xl mt-1">{selectedStrategy.client.name}</h3>
                 </div>
                 <div className="flex items-center gap-3">
+                  {saveStatus !== "idle" && (
+                    <span
+                      className={`text-[10px] font-ui font-semibold uppercase tracking-widest px-2 py-1 rounded-full ${
+                        saveStatus === "saving"
+                          ? "bg-s16-bg-warm text-s16-text-muted"
+                          : saveStatus === "saved"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Save failed"}
+                    </span>
+                  )}
                   <button
                     onClick={handleDownloadPdf}
                     disabled={isGeneratingPdf || !selectedStrategy.blueprint}
@@ -628,52 +696,18 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
               </div>
 
               <div className="p-12">
-                {selectedStrategy.blueprint ? (
-                  <ReactMarkdown
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <h1
-                          className="font-display text-s16-text text-4xl mb-6 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2
-                          className="font-display text-s16-text text-3xl mb-4 mt-10 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3
-                          className="font-display text-s16-text text-2xl mb-3 mt-8 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <p
-                          className="font-body text-lg text-s16-text-muted leading-relaxed mb-5"
-                          {...props}
-                        />
-                      ),
-                      ul: ({ node, ...props }) => (
-                        <ul className="list-disc pl-6 mb-5 space-y-2" {...props} />
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol className="list-decimal pl-6 mb-5 space-y-2" {...props} />
-                      ),
-                      li: ({ node, ...props }) => (
-                        <li
-                          className="font-body text-lg text-s16-text-muted leading-relaxed"
-                          {...props}
-                        />
-                      ),
-                      strong: ({ node, ...props }) => (
-                        <strong className="text-s16-text font-semibold" {...props} />
-                      ),
-                    }}
-                  >
-                    {selectedStrategy.blueprint}
-                  </ReactMarkdown>
+                {selectedStrategy.presentationData ? (
+                  <StrategyEditor
+                    value={selectedStrategy.presentationData}
+                    onFieldCommit={handleEditorCommit}
+                  />
+                ) : selectedStrategy.blueprint ? (
+                  <div className="border border-s16-border-light bg-s16-bg-warm p-6">
+                    <p className="s16-eyebrow text-s16-text-muted mb-3">Legacy Blueprint</p>
+                    <p className="font-body text-s16-text-muted">
+                      This strategy was generated before structured editing was available. Regenerate the strategy to edit individual fields and export the PDF.
+                    </p>
+                  </div>
                 ) : (
                   <p className="font-body text-s16-text-muted">Strategy analysis in progress...</p>
                 )}
