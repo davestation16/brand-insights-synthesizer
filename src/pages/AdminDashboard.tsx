@@ -608,6 +608,19 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                   <h3 className="text-2xl mt-1">{selectedStrategy.client.name}</h3>
                 </div>
                 <div className="flex items-center gap-3">
+                  {saveStatus !== "idle" && (
+                    <span
+                      className={`text-[10px] font-ui font-semibold uppercase tracking-widest px-2 py-1 rounded-full ${
+                        saveStatus === "saving"
+                          ? "bg-s16-bg-warm text-s16-text-muted"
+                          : saveStatus === "saved"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved" : "Save failed"}
+                    </span>
+                  )}
                   <button
                     onClick={handleDownloadPdf}
                     disabled={isGeneratingPdf || !selectedStrategy.blueprint}
