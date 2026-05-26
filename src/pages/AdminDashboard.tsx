@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Copy, CheckCircle2, Users, Download, Loader2 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
 import station16Logo from "@/assets/station16-logo.png";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { pdf } from "@react-pdf/renderer";
 import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
+import StrategyEditor from "@/components/StrategyEditor";
+
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 function isPresentationData(value: unknown): value is PresentationData {
   const data = value as PresentationData | null;
