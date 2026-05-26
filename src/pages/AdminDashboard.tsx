@@ -201,7 +201,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     const run = async (payload: PresentationData) => {
       const { error } = await supabase
         .from("clients")
-        .update({ presentation_data: payload as unknown as Record<string, unknown> })
+        .update({ presentation_data: payload as unknown as never })
         .eq("id", clientId);
       if (error) throw error;
     };
