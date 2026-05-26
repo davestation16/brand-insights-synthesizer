@@ -683,52 +683,18 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
               </div>
 
               <div className="p-12">
-                {selectedStrategy.blueprint ? (
-                  <ReactMarkdown
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <h1
-                          className="font-display text-s16-text text-4xl mb-6 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <h2
-                          className="font-display text-s16-text text-3xl mb-4 mt-10 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <h3
-                          className="font-display text-s16-text text-2xl mb-3 mt-8 tracking-tight"
-                          {...props}
-                        />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <p
-                          className="font-body text-lg text-s16-text-muted leading-relaxed mb-5"
-                          {...props}
-                        />
-                      ),
-                      ul: ({ node, ...props }) => (
-                        <ul className="list-disc pl-6 mb-5 space-y-2" {...props} />
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol className="list-decimal pl-6 mb-5 space-y-2" {...props} />
-                      ),
-                      li: ({ node, ...props }) => (
-                        <li
-                          className="font-body text-lg text-s16-text-muted leading-relaxed"
-                          {...props}
-                        />
-                      ),
-                      strong: ({ node, ...props }) => (
-                        <strong className="text-s16-text font-semibold" {...props} />
-                      ),
-                    }}
-                  >
-                    {selectedStrategy.blueprint}
-                  </ReactMarkdown>
+                {selectedStrategy.presentationData ? (
+                  <StrategyEditor
+                    value={selectedStrategy.presentationData}
+                    onFieldCommit={handleEditorCommit}
+                  />
+                ) : selectedStrategy.blueprint ? (
+                  <div className="border border-s16-border-light bg-s16-bg-warm p-6">
+                    <p className="s16-eyebrow text-s16-text-muted mb-3">Legacy Blueprint</p>
+                    <p className="font-body text-s16-text-muted">
+                      This strategy was generated before structured editing was available. Regenerate the strategy to edit individual fields and export the PDF.
+                    </p>
+                  </div>
                 ) : (
                   <p className="font-body text-s16-text-muted">Strategy analysis in progress...</p>
                 )}
