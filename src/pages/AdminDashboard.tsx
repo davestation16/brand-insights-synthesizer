@@ -191,6 +191,59 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [finishingId, setFinishingId] = useState<string | null>(null);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfDiagnostics, setPdfDiagnostics] = useState<PdfDiagnosticEntry[]>(() => readPdfDiagnostics());
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const savedTimeoutRef = useRef<number | null>(null);
+  const inFlightRef = useRef<Promise<void> | null>(null);
+  const queuedRef = useRef<PresentationData | null>(null);
+
+  const persistPresentationData = async (clientId: string, data: PresentationData) => {
+    setSaveStatus("saving");
+    const run = async (payload: PresentationData) => {
+      const { error } = await supabase
+        .from("clients")
+        .update({ presentation_data: payload as unknown as Record<string, unknown> })
+        .eq("id", clientId);
+      if (error) throw error;
+    };
+    try {
+      if (inFlightRef.current) {
+        queuedRef.current = data;
+        return;
+      }
+      inFlightRef.current = run(data);
+      await inFlightRef.current;
+      inFlightRef.current = null;
+      // Drain queue
+      while (queuedRef.current) {
+        const next = queuedRef.current;
+        queuedRef.current = null;
+        inFlightRef.current = run(next);
+        await inFlightRef.current;
+        inFlightRef.current = null;
+      }
+      setSaveStatus("saved");
+      if (savedTimeoutRef.current) window.clearTimeout(savedTimeoutRef.current);
+      savedTimeoutRef.current = window.setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      inFlightRef.current = null;
+      queuedRef.current = null;
+      setSaveStatus("error");
+      console.error("Failed to save presentation data:", err);
+    }
+  };
+
+  const handleEditorCommit = (next: PresentationData) => {
+    if (!selectedStrategy) return;
+    // Optimistic: update local state and clients list immediately so PDF reflects edits
+    setSelectedStrategy({ ...selectedStrategy, presentationData: next });
+    setClients((prev) =>
+      prev.map((c) =>
+        c.id === selectedStrategy.client.id ? { ...c, presentation_data: next } : c,
+      ),
+    );
+    void persistPresentationData(selectedStrategy.client.id, next);
+  };
+
 
   const addPdfDiagnostic = (
     level: PdfDiagnosticEntry["level"],
