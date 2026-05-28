@@ -656,6 +656,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                   </div>
 
                   <RespondentsPopover clientId={client.id} />
+                  <DownloadDataButton client={client} />
                 </div>
               </motion.div>
             );
