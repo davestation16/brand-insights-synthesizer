@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { pdf } from "@react-pdf/renderer";
 import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
 import StrategyEditor from "@/components/StrategyEditor";
+import { exportClientSurveyDataToXlsx } from "@/lib/exportSurveyData";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
