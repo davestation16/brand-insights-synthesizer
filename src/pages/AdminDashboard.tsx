@@ -8,6 +8,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { pdf } from "@react-pdf/renderer";
 import { BlueprintDeck, type PresentationData } from "@/components/BlueprintDeck";
 import StrategyEditor from "@/components/StrategyEditor";
+import { exportClientSurveyDataToXlsx } from "@/lib/exportSurveyData";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -173,6 +174,75 @@ function RespondentsPopover({ clientId }: { clientId: string }) {
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function DownloadDataButton({
+  client,
+}: {
+  client: { id: string; name: string; entity_type: string; response_count: number };
+}) {
+  const [loading, setLoading] = useState(false);
+  const disabled = (client.response_count ?? 0) === 0 || loading;
+
+  const handleClick = async () => {
+    if (disabled) return;
+    setLoading(true);
+    try {
+      const [{ data: surveys, error: surveysErr }, { data: tpl }] = await Promise.all([
+        supabase
+          .from("surveys")
+          .select("submitted_at, respondent_name, respondent_email, responses")
+          .eq("client_id", client.id)
+          .order("submitted_at", { ascending: true }),
+        supabase
+          .from("survey_templates")
+          .select("content")
+          .eq("entity_type", client.entity_type)
+          .maybeSingle(),
+      ]);
+
+      if (surveysErr) throw surveysErr;
+      const rows = (surveys ?? []) as Array<{
+        submitted_at: string;
+        respondent_name: string | null;
+        respondent_email: string | null;
+        responses: Record<string, unknown> | null;
+      }>;
+
+      if (rows.length === 0) {
+        alert("No survey responses to export yet.");
+        return;
+      }
+
+      exportClientSurveyDataToXlsx(
+        { name: client.name, entity_type: client.entity_type },
+        rows,
+        (tpl?.content ?? null) as Parameters<typeof exportClientSurveyDataToXlsx>[2],
+      );
+    } catch (err) {
+      console.error("XLSX export failed:", err);
+      alert("Could not export survey data. See console for details.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={disabled}
+      title={
+        (client.response_count ?? 0) === 0
+          ? "No responses to export yet"
+          : "Download raw survey responses (.xlsx)"
+      }
+      className="s16-cta w-full justify-center bg-s16-bg-surface py-2 border border-s16-border text-xs flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+      {loading ? "Preparing…" : "Download Data (XLSX)"}
+    </button>
   );
 }
 
@@ -586,6 +656,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                   </div>
 
                   <RespondentsPopover clientId={client.id} />
+                  <DownloadDataButton client={client} />
                 </div>
               </motion.div>
             );
