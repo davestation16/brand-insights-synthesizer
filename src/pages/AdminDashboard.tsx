@@ -647,7 +647,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleFinishSurveys(client)}
+                      onClick={() => setGeneratingClient(client)}
                       disabled={
                         (client.response_count ?? 0) === 0 || finishingId === client.id
                       }
