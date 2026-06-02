@@ -227,12 +227,26 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
+    console.log("generate-blueprint invoked", {
+      clientId,
+      clientIdType: typeof clientId,
+      hasClientContext: clientContext.length > 0,
+      supportingLength: supportingContent.length,
+    });
+
     const { data: client, error: clientErr } = await supabase
       .from("clients")
       .select("id, name, entity_type")
       .eq("id", clientId)
       .maybeSingle();
-    if (clientErr || !client) return json({ error: "Client not found" }, 404);
+    if (clientErr) {
+      console.error("clients lookup failed", clientErr);
+      return json({ error: `Client lookup failed: ${clientErr.message}` }, 500);
+    }
+    if (!client) {
+      console.error("client row missing for id", clientId);
+      return json({ error: `Client not found for id ${clientId}` }, 404);
+    }
 
     const { data: surveys, error: surveysErr } = await supabase
       .from("surveys")
