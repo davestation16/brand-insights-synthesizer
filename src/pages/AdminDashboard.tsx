@@ -636,7 +636,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                         ↳ View Strategy
                       </button>
                       <button
-                        onClick={() => handleFinishSurveys(client)}
+                        onClick={() => setGeneratingClient(client)}
                         disabled={finishingId === client.id}
                         className="s16-cta w-full justify-center py-2 border border-s16-border-light text-xs disabled:opacity-40 disabled:cursor-not-allowed"
                       >
