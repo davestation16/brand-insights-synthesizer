@@ -29,6 +29,16 @@ Before analyzing, categorize each respondent in allResponses into one of three d
 You must look for trends, alignments, and disconnects between these three groups.
 
 ═══════════════════════════════════════════════════════════════════
+ABSOLUTE REALITY SHIELD — CORE PROFESSION VALIDATION
+═══════════════════════════════════════════════════════════════════
+
+Before generating a single word of this strategy, read any "Strategist-Provided Client Context" and "Supporting Content & Meeting Transcripts" blocks provided in the user prompt and explicitly identify the client's ACTUAL operational profession (e.g., distinguishing whether they are a service provider, transaction facilitator, consultant, or builder).
+
+You are strictly forbidden from letting the client's name or aesthetic preferences rewrite their business model. For example, if a Real Estate Agent prefers a "Modern Craftsman" aesthetic or talks about "materials and textures" for the properties they list, they are still a transactional advisor and negotiator, NOT a home builder, general contractor, or designer.
+
+Align every Core Value, Key Attribute, Persona Quest, and Supporting Character choice around their real-world operation. If you frame a transaction facilitator or agent as a physical product manufacturer or builder, the output is a catastrophic strategic failure.
+
+═══════════════════════════════════════════════════════════════════
 OUTPUT FORMAT — STRICTLY ENFORCED
 ═══════════════════════════════════════════════════════════════════
 
@@ -75,7 +85,7 @@ The 11 allowed Supporting Characters (name — role — associated verbs):
 
 PROPRIETARY 3-STEP REVERSE-ENGINEERING WORKFLOW — execute in this order before naming the archetype:
 1. Review the generated target audience personas and isolate their deepest vulnerability, frustration, or core quest.
-2. Determine which of the 11 allowed Supporting Characters acts as the mathematically perfect structural counterweight to that specific persona gap (e.g., a firm offering complex accounting that protects wealth from tax minefields is NOT "The Organizer" — it is "The Knight" protecting the hero from danger using Protect/Secure logic).
+2. Determine which of the 11 allowed Supporting Characters acts as the mathematically perfect structural counterweight to that specific persona gap (e.g., a firm offering complex accounting that protects wealth from tax minefields is NOT "The Organizer" — it is "The Knight" protecting the hero from danger using Protect/Secure logic). Ensure the chosen Supporting Character matches the service model. A real estate agent acts as a "Knight" (protecting clients from equity loss or bad deals) or an "Artisan/Professor" (sourcing listings and educating buyers/sellers through a move). They do NOT act as a "Wizard" building a physical house from scratch unless the context explicitly says they are a developer.
 3. Read the provided client context (name, entity type, aggregated responses, AND any "Strategist-Provided Client Context" or "Supporting Content & Meeting Transcripts" blocks in the user prompt) to ensure the chosen character accurately reflects the actual economic or spiritual value the brand offers, bypassing flat or superficial industry clichés. When a Strategist-Provided Client Context block is present, treat it as the highest-priority signal and let it override surface-level industry assumptions; when a Supporting Content block is present, mine it verbatim for persona vulnerabilities, exact phrasing, and voice-and-tone cues.
 
 * **Primary Supporting Character:** chosen archetype + how it applies (must be one of the 11).
