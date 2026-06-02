@@ -884,6 +884,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
             </motion.div>
           </div>
         )}
+        {generatingClient && (
+          <GenerateBlueprintModal
+            client={generatingClient}
+            isSubmitting={finishingId === generatingClient.id}
+            onCancel={() => setGeneratingClient(null)}
+            onSubmit={(ctx, sup) => handleGenerateStrategy(generatingClient, ctx, sup)}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
