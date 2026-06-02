@@ -36,7 +36,7 @@ interface Client {
   survey_uid: string;
   access_code: string;
   entity_type: string;
-  status: "pending" | "completed";
+  status: "pending" | "completed" | "generating" | "failed";
   response_count: number;
   blueprint: string | null;
   presentation_data: PresentationData | unknown | null;
