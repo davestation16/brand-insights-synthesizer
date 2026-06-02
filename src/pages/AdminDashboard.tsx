@@ -468,10 +468,34 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     load();
   };
 
-  const handleFinishSurveys = async (client: Client) => {
+  const handleGenerateStrategy = async (
+    client: Client,
+    clientContext: string,
+    supportingContent: string,
+  ) => {
     setFinishingId(client.id);
+    const trimmedContext = clientContext.trim();
+    const trimmedSupporting = supportingContent.trim();
+
+    const { error: updateError } = await supabase
+      .from("clients")
+      .update({
+        client_context: trimmedContext || null,
+        supporting_content: trimmedSupporting || null,
+      })
+      .eq("id", client.id);
+    if (updateError) {
+      alert("Failed to save strategist context: " + updateError.message);
+      setFinishingId(null);
+      return;
+    }
+
     const { data, error } = await supabase.functions.invoke("generate-blueprint", {
-      body: { clientId: client.id },
+      body: {
+        clientId: client.id,
+        clientContext: trimmedContext,
+        supportingContent: trimmedSupporting,
+      },
     });
     const result = data as GenerateBlueprintResponse | null;
     if (error || result?.error) {
@@ -480,6 +504,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
       return;
     }
     setFinishingId(null);
+    setGeneratingClient(null);
     load();
   };
 
