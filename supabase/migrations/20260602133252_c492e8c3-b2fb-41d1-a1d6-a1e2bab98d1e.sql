@@ -1,0 +1,1 @@
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS client_context text, ADD COLUMN IF NOT EXISTS supporting_content text;

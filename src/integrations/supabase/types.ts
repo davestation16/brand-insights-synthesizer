@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           access_code: string
           blueprint: string | null
+          client_context: string | null
           created_at: string
           entity_type: string
           id: string
@@ -26,11 +27,13 @@ export type Database = {
           presentation_data: Json | null
           response_count: number
           status: string
+          supporting_content: string | null
           survey_uid: string
         }
         Insert: {
           access_code: string
           blueprint?: string | null
+          client_context?: string | null
           created_at?: string
           entity_type: string
           id?: string
@@ -39,11 +42,13 @@ export type Database = {
           presentation_data?: Json | null
           response_count?: number
           status?: string
+          supporting_content?: string | null
           survey_uid: string
         }
         Update: {
           access_code?: string
           blueprint?: string | null
+          client_context?: string | null
           created_at?: string
           entity_type?: string
           id?: string
@@ -52,6 +57,7 @@ export type Database = {
           presentation_data?: Json | null
           response_count?: number
           status?: string
+          supporting_content?: string | null
           survey_uid?: string
         }
         Relationships: []
