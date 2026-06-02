@@ -42,6 +42,8 @@ interface Client {
   presentation_data: PresentationData | unknown | null;
   created_at: string;
   include_aesthetics: boolean;
+  client_context: string | null;
+  supporting_content: string | null;
 }
 
 interface StrategyView {
