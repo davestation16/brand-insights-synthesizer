@@ -211,8 +211,16 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { clientId } = await req.json();
+    const body = await req.json();
+    const { clientId } = body ?? {};
     if (!clientId) return json({ error: "Missing clientId" }, 400);
+
+    const clientContext = typeof body?.clientContext === "string"
+      ? body.clientContext.trim().slice(0, 8000)
+      : "";
+    const supportingContent = typeof body?.supportingContent === "string"
+      ? body.supportingContent.trim().slice(0, 400000)
+      : "";
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -240,9 +248,16 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY not configured" }, 500);
 
+    const contextBlock = clientContext
+      ? `\n\nStrategist-Provided Client Context (authoritative — weight heavily in Step 3 of the Supporting Character reverse-engineering workflow; this overrides superficial industry inference when it conflicts):\n${clientContext}`
+      : "";
+    const supportingBlock = supportingContent
+      ? `\n\nSupporting Content & Meeting Transcripts (verbatim qualitative voice — mine for vulnerabilities, quests, persona language, and exact phrasing; weight heavily for personas and voice/tone):\n${supportingContent}`
+      : "";
+
     const userPrompt = `Client Name: ${client.name}
 Entity Type: ${client.entity_type}
-Total Respondents: ${allResponses.length}
+Total Respondents: ${allResponses.length}${contextBlock}${supportingBlock}
 
 allResponses:
 ${JSON.stringify(allResponses, null, 2)}
