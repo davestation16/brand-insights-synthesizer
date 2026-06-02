@@ -251,6 +251,140 @@ function DownloadDataButton({
   );
 }
 
+function GenerateBlueprintModal({
+  client,
+  isSubmitting,
+  onCancel,
+  onSubmit,
+}: {
+  client: Client;
+  isSubmitting: boolean;
+  onCancel: () => void;
+  onSubmit: (clientContext: string, supportingContent: string) => void;
+}) {
+  const [clientContext, setClientContext] = useState<string>(client.client_context ?? "");
+  const [supportingContent, setSupportingContent] = useState<string>(client.supporting_content ?? "");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFileLoad = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = String(reader.result ?? "");
+      setSupportingContent((prev) =>
+        prev.trim().length > 0 ? `${prev}\n\n--- ${file.name} ---\n${text}` : text,
+      );
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-6 overflow-y-auto">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-s16-text/30 backdrop-blur-sm"
+        onClick={isSubmitting ? undefined : onCancel}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        className="relative bg-s16-bg max-w-2xl w-full my-12 border border-s16-border p-10"
+      >
+        <div className="mb-8">
+          <span className="s16-eyebrow text-s16-text-muted">Strategic Input Terminal</span>
+          <h3 className="text-3xl mt-2">{client.name}</h3>
+          <p className="font-body text-sm text-s16-text-muted mt-3 max-w-prose">
+            These qualitative inputs are injected into the strategy engine to sharpen the
+            reverse-engineered Supporting Character archetype and persona language. Both fields are
+            saved on the client record for future regenerations.
+          </p>
+        </div>
+
+        <div className="space-y-8">
+          <div>
+            <Label className="s16-eyebrow text-s16-text-muted block mb-3">
+              Client Context / Operational Synopsis (3–5 Sentences)
+            </Label>
+            <Textarea
+              value={clientContext}
+              onChange={(e) => setClientContext(e.target.value)}
+              rows={4}
+              maxLength={4000}
+              placeholder="e.g., We handle tax structuring for high-net-worth private jet acquisitions. It's a regulatory minefield where errors cost millions; we act as an impenetrable legal shield so clients can enjoy wealth without audit anxiety."
+              className="font-body text-sm bg-s16-bg-warm border-s16-border"
+            />
+          </div>
+
+          <div>
+            <Label className="s16-eyebrow text-s16-text-muted block mb-1">
+              Supporting Content & Meeting Transcripts
+            </Label>
+            <p className="font-body text-xs text-s16-text-muted mb-3">
+              Paste raw discovery notes, Zoom transcripts, or load a text file below to inject
+              qualitative voice into the AI analysis.
+            </p>
+            <Textarea
+              value={supportingContent}
+              onChange={(e) => setSupportingContent(e.target.value)}
+              rows={12}
+              maxLength={200000}
+              placeholder="Paste transcripts, discovery interview notes, or strategic memos here…"
+              className="font-body text-sm bg-s16-bg-warm border-s16-border resize-y"
+            />
+            <div className="mt-3 flex items-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".txt,.md,text/plain,text/markdown"
+                className="hidden"
+                onChange={handleFileLoad}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isSubmitting}
+                className="text-xs"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                Load .txt File
+              </Button>
+              <span className="text-[10px] font-ui uppercase tracking-widest text-s16-text-muted">
+                Appends to existing content
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-6 pt-10 mt-8 border-t border-s16-border">
+          <button
+            type="button"
+            onClick={() => onSubmit(clientContext, supportingContent)}
+            disabled={isSubmitting}
+            className="s16-cta disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? "↳ Analyzing Intelligence..." : "↳ Generate Strategy"}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="s16-cta opacity-50 disabled:cursor-not-allowed"
+          >
+            ↳ Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function AdminDashboard({ user: _user }: { user: User }) {
   const [clients, setClients] = useState<Client[]>([]);
   const [industries, setIndustries] = useState<string[]>([]);
