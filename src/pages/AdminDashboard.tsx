@@ -267,6 +267,7 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [pdfDiagnostics, setPdfDiagnostics] = useState<PdfDiagnosticEntry[]>(() => readPdfDiagnostics());
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [generatingClient, setGeneratingClient] = useState<Client | null>(null);
   const savedTimeoutRef = useRef<number | null>(null);
   const inFlightRef = useRef<Promise<void> | null>(null);
   const queuedRef = useRef<PresentationData | null>(null);
