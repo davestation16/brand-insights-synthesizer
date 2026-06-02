@@ -207,60 +207,22 @@ const BlueprintOutputSchema = z.object({
   presentationData: PresentationDataSchema,
 });
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function runGeneration(params: {
+  clientId: string;
+  client: { name: string; entity_type: string };
+  allResponses: unknown[];
+  clientContext: string;
+  supportingContent: string;
+}) {
+  const { clientId, client, allResponses, clientContext, supportingContent } = params;
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
 
   try {
-    const body = await req.json();
-    const { clientId } = body ?? {};
-    if (!clientId) return json({ error: "Missing clientId" }, 400);
-
-    const clientContext = typeof body?.clientContext === "string"
-      ? body.clientContext.trim().slice(0, 8000)
-      : "";
-    const supportingContent = typeof body?.supportingContent === "string"
-      ? body.supportingContent.trim().slice(0, 400000)
-      : "";
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-
-    console.log("generate-blueprint invoked", {
-      clientId,
-      clientIdType: typeof clientId,
-      hasClientContext: clientContext.length > 0,
-      supportingLength: supportingContent.length,
-    });
-
-    const { data: client, error: clientErr } = await supabase
-      .from("clients")
-      .select("id, name, entity_type")
-      .eq("id", clientId)
-      .maybeSingle();
-    if (clientErr) {
-      console.error("clients lookup failed", clientErr);
-      return json({ error: `Client lookup failed: ${clientErr.message}` }, 500);
-    }
-    if (!client) {
-      console.error("client row missing for id", clientId);
-      return json({ error: `Client not found for id ${clientId}` }, 404);
-    }
-
-    const { data: surveys, error: surveysErr } = await supabase
-      .from("surveys")
-      .select("responses")
-      .eq("client_id", clientId);
-    if (surveysErr) return json({ error: surveysErr.message }, 500);
-    if (!surveys || surveys.length === 0) {
-      return json({ error: "No survey responses found for this client" }, 400);
-    }
-
-    const allResponses = surveys.map((s) => s.responses);
-
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return json({ error: "LOVABLE_API_KEY not configured" }, 500);
+    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const contextBlock = clientContext
       ? `\n\nStrategist-Provided Client Context (authoritative — weight heavily in Step 3 of the Supporting Character reverse-engineering workflow; this overrides superficial industry inference when it conflicts):\n${clientContext}`
@@ -293,20 +255,83 @@ Segment respondents by their Role field as instructed, then return the JSON obje
       maxOutputTokens: 16000,
     });
 
-    const blueprint = parsed.markdown;
-    const presentationData = parsed.presentationData;
-
     const { error: updateErr } = await supabase
       .from("clients")
       .update({
-        blueprint,
-        presentation_data: presentationData,
+        blueprint: parsed.markdown,
+        presentation_data: parsed.presentationData,
         status: "completed",
       })
       .eq("id", clientId);
-    if (updateErr) return json({ error: updateErr.message }, 500);
+    if (updateErr) throw updateErr;
+    console.log("generate-blueprint completed", { clientId });
+  } catch (e) {
+    console.error("generate-blueprint failed", clientId, e);
+    await supabase
+      .from("clients")
+      .update({ status: "failed" })
+      .eq("id", clientId);
+  }
+}
 
-    return json({ success: true, blueprint, presentationData });
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const body = await req.json();
+    const { clientId } = body ?? {};
+    if (!clientId) return json({ error: "Missing clientId" }, 400);
+
+    const clientContext = typeof body?.clientContext === "string"
+      ? body.clientContext.trim().slice(0, 8000)
+      : "";
+    const supportingContent = typeof body?.supportingContent === "string"
+      ? body.supportingContent.trim().slice(0, 400000)
+      : "";
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    console.log("generate-blueprint invoked", {
+      clientId,
+      supportingLength: supportingContent.length,
+    });
+
+    const { data: client, error: clientErr } = await supabase
+      .from("clients")
+      .select("id, name, entity_type")
+      .eq("id", clientId)
+      .maybeSingle();
+    if (clientErr) return json({ error: `Client lookup failed: ${clientErr.message}` }, 500);
+    if (!client) return json({ error: `Client not found for id ${clientId}` }, 404);
+
+    const { data: surveys, error: surveysErr } = await supabase
+      .from("surveys")
+      .select("responses")
+      .eq("client_id", clientId);
+    if (surveysErr) return json({ error: surveysErr.message }, 500);
+    if (!surveys || surveys.length === 0) {
+      return json({ error: "No survey responses found for this client" }, 400);
+    }
+
+    // Mark as generating and run the long AI job in the background so the
+    // HTTP request returns immediately (avoids the 150s edge timeout).
+    await supabase.from("clients").update({ status: "generating" }).eq("id", clientId);
+
+    // @ts-ignore - EdgeRuntime is provided by the Supabase edge runtime
+    EdgeRuntime.waitUntil(
+      runGeneration({
+        clientId,
+        client: { name: client.name, entity_type: client.entity_type },
+        allResponses: surveys.map((s) => s.responses),
+        clientContext,
+        supportingContent,
+      }),
+    );
+
+    return json({ success: true, status: "generating" }, 202);
   } catch (e) {
     console.error(e);
     return json({ error: (e as Error).message }, 500);

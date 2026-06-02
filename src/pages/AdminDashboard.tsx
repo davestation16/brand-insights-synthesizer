@@ -36,7 +36,7 @@ interface Client {
   survey_uid: string;
   access_code: string;
   entity_type: string;
-  status: "pending" | "completed";
+  status: "pending" | "completed" | "generating" | "failed";
   response_count: number;
   blueprint: string | null;
   presentation_data: PresentationData | unknown | null;
@@ -633,13 +633,41 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
     });
     const result = data as GenerateBlueprintResponse | null;
     if (error || result?.error) {
-      alert("Failed to generate strategy: " + (error?.message || result?.error));
+      alert("Failed to start strategy generation: " + (error?.message || result?.error));
       setFinishingId(null);
       return;
     }
-    setFinishingId(null);
+
     setGeneratingClient(null);
+
+    // The edge function runs the AI job in the background to avoid the 150s
+    // request timeout. Poll the client row until status leaves "generating".
+    const startedAt = Date.now();
+    const POLL_MS = 4000;
+    const TIMEOUT_MS = 10 * 60 * 1000;
+    while (Date.now() - startedAt < TIMEOUT_MS) {
+      await new Promise((r) => setTimeout(r, POLL_MS));
+      const { data: row } = await supabase
+        .from("clients")
+        .select("status")
+        .eq("id", client.id)
+        .maybeSingle();
+      const status = row?.status;
+      if (status === "completed") {
+        setFinishingId(null);
+        load();
+        return;
+      }
+      if (status === "failed" || status === "pending") {
+        setFinishingId(null);
+        load();
+        if (status === "failed") alert("Strategy generation failed. Check edge function logs for details.");
+        return;
+      }
+    }
+    setFinishingId(null);
     load();
+    alert("Strategy generation is taking longer than expected. Refresh in a minute to see results.");
   };
 
   const handleAddClient = async (e: React.FormEvent) => {
