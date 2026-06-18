@@ -1,59 +1,58 @@
-## Goal
-Add a per-client "Strategic Input Terminal" modal that captures two qualitative inputs — a short Operational Synopsis and a large Supporting Content / Transcripts blob — persists both on the client row, and feeds them into the `generate-blueprint` edge function to sharpen Supporting Character archetype selection.
+# Skill: `react-pdf-renderer`
 
-## Changes
+Save the PDF rendering approach used in this project as a reusable Lovable skill so it can be applied to other projects.
 
-### 1. Database (migration)
-Add two nullable columns to `public.clients`:
-- `client_context text` — 3–5 sentence operational synopsis
-- `supporting_content text` — pasted/loaded transcripts and discovery notes
+## Why a skill (not always-on knowledge)
 
-No grant/RLS changes needed (existing admin-only policies already cover the table).
+PDF rendering is task-specific — it should load only when the user asks to add/export PDFs. A skill is the right shape.
 
-### 2. `src/pages/AdminDashboard.tsx`
-- Extend the `Client` type with `client_context: string | null` and `supporting_content: string | null`, and include both in the `load()` select.
-- Build an inline `GenerateBlueprintModal` component opened from both "Finish Surveys & Generate Strategy" and "Regenerate Strategy" buttons (replacing the direct `handleFinishSurveys` invocation).
-- Modal layout — "Strategic Input Terminal for {client.name}":
-  - **Field 1 — Operational Synopsis**
-    - `<Label>`: "Client Context / Operational Synopsis (3–5 Sentences)"
-    - `<Textarea>` (shadcn), ~4 rows
-    - Placeholder: *"e.g., We handle tax structuring for high-net-worth private jet acquisitions. It's a regulatory minefield where errors cost millions; we act as an impenetrable legal shield so clients can enjoy wealth without audit anxiety."*
-    - State: `clientContext`, seeded from `client.client_context ?? ""`
-  - **Field 2 — Supporting Content & Transcripts**
-    - `<Label>`: "Supporting Content & Meeting Transcripts"
-    - Subtext: "Paste raw discovery notes, Zoom transcripts, or drop a text file below to inject qualitative voice into the AI analysis."
-    - `<Textarea>`, large (~12 rows, vertically resizable)
-    - File picker button underneath: hidden `<input type="file" accept=".txt,text/plain">` driven by a styled `<Button variant="outline">↳ Load .txt File</Button>`
-    - On change: `new FileReader().readAsText(file)`; on `onload`, append the result to `supportingContent` (with a `\n\n--- {filename} ---\n` separator if existing content is non-empty). Reset the input value so the same file can be re-loaded.
-    - State: `supportingContent`, seeded from `client.supporting_content ?? ""`
-  - Footer: Cancel + "↳ Generate Strategy" (reuses existing `finishingId` spinner styling).
-- Submit handler:
-  ```ts
-  await supabase.from("clients").update({
-    client_context: clientContext,
-    supporting_content: supportingContent,
-  }).eq("id", client.id);
+## What makes this project's PDF rendering work well
 
-  const { data, error } = await supabase.functions.invoke("generate-blueprint", {
-    body: { clientId: client.id, clientContext, supportingContent },
-  });
-  ```
-  On success: close modal, clear `finishingId`, `load()`. On error: keep the existing `alert(...)` flow.
+After inspecting `src/components/BlueprintDeck.tsx` and `src/pages/AdminDashboard.tsx`, the winning recipe is:
 
-### 3. `supabase/functions/generate-blueprint/index.ts`
-- Parse optional `clientContext` and `supportingContent` strings from the request body.
-- When non-empty, prepend distinct labeled blocks to the user prompt:
-  ```
-  Strategist-Provided Client Context (authoritative — weight heavily in Step 3 of the Supporting Character workflow):
-  <clientContext>
+1. **`@react-pdf/renderer`** (vector output) — not `html2canvas` + `jsPDF` (rasterized, blurry, font-fragile).
+2. **Locally hosted fonts** in `public/fonts/*.ttf` registered via `Font.register({ src: \`${window.location.origin}/fonts/...\` })`. Avoids the Google Fonts CDN 404 / CORS errors that break PDF generation in sandboxed previews.
+3. **`Font.registerHyphenationCallback((word) => [word])`** to stop react-pdf splitting headings like "Audi-ence".
+4. **A dedicated deck component** (`BlueprintDeck`) returning `<Document><Page>...</Page></Document>` using `StyleSheet.create` — clean separation from on-screen UI.
+5. **Client-side trigger** via `pdf(<Deck …/>).toBlob()` → object URL → anchor click. No server round-trip.
+6. **Diagnostics buffer** in `localStorage` capturing each stage (render / blob / download / error) so users can copy a log when generation fails.
 
-  Supporting Content & Meeting Transcripts (verbatim qualitative voice — mine for vulnerabilities, quests, and exact language):
-  <supportingContent>
-  ```
-- Add a sentence to `SYSTEM_PROMPT` instructing the model to treat the Strategist-Provided Client Context as the highest-priority signal when reverse-engineering the archetype, and to mine the Supporting Content for persona language and vulnerabilities — both override superficial industry inference when they conflict.
-- No output schema changes; still returns `{ markdown, presentationData }`.
+## Skill contents
+
+Draft at `.agents/skills/react-pdf-renderer/`:
+
+```
+.agents/skills/react-pdf-renderer/
+├── SKILL.md
+└── references/
+    ├── setup.md           # install, font hosting, vite gotchas
+    ├── document-template.md  # annotated <Document>/<Page>/<View>/<Text> example
+    ├── download-trigger.md   # pdf().toBlob() + diagnostics pattern
+    └── troubleshooting.md    # font 404s, hyphenation, blank pages, large blobs
+```
+
+### `SKILL.md` (outline)
+
+- **Frontmatter**
+  - `name: react-pdf-renderer`
+  - `description: Add high-quality vector PDF export to a Lovable React app using @react-pdf/renderer. Use when the user asks to download, export, or generate PDFs (brochures, decks, reports, invoices) from in-app content.`
+- **Body**
+  - When to use this skill / when not to (e.g. if the user wants pixel-perfect HTML capture, prefer a different approach).
+  - Quick-start checklist (install, drop fonts in `public/fonts`, create deck component, wire download button).
+  - Pointers to the four reference files.
+
+### Reference files
+
+- **`setup.md`** — `bun add @react-pdf/renderer`, where to put `.ttf` files, why CDN fonts fail, and a note that no Vite config changes are needed.
+- **`document-template.md`** — minimal `Deck.tsx` template (Document/Page/StyleSheet/Font.register/hyphenation callback) adapted from `BlueprintDeck.tsx`, generic enough to drop into any project.
+- **`download-trigger.md`** — the `handleDownloadPdf` pattern: `pdf(<Deck/>).toBlob()`, `URL.createObjectURL`, anchor click, `URL.revokeObjectURL`, plus the localStorage diagnostics buffer.
+- **`troubleshooting.md`** — common failures: missing fonts → 404 / blank text, hyphenation in headings, oversized images, async font loading races, "DataView" errors from corrupt TTF.
+
+## Apply
+
+After writing the draft files, call `skills--apply_draft` with `.agents/skills/react-pdf-renderer` so it lands in the user's account-scoped skills and is available in future projects.
 
 ## Out of scope
-- No new storage buckets, no server-side file parsing (`.txt` only, read client-side via `FileReader`).
-- No changes to PDF, StrategyEditor, or XLSX export.
-- Survey respondents never see either field.
+
+- Copying the actual fonts from this project (licensing). The skill will tell the agent to source the fonts the new project needs.
+- Project-specific layouts from `BlueprintDeck` (cover slide, persona slides, etc.) — the skill ships a generic template only.
