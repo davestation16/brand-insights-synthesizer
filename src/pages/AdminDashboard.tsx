@@ -87,6 +87,20 @@ function writePdfDiagnostics(entries: PdfDiagnosticEntry[]) {
   localStorage.setItem(PDF_DIAGNOSTICS_KEY, JSON.stringify(entries.slice(-80)));
 }
 
+function downloadBlueprintMarkdown(clientName: string, blueprint: string | null) {
+  if (!blueprint) return;
+  const header = `# ${clientName} — Brand Strategy Blueprint\n\n_Generated ${new Date().toLocaleDateString()}_\n\n---\n\n`;
+  const blob = new Blob([header + blueprint], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${clientName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-brand-blueprint.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function pluralizeRole(role: string): string {
   if (/s$/i.test(role)) return role;
   if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
@@ -798,6 +812,13 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                         ↳ View Strategy
                       </button>
                       <button
+                        onClick={() => downloadBlueprintMarkdown(client.name, client.blueprint)}
+                        disabled={!client.blueprint}
+                        className="s16-cta w-full justify-center py-2 border border-s16-border-light text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        ↳ Download Strategy (Markdown)
+                      </button>
+                      <button
                         onClick={() => setGeneratingClient(client)}
                         disabled={finishingId === client.id}
                         className="s16-cta w-full justify-center py-2 border border-s16-border-light text-xs disabled:opacity-40 disabled:cursor-not-allowed"
@@ -901,6 +922,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                         <span>Download Presentation (PDF)</span>
                       </>
                     )}
+                  </button>
+                  <button
+                    onClick={() => downloadBlueprintMarkdown(selectedStrategy.client.name, selectedStrategy.blueprint)}
+                    disabled={!selectedStrategy.blueprint}
+                    className="s16-cta flex items-center gap-2 bg-s16-bg-surface border border-s16-border px-4 py-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Markdown</span>
                   </button>
                   <button
                     onClick={() => setSelectedStrategy(null)}
