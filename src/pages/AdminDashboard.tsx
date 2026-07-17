@@ -87,6 +87,20 @@ function writePdfDiagnostics(entries: PdfDiagnosticEntry[]) {
   localStorage.setItem(PDF_DIAGNOSTICS_KEY, JSON.stringify(entries.slice(-80)));
 }
 
+function downloadBlueprintMarkdown(clientName: string, blueprint: string | null) {
+  if (!blueprint) return;
+  const header = `# ${clientName} — Brand Strategy Blueprint\n\n_Generated ${new Date().toLocaleDateString()}_\n\n---\n\n`;
+  const blob = new Blob([header + blueprint], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${clientName.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-brand-blueprint.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function pluralizeRole(role: string): string {
   if (/s$/i.test(role)) return role;
   if (/y$/i.test(role)) return role.replace(/y$/i, "ies");
