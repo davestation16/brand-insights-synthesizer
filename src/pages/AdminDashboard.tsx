@@ -924,6 +924,14 @@ export default function AdminDashboard({ user: _user }: { user: User }) {
                     )}
                   </button>
                   <button
+                    onClick={() => downloadBlueprintMarkdown(selectedStrategy.client.name, selectedStrategy.blueprint)}
+                    disabled={!selectedStrategy.blueprint}
+                    className="s16-cta flex items-center gap-2 bg-s16-bg-surface border border-s16-border px-4 py-2 text-xs disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Markdown</span>
+                  </button>
+                  <button
                     onClick={() => setSelectedStrategy(null)}
                     className="p-2 hover:bg-s16-bg-warm rounded-full transition-colors"
                   >
