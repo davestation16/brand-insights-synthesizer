@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/design-system/s16-design-system-a395c6";
 import { useAuth } from "@/hooks/useAuth";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -39,21 +40,23 @@ function HomeRoute() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<HomeRoute />} />
-          <Route path="/admin" element={<AdminRoute />} />
-          <Route path="/admin/templates" element={<TemplatesRoute />} />
-          <Route path="/survey/:uid" element={<ClientSurvey />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/admin" element={<AdminRoute />} />
+            <Route path="/admin/templates" element={<TemplatesRoute />} />
+            <Route path="/survey/:uid" element={<ClientSurvey />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
