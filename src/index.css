@@ -1,48 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Lora:ital,wght@0,400;1,400&family=Syne:wght@500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 40 40% 98%;
-    --foreground: 30 8% 10%;
-    --card: 40 30% 95%;
-    --card-foreground: 30 8% 10%;
-    --popover: 40 40% 98%;
-    --popover-foreground: 30 8% 10%;
-    --primary: 30 8% 10%;
-    --primary-foreground: 40 40% 98%;
-    --secondary: 36 22% 92%;
-    --secondary-foreground: 30 8% 10%;
-    --muted: 36 18% 90%;
-    --muted-foreground: 30 6% 45%;
-    --accent: 22 92% 60%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 36 22% 86%;
-    --input: 36 22% 86%;
-    --ring: 30 8% 10%;
-    --radius: 0.25rem;
+    --background: var(--s16-color-canvas);
+    --foreground: var(--s16-color-text);
+    --card: var(--s16-color-surface);
+    --card-foreground: var(--s16-color-text);
+    --popover: var(--s16-color-surface);
+    --popover-foreground: var(--s16-color-text);
+    --primary: var(--s16-color-ink);
+    --primary-foreground: var(--s16-color-text-inverse);
+    --secondary: var(--s16-color-sand);
+    --secondary-foreground: var(--s16-color-text);
+    --muted: var(--s16-color-sand);
+    --muted-foreground: var(--s16-color-text-muted);
+    --accent: var(--s16-color-accent);
+    --accent-foreground: var(--s16-color-ink);
+    --destructive: var(--s16-color-danger);
+    --destructive-foreground: var(--s16-color-text-inverse);
+    --border: var(--s16-color-border-subtle);
+    --input: var(--s16-color-border);
+    --ring: var(--s16-color-focus);
+    --radius: var(--s16-radius-sm);
   }
 
-  * { @apply border-border; }
+  * { border-color: var(--s16-color-border-subtle); }
   body {
-    @apply bg-s16-bg text-s16-text;
-    font-family: 'Lora', Georgia, serif;
+    margin: 0;
+    background-color: var(--s16-color-canvas);
+    color: var(--s16-color-text);
+    font-family: var(--s16-font-body);
   }
   h1, h2, h3, h4 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: var(--s16-font-display);
     font-weight: 400;
+    letter-spacing: 0;
   }
 }
 
 @layer components {
   .s16-cta {
-    @apply font-ui font-semibold text-[0.85rem] uppercase tracking-[0.1em] transition-all flex items-center gap-2 hover:opacity-70 cursor-pointer;
-  }
-  .s16-eyebrow {
-    @apply font-ui font-semibold text-[9px] uppercase tracking-[0.22em] text-s16-accent;
+    display: flex;
+    align-items: center;
+    gap: var(--s16-space-2);
+    cursor: pointer;
+    font-family: var(--s16-font-label);
+    font-size: var(--s16-text-xs);
+    font-weight: 600;
+    letter-spacing: var(--s16-tracking-label);
+    text-transform: uppercase;
+    transition-duration: var(--s16-duration);
+    transition-timing-function: var(--s16-ease);
   }
 }
