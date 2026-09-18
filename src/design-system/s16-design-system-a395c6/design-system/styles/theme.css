@@ -1,0 +1,374 @@
+/**
+ * Station16 design system — canonical theme entry.
+ * Import this once at the root of a consuming app:
+ *   import "@/design-system/s16-design-system-a395c6/design-system/station16/styles/theme.css";
+ */
+
+:root {
+  /* Color — surfaces */
+  --s16-color-canvas: #fdfcf9;
+  --s16-color-surface: #ffffff;
+  --s16-color-sand: #f4f1eb;
+  --s16-color-ink: #1a1917;
+  --s16-color-ink-deep: #0f0e0c;
+
+  /* Color — text */
+  --s16-color-text: #1a1917;
+  /* Muted text is AA-compliant on canvas, sand and surface (>= 7:1) */
+  --s16-color-text-muted: #55514c;
+  --s16-color-text-inverse: #fdfcf9;
+  /* Muted text on ink surfaces (>= 7:1 on ink) */
+  --s16-color-text-muted-inverse: #cfc9c1;
+
+  /* Color — accent & lines
+     accent = fills only (pair with ink text)
+     accent-text = the accent as *text or icon* colour on light surfaces (>= 4.5:1)
+     accent-on-ink = the accent as text on ink surfaces (>= 4.5:1) */
+  --s16-color-accent: #f7893d;
+  --s16-color-accent-soft: #fdd79a;
+  --s16-color-accent-text: #96420a;
+  --s16-color-accent-on-ink: #fdd79a;
+  --s16-color-danger: #9a1f14;
+  --s16-color-danger-on-ink: #ffb3a7;
+  /* Borders meet the 3:1 non-text contrast minimum */
+  --s16-color-border: #8d877f;
+  --s16-color-border-subtle: rgba(26, 25, 23, 0.32);
+  --s16-color-focus: #1a1917;
+  --s16-color-focus-inverse: #fdd79a;
+
+  /* Typography */
+  --s16-font-display: "Noto Serif Georgian", Georgia, "Times New Roman", serif;
+  --s16-font-editorial: "Cormorant", Georgia, serif;
+  --s16-font-label: "Syne", "Inter", sans-serif;
+  --s16-font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  --s16-text-eyebrow: 0.8125rem;
+  --s16-text-xs: 0.8125rem;
+  --s16-text-sm: 0.9375rem;
+  --s16-text-base: 1rem;
+  --s16-text-lg: 1.25rem;
+  --s16-text-xl: 1.5rem;
+  --s16-display-sm: clamp(1.75rem, calc(1.5rem + 1vw), 2.5rem);
+  --s16-display-md: clamp(2.25rem, calc(1.9rem + 1.6vw), 3.5rem);
+  --s16-display-lg: clamp(3.2rem, calc(2.8rem + 2vw), 6rem);
+
+  --s16-leading-display: 1.05;
+  --s16-leading-body: 1.7;
+  --s16-tracking-label: 0.14em;
+
+  /* Spacing (4px base) */
+  --s16-space-1: 0.25rem;
+  --s16-space-2: 0.5rem;
+  --s16-space-3: 0.75rem;
+  --s16-space-4: 1rem;
+  --s16-space-6: 1.5rem;
+  --s16-space-8: 2rem;
+  --s16-space-12: 3rem;
+  --s16-space-16: 4rem;
+  --s16-space-24: 6rem;
+
+  /* Radius — the brand is square: buttons are square-edged, pill is opt-in only */
+  --s16-radius-none: 0px;
+  --s16-radius-sm: 2px;
+  --s16-radius-md: 8px;
+  --s16-radius-pill: 999px;
+
+  /* Elevation — light, warm, never grey */
+  --s16-shadow-sm: 0 1px 2px rgba(26, 25, 23, 0.06);
+  --s16-shadow-md: 0 8px 24px rgba(26, 25, 23, 0.08);
+  --s16-shadow-lg: 0 24px 60px rgba(26, 25, 23, 0.12);
+
+  /* Motion */
+  --s16-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --s16-duration: 220ms;
+
+  /* Layout */
+  --s16-container: 1200px;
+}
+
+.s16-root {
+  background-color: var(--s16-color-canvas);
+  color: var(--s16-color-text);
+  font-family: var(--s16-font-body);
+  font-size: var(--s16-text-base);
+  line-height: var(--s16-leading-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.s16-root *,
+.s16-root *::before,
+.s16-root *::after {
+  box-sizing: border-box;
+}
+
+.s16-root :focus-visible {
+  outline: 3px solid var(--s16-color-focus);
+  outline-offset: 2px;
+}
+
+/* Focus stays visible on ink surfaces */
+.s16-section--ink :focus-visible,
+.s16-card--ink :focus-visible {
+  outline-color: var(--s16-color-focus-inverse);
+}
+
+/* Muted text and accent text flip automatically on ink surfaces */
+.s16-section--ink .s16-text--muted,
+.s16-card--ink .s16-text--muted,
+.s16-section--ink .s16-stat__label,
+.s16-card--ink .s16-stat__label,
+.s16-section--ink .s16-work__meta,
+.s16-card--ink .s16-work__meta,
+.s16-section--ink .s16-eyebrow--muted,
+.s16-card--ink .s16-eyebrow--muted { color: var(--s16-color-text-muted-inverse); }
+
+.s16-section--ink .s16-eyebrow--accent,
+.s16-card--ink .s16-eyebrow--accent,
+.s16-section--ink .s16-numbered__index,
+.s16-card--ink .s16-numbered__index { color: var(--s16-color-accent-on-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .s16-root *,
+  .s16-root *::before,
+  .s16-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Text ---------- */
+.s16-display {
+  font-family: var(--s16-font-display);
+  font-weight: 400;
+  line-height: var(--s16-leading-display);
+  letter-spacing: 0;
+  color: var(--s16-color-text);
+  margin: 0;
+}
+.s16-display--lg { font-size: var(--s16-display-lg); }
+.s16-display--md { font-size: var(--s16-display-md); }
+.s16-display--sm { font-size: var(--s16-display-sm); }
+.s16-display--editorial { font-family: var(--s16-font-editorial); font-weight: 500; }
+
+.s16-text { margin: 0; color: var(--s16-color-text); font-family: var(--s16-font-body); }
+.s16-text--lead { font-size: var(--s16-text-lg); line-height: 1.55; }
+.s16-text--body { font-size: var(--s16-text-base); }
+.s16-text--small { font-size: var(--s16-text-sm); }
+.s16-text--muted { color: var(--s16-color-text-muted); }
+.s16-text--inverse { color: var(--s16-color-text-inverse); }
+
+.s16-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s16-space-2);
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  margin: 0;
+}
+.s16-eyebrow--accent { color: var(--s16-color-accent-text); }
+.s16-eyebrow--ink { color: var(--s16-color-text); }
+.s16-eyebrow--muted { color: var(--s16-color-text-muted); }
+
+/* ---------- Button ---------- */
+.s16-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s16-space-2);
+  font-family: var(--s16-font-label);
+  font-weight: 600;
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  border-radius: var(--s16-radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--s16-duration) var(--s16-ease),
+    color var(--s16-duration) var(--s16-ease),
+    border-color var(--s16-duration) var(--s16-ease),
+    transform var(--s16-duration) var(--s16-ease);
+}
+.s16-button:disabled,
+.s16-button[aria-disabled="true"] { opacity: 0.65; cursor: not-allowed; }
+.s16-button:not(:disabled):hover { transform: translateY(-1px); }
+
+.s16-button--pill { border-radius: var(--s16-radius-pill); }
+.s16-tag--pill { border-radius: var(--s16-radius-pill); }
+
+.s16-button--sm { font-size: var(--s16-text-xs); padding: var(--s16-space-2) var(--s16-space-4); }
+.s16-button--md { font-size: var(--s16-text-xs); padding: var(--s16-space-3) var(--s16-space-6); }
+.s16-button--lg { font-size: var(--s16-text-sm); padding: var(--s16-space-4) var(--s16-space-8); }
+
+.s16-button--primary { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+.s16-button--primary:not(:disabled):hover { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
+
+.s16-button--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
+.s16-button--ink:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+
+.s16-button--outline { background-color: transparent; color: var(--s16-color-text); border-color: var(--s16-color-accent-text); border-width: 2px; }
+.s16-button--outline:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+
+.s16-button--ghost { background-color: transparent; color: var(--s16-color-text); }
+.s16-button--ghost:not(:disabled):hover { color: var(--s16-color-accent-text); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Arrow link ---------- */
+.s16-arrowlink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s16-space-2);
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  color: var(--s16-color-text);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--s16-duration) var(--s16-ease);
+}
+.s16-arrowlink__glyph { transition: transform var(--s16-duration) var(--s16-ease); }
+.s16-arrowlink:hover { color: var(--s16-color-accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.s16-arrowlink:hover .s16-arrowlink__glyph { transform: translate(2px, 2px); }
+.s16-arrowlink--inverse { color: var(--s16-color-text-inverse); }
+.s16-arrowlink--inverse:hover { color: var(--s16-color-accent-on-ink); }
+
+/* ---------- Surfaces ---------- */
+.s16-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s16-space-3);
+  padding: var(--s16-space-8);
+  border-radius: var(--s16-radius-md);
+  transition: box-shadow var(--s16-duration) var(--s16-ease),
+    transform var(--s16-duration) var(--s16-ease);
+}
+.s16-card--plain { background-color: var(--s16-color-surface); box-shadow: var(--s16-shadow-sm); }
+.s16-card--sand { background-color: var(--s16-color-sand); }
+.s16-card--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
+.s16-card--outline { background-color: transparent; border: 1px solid var(--s16-color-border-subtle); }
+.s16-card--interactive { cursor: pointer; }
+.s16-card--interactive:hover { box-shadow: var(--s16-shadow-md); transform: translateY(-2px); }
+
+.s16-section { padding-block: var(--s16-space-24); }
+.s16-section--canvas { background-color: var(--s16-color-canvas); }
+.s16-section--sand { background-color: var(--s16-color-sand); }
+.s16-section--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
+.s16-section__inner {
+  max-width: var(--s16-container);
+  margin-inline: auto;
+  padding-inline: var(--s16-space-6);
+}
+
+.s16-divider { border: 0; border-top: 1px solid var(--s16-color-border-subtle); margin: 0; }
+.s16-divider--accent { border-top-color: var(--s16-color-accent-text); }
+
+/* ---------- Numbered item ---------- */
+.s16-numbered { display: flex; flex-direction: column; gap: var(--s16-space-3); }
+.s16-numbered__index {
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  font-weight: 700;
+  letter-spacing: var(--s16-tracking-label);
+  color: var(--s16-color-accent-text);
+}
+
+/* ---------- Stat ---------- */
+.s16-stat { display: flex; flex-direction: column; gap: var(--s16-space-1); }
+.s16-stat__value {
+  font-family: var(--s16-font-display);
+  font-size: var(--s16-display-sm);
+  line-height: 1.1;
+}
+.s16-stat__label {
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  color: var(--s16-color-text-muted);
+}
+
+/* ---------- Tag ---------- */
+.s16-tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  padding: var(--s16-space-1) var(--s16-space-3);
+  border-radius: var(--s16-radius-sm);
+}
+.s16-tag--accent { background-color: var(--s16-color-accent-soft); color: var(--s16-color-ink); }
+.s16-tag--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
+.s16-tag--outline { border: 1px solid var(--s16-color-border); color: var(--s16-color-text); }
+
+/* ---------- Form fields ---------- */
+.s16-field { display: flex; flex-direction: column; gap: var(--s16-space-2); }
+.s16-field__label {
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  font-weight: 600;
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  color: var(--s16-color-text);
+}
+.s16-field__hint { font-family: var(--s16-font-body); font-size: var(--s16-text-sm); color: var(--s16-color-text-muted); }
+.s16-field__error { font-family: var(--s16-font-body); font-size: var(--s16-text-sm); font-weight: 600; color: var(--s16-color-danger); }
+.s16-section--ink .s16-field__error,
+.s16-card--ink .s16-field__error { color: var(--s16-color-danger-on-ink); }
+
+.s16-input {
+  font-family: var(--s16-font-body);
+  font-size: var(--s16-text-base);
+  color: var(--s16-color-text);
+  background-color: var(--s16-color-surface);
+  border: 1px solid var(--s16-color-border);
+  border-radius: var(--s16-radius-sm);
+  padding: var(--s16-space-3) var(--s16-space-4);
+  width: 100%;
+  transition: border-color var(--s16-duration) var(--s16-ease);
+}
+.s16-input::placeholder { color: var(--s16-color-text-muted); opacity: 1; }
+.s16-input:hover { border-color: var(--s16-color-text); }
+.s16-input:focus-visible { border-color: var(--s16-color-ink); outline: 3px solid var(--s16-color-focus); outline-offset: 2px; }
+.s16-input--invalid { border-color: var(--s16-color-danger); border-width: 2px; }
+.s16-input--textarea { min-height: 7rem; resize: vertical; }
+
+/* ---------- Work card ---------- */
+.s16-work { display: flex; flex-direction: column; gap: var(--s16-space-4); text-decoration: none; color: inherit; }
+.s16-work__media {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--s16-radius-md);
+  overflow: hidden;
+  background-color: var(--s16-color-sand);
+}
+.s16-work__media > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 420ms var(--s16-ease); }
+.s16-work:hover .s16-work__media > img { transform: scale(1.03); }
+.s16-work__meta {
+  font-family: var(--s16-font-label);
+  font-size: var(--s16-text-xs);
+  letter-spacing: var(--s16-tracking-label);
+  text-transform: uppercase;
+  color: var(--s16-color-text-muted);
+}
+
+/* ---------- Increased-contrast preference ---------- */
+@media (prefers-contrast: more) {
+  .s16-root {
+    --s16-color-text-muted: #2f2c29;
+    --s16-color-text-muted-inverse: #f1ede7;
+    --s16-color-accent-text: #6f2f05;
+    --s16-color-border: #1a1917;
+    --s16-color-border-subtle: rgba(26, 25, 23, 0.6);
+  }
+  .s16-card--plain,
+  .s16-card--sand { border: 1px solid var(--s16-color-border); }
+}
