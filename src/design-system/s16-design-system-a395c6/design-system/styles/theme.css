@@ -2,7 +2,15 @@
  * Station16 design system — canonical theme entry.
  * Import this once at the root of a consuming app:
  *   import "@/design-system/s16-design-system-a395c6/design-system/station16/styles/theme.css";
+ *
+ * Fonts: this system uses Noto Serif Georgian, Cormorant, Syne and Inter.
+ * CSS @import is not supported here — add these to your document <head>:
+ *   <link rel="preconnect" href="https://fonts.googleapis.com">
+ *   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ *   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Georgian:wght@400;500;600&family=Cormorant:wght@300;400;500;600&family=Syne:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap">
+ * Without them everything falls back to system fonts.
  */
+
 
 :root {
   /* Color — surfaces */
@@ -28,6 +36,13 @@
   --s16-color-accent-soft: #fdd79a;
   --s16-color-accent-text: #96420a;
   --s16-color-accent-on-ink: #fdd79a;
+  /* Text/icon colour that sits ON an accent fill. The orange fill is the same
+     in both themes, so this stays dark ink in both — never flip it. */
+  --s16-color-on-accent: #1a1917;
+  --s16-color-on-accent-soft: #1a1917;
+  /* Focus ring drawn over an accent fill (the default cream ring fails there) */
+  --s16-color-focus-on-accent: #1a1917;
+
   --s16-color-danger: #9a1f14;
   --s16-color-danger-on-ink: #ffb3a7;
   /* Borders meet the 3:1 non-text contrast minimum */
@@ -84,6 +99,49 @@
 
   /* Layout */
   --s16-container: 1200px;
+  color-scheme: light;
+}
+
+/* ---------- Dark theme ----------
+   Same palette, inverted: the paper becomes the panel and ink becomes the page.
+   `--s16-color-ink` stays the *contrast* surface, so every ink variant keeps
+   working — in dark mode it reads as a warm paper panel on a dark page.
+   All pairs still meet WCAG AA (body/muted text >= 7:1). */
+.s16-root--dark {
+  --s16-color-canvas: #131210;
+  --s16-color-surface: #1c1a18;
+  --s16-color-sand: #23211d;
+  --s16-color-ink: #f4f1eb;
+  --s16-color-ink-deep: #fdfcf9;
+
+  --s16-color-text: #f4f1eb;
+  --s16-color-text-muted: #b6afa6;
+  --s16-color-text-inverse: #1a1917;
+  --s16-color-text-muted-inverse: #55514c;
+
+  --s16-color-accent: #f7893d;
+  --s16-color-accent-soft: #52300f;
+  --s16-color-accent-text: #fdb877;
+  --s16-color-accent-on-ink: #96420a;
+  /* Orange fill is unchanged in dark mode, so its text stays dark ink (8.0:1) */
+  --s16-color-on-accent: #1a1917;
+  --s16-color-focus-on-accent: #1a1917;
+  /* accent-soft is a deep brown in dark mode, so its text flips to cream (9.3:1) */
+  --s16-color-on-accent-soft: #f4f1eb;
+
+  --s16-color-danger: #ff9d90;
+  --s16-color-danger-on-ink: #9a1f14;
+
+  --s16-color-border: #6f6a63;
+  --s16-color-border-subtle: rgba(244, 241, 235, 0.28);
+  --s16-color-focus: #fdd79a;
+  --s16-color-focus-inverse: #1a1917;
+
+  --s16-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --s16-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --s16-shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.6);
+
+  color-scheme: dark;
 }
 
 .s16-root {
@@ -204,14 +262,24 @@
 .s16-button--md { font-size: var(--s16-text-xs); padding: var(--s16-space-3) var(--s16-space-6); }
 .s16-button--lg { font-size: var(--s16-text-sm); padding: var(--s16-space-4) var(--s16-space-8); }
 
-.s16-button--primary { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+.s16-button--primary { background-color: var(--s16-color-accent); color: var(--s16-color-on-accent); }
 .s16-button--primary:not(:disabled):hover { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
 
 .s16-button--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
-.s16-button--ink:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+.s16-button--ink:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-on-accent); }
 
 .s16-button--outline { background-color: transparent; color: var(--s16-color-text); border-color: var(--s16-color-accent-text); border-width: 2px; }
-.s16-button--outline:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-ink); }
+.s16-button--outline:not(:disabled):hover { background-color: var(--s16-color-accent); color: var(--s16-color-on-accent); border-color: var(--s16-color-accent); }
+
+/* Focus ring over an orange fill: the cream ring disappears there */
+.s16-button--primary:focus-visible,
+.s16-button--ink:hover:focus-visible,
+.s16-button--outline:hover:focus-visible { outline-color: var(--s16-color-focus-on-accent); }
+/* ...but primary's hover state leaves the orange fill, so the ring goes back */
+.s16-button--primary:hover:focus-visible { outline-color: var(--s16-color-focus); }
+
+
+
 
 .s16-button--ghost { background-color: transparent; color: var(--s16-color-text); }
 .s16-button--ghost:not(:disabled):hover { color: var(--s16-color-accent-text); text-decoration: underline; text-underline-offset: 3px; }
@@ -306,7 +374,7 @@
   padding: var(--s16-space-1) var(--s16-space-3);
   border-radius: var(--s16-radius-sm);
 }
-.s16-tag--accent { background-color: var(--s16-color-accent-soft); color: var(--s16-color-ink); }
+.s16-tag--accent { background-color: var(--s16-color-accent-soft); color: var(--s16-color-on-accent-soft); }
 .s16-tag--ink { background-color: var(--s16-color-ink); color: var(--s16-color-text-inverse); }
 .s16-tag--outline { border: 1px solid var(--s16-color-border); color: var(--s16-color-text); }
 
@@ -368,6 +436,13 @@
     --s16-color-accent-text: #6f2f05;
     --s16-color-border: #1a1917;
     --s16-color-border-subtle: rgba(26, 25, 23, 0.6);
+  }
+  .s16-root--dark {
+    --s16-color-text-muted: #ded8d0;
+    --s16-color-text-muted-inverse: #2f2c29;
+    --s16-color-accent-text: #ffd2a8;
+    --s16-color-border: #f4f1eb;
+    --s16-color-border-subtle: rgba(244, 241, 235, 0.6);
   }
   .s16-card--plain,
   .s16-card--sand { border: 1px solid var(--s16-color-border); }

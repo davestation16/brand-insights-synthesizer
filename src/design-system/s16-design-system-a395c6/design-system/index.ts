@@ -45,4 +45,4 @@ export { WorkCard } from "./components/WorkCard";
 export type { WorkCardProps } from "./components/WorkCard";
 
 export { ThemeProvider } from "./components/ThemeProvider";
-export type { ThemeProviderProps } from "./components/ThemeProvider";
+export type { ThemeProviderProps, ThemeMode } from "./components/ThemeProvider";

@@ -2,7 +2,7 @@
   "meta": {
     "name": "S16 Design System",
     "package": "@ws-ylfioqax5hharn4j6pfj/8467cf0d-d497-4a9b-b69f-a131441ee7db",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "framework": "react",
     "css_framework": "css-variables",
     "starter_template": "custom_design_system",
@@ -16,7 +16,7 @@
       ".gitignore": "6059213806e442947666752f3db6bfdc",
       ".lovable/meta.yaml": "731dc53c4191bd35cabf4a0af7095d7f",
       ".lovable/sources.yaml": "46538c3116d1af1c84ffaf383140bede",
-      ".lovable/system.md": "4e00a6d79d4955c2c69dbfdb095544ec",
+      ".lovable/system.md": "8905fbde9983f1de670715a1b405b60b",
       "README.md": "d19675c449605f23c7cfa133c69b398b",
       "bunfig.toml": "25f4c8696b22b0943db7191e0cdf7942",
       "eslint.config.js": "07a67437fb1a45ab36d6de0145ff09de",
@@ -37,19 +37,19 @@
       "src/design-system/components/Tag.tsx": "ebf3ceaaed9fe4dd028fc5b90a7d2ed1",
       "src/design-system/components/Text.tsx": "52190eb3d0fd5a136d8a068c3b5f871f",
       "src/design-system/components/Textarea.tsx": "8fcee0569d06f7ed1140976fcce75d23",
-      "src/design-system/components/ThemeProvider.tsx": "4948fbef6d1e84a1aab5f334192e6ace",
+      "src/design-system/components/ThemeProvider.tsx": "0615c2594ba5d8c4703f81fc5247ef6a",
       "src/design-system/components/WorkCard.tsx": "9ff7e1518c97bef05d3d1025e963af49",
-      "src/design-system/index.ts": "b80a3e881eb8833fb455abefca03f8cb",
+      "src/design-system/index.ts": "4e1b981ee9dc2070302a23962dc0db72",
       "src/design-system/lib/cn.ts": "a7b39c78e4a549531cfeba0741abc22b",
-      "src/design-system/styles/theme.css": "c73c16b69fc49dd445a6790b00033cbb",
+      "src/design-system/styles/theme.css": "4bc8b2436973e8aa3dc9620c6743cfcf",
       "src/index.ts": "ab35d8f1c11e0b18cc3bb7f06af3d665",
       "src/mockup-preview.d.ts": "ae9d81e2b8514e13fd59b5b6bece9a64",
       "src/routeTree.gen.ts": "4fd75eb72aeb2d60f12add8cac402a7e",
       "src/router.tsx": "8f905e713b0eba7fa8148b7995a708c9",
-      "src/routes/[__component].preview.$.tsx": "9d1392c06c7541199250beb627ea5b01",
-      "src/routes/[__mockup].preview.$.tsx": "5d9f42470848aa60148f20f9580e240e",
-      "src/routes/__root.tsx": "7aa2875b2884c0811d291b0a4b00dbac",
-      "src/routes/index.tsx": "e99d96b897c365a2ea638cf63543881f",
+      "src/routes/[__component].preview.$.tsx": "78dc15bf44463ca1be9dfd81963495cd",
+      "src/routes/[__mockup].preview.$.tsx": "da6b4d7cae11cc79b3ad6592a3625267",
+      "src/routes/__root.tsx": "66c88228ed147f8007bafe5d345ead49",
+      "src/routes/index.tsx": "b871fa20a0a89f7900c5c5b2f1459c26",
       "src/styles.css": "62b38ee85b02f7f611a70a66aa919bb6",
       "tsconfig.json": "994abf64c2b9f78b568879f80ed0170e",
       "vite.config.ts": "9f787596cc6f9a2aa3de5a021aed28f3",
@@ -745,6 +745,15 @@
       "file": "src/design-system/components/ThemeProvider",
       "import_path": "",
       "props": [
+        {
+          "name": "mode",
+          "type": "enum",
+          "values": [
+            "light",
+            "dark"
+          ],
+          "default": "light"
+        },
         {
           "name": "children",
           "type": "any"

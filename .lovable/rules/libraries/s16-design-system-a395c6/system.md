@@ -85,5 +85,26 @@ no hype adjectives.
 - Wrap the app once in `<ThemeProvider>` (or add the `s16-root` class yourself) so tokens,
   fonts and ink-surface overrides resolve.
 
+## Dark theme
+
+The system ships one dark theme, scoped by `ThemeProvider mode="dark"` (class
+`.s16-root--dark`). It redefines only the colour tokens — never add dark-mode
+styles to a component or override a token inline.
+
+- Same palette inverted: `--s16-color-canvas` becomes the dark page and
+  `--s16-color-ink` stays the *contrast* surface, so `tone="ink"` sections and
+  cards read as warm paper panels on a dark page.
+- On dark, accent text is `--s16-color-accent-text` (#fdb877) and errors are
+  `--s16-color-danger` (#ff9d90); the orange fill `--s16-color-accent` is unchanged.
+- Text or icons sitting **on an orange fill** always use `--s16-color-on-accent`
+  (dark ink, 8:1 in both themes) — never `--s16-color-ink`, which flips to cream on
+  dark and would fail on orange. `--s16-color-accent-soft` fills pair with
+  `--s16-color-on-accent-soft`, and a focus ring drawn over orange uses
+  `--s16-color-focus-on-accent`.
+
+- Providers nest: a single region can run dark inside a light app.
+- Never hardcode a dark colour or use `prefers-color-scheme` in component CSS;
+  the app chooses the mode and passes it to `ThemeProvider`.
+
 
 <!-- END THIRD-PARTY LIBRARY CONTENT: design-system/s16-design-system-a395c6 -->

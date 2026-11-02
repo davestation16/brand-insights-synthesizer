@@ -198,6 +198,7 @@ import { ThemeProvider } from "@/design-system/s16-design-system-a395c6"
 
 | Prop | Type | Default |
 |---|---|---|
+| `mode` | light · dark | `light` |
 | `children` | any | `—` |
 
 ### WorkCard
