@@ -458,7 +458,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
           <span className="s16-eyebrow mb-6 block">Next Steps</span>
           <h1 className="text-6xl mb-8">Discovery Complete</h1>
           <p className="font-body text-s16-text-muted text-lg leading-relaxed">
-            Your intelligence has been gathered. Station16 is now crafting your initial Brand Strategy
+            Your intelligence has been gathered. Station16 is now crafting your initial Strategy
             Blueprint. We'll be in touch to review the trajectory.
           </p>
         </motion.div>
@@ -479,7 +479,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
             <span className="s16-eyebrow mb-8 block text-s16-accent">Identity Verification Required</span>
             <h1 className="text-5xl font-display mb-6 tracking-tight">Access Discovery</h1>
             <p className="font-body text-s16-text-muted mb-12 text-lg leading-relaxed">
-              To begin the brand strategy survey for{" "}
+              To begin the Organizational Personality Survey for{" "}
               <span className="text-s16-text font-semibold">{client.name}</span>, please enter the 4-digit
               access code provided by your Station16 consultant.
             </p>
