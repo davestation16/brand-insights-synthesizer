@@ -240,7 +240,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   const renderPersonality = () => (
     <div className="space-y-12">
       <div className={template.instructions?.personality ? "mb-12" : "mb-8"}>
-        <h2 className="text-4xl mb-4">Brand Personality</h2>
+        <h2 className="text-4xl mb-4">Personality Traits</h2>
         {template.instructions?.personality && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
             {interpolate(template.instructions.personality, client.name)}
