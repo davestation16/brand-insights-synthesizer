@@ -30,8 +30,21 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   roles: [],
 };
 
-const interpolate = (text: string, name: string) =>
-  (text || "").split("{{name}}").join(name);
+// How the survey refers to the client's organization, e.g. "church", "business".
+const ORG_TERMS: Record<string, string> = {
+  church: "church",
+  business: "business",
+  organization: "organization",
+  "brand creation": "business",
+};
+
+const orgTerm = (entityType?: string) => {
+  const key = (entityType || "").trim().toLowerCase();
+  return ORG_TERMS[key] || key || "business";
+};
+
+const interpolate = (text: string, name: string, type: string) =>
+  (text || "").split("{{name}}").join(name).split("{{type}}").join(type);
 
 // Resize Supabase Storage images on the fly to keep page weight low.
 const optimizeImage = (url?: string, width = 600) => {
@@ -133,6 +146,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   };
 
   const includeAesthetics = client?.include_aesthetics !== false;
+  const orgType = orgTerm(client?.entity_type);
   const totalSteps = includeAesthetics ? 5 : 4;
   const lastStep = totalSteps - 1;
 
@@ -275,7 +289,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   const renderValues = () => (
     <div className="space-y-16">
       <div className={template.instructions?.values ? "mb-12" : "mb-8"}>
-        <h2 className="text-4xl mb-4">Brand Values</h2>
+        <h2 className="text-4xl mb-4">Core Values</h2>
         {template.instructions?.values && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
             {interpolate(template.instructions.values, client.name)}
@@ -365,7 +379,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
       {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">
           <label className="s16-eyebrow text-s16-text-muted block border-b border-s16-border pb-4">
-            Which {category} reflects the brand most?
+            Which {category} reflects the {orgType} most?
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {options.map((opt: any) => (

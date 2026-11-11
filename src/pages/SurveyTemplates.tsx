@@ -306,7 +306,9 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
             <h1 className="text-5xl mb-3">Survey Templates</h1>
             <p className="text-s16-text-muted font-body max-w-xl">
               Edit the questions stakeholders see in the public survey. Use{" "}
-              <code className="font-mono text-s16-text">{"{{name}}"}</code> to insert the client's name.
+              <code className="font-mono text-s16-text">{"{{name}}"}</code> for the client's name and{" "}
+              <code className="font-mono text-s16-text">{"{{type}}"}</code> for the organization type
+              (church, business, etc.).
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -356,7 +358,7 @@ export default function SurveyTemplates({ user: _user }: { user: User }) {
           </div>
           <label className="flex flex-col gap-2">
             <span className="text-[9px] font-ui font-semibold uppercase tracking-widest text-s16-text-muted">
-              Introductory Notes &amp; Instructions (shown at top of survey) — use {"{{name}}"} to insert client name
+              Introductory Notes &amp; Instructions (shown at top of survey) — use {"{{name}}"} for the client's name and {"{{type}}"} for the organization type
             </span>
             <RichTextEditor
               value={content.intro ?? ""}
