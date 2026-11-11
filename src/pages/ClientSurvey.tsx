@@ -30,8 +30,21 @@ const EMPTY_TEMPLATE: SurveyTemplate = {
   roles: [],
 };
 
-const interpolate = (text: string, name: string) =>
-  (text || "").split("{{name}}").join(name);
+// How the survey refers to the client's organization, e.g. "church", "business".
+const ORG_TERMS: Record<string, string> = {
+  church: "church",
+  business: "business",
+  organization: "organization",
+  "brand creation": "business",
+};
+
+const orgTerm = (entityType?: string) => {
+  const key = (entityType || "").trim().toLowerCase();
+  return ORG_TERMS[key] || key || "business";
+};
+
+const interpolate = (text: string, name: string, type: string) =>
+  (text || "").split("{{name}}").join(name).split("{{type}}").join(type);
 
 // Resize Supabase Storage images on the fly to keep page weight low.
 const optimizeImage = (url?: string, width = 600) => {
@@ -133,6 +146,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   };
 
   const includeAesthetics = client?.include_aesthetics !== false;
+  const orgType = orgTerm(client?.entity_type);
   const totalSteps = includeAesthetics ? 5 : 4;
   const lastStep = totalSteps - 1;
 
@@ -189,7 +203,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
           {template.intro && (
             <div
               className="font-body text-s16-text-muted text-xl leading-relaxed italic border-l-4 border-s16-accent pl-8 py-2 prose prose-lg max-w-none [&_p]:my-3 [&_a]:text-s16-accent [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_ul,&_ol]:pl-6"
-              dangerouslySetInnerHTML={{ __html: interpolate(template.intro, client.name) }}
+              dangerouslySetInnerHTML={{ __html: interpolate(template.intro, client.name, orgType) }}
             />
           )}
         </div>
@@ -243,7 +257,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Personality Traits</h2>
         {template.instructions?.personality && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.personality, client.name)}
+            {interpolate(template.instructions.personality, client.name, orgType)}
           </p>
         )}
       </div>
@@ -275,17 +289,17 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
   const renderValues = () => (
     <div className="space-y-16">
       <div className={template.instructions?.values ? "mb-12" : "mb-8"}>
-        <h2 className="text-4xl mb-4">Brand Values</h2>
+        <h2 className="text-4xl mb-4">Core Values</h2>
         {template.instructions?.values && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.values, client.name)}
+            {interpolate(template.instructions.values, client.name, orgType)}
           </p>
         )}
       </div>
       {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
           <h3 className="font-body text-xl text-s16-text leading-snug">
-            {interpolate(v.question, client.name)}
+            {interpolate(v.question, client.name, orgType)}
           </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
@@ -323,7 +337,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Community Perception</h2>
         {template.instructions?.perception && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.perception, client.name)}
+            {interpolate(template.instructions.perception, client.name, orgType)}
           </p>
         )}
       </div>
@@ -358,14 +372,14 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Aesthetic Choices</h2>
         {template.instructions?.aesthetics && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.aesthetics, client.name)}
+            {interpolate(template.instructions.aesthetics, client.name, orgType)}
           </p>
         )}
       </div>
       {Object.entries(template.aesthetics).map(([category, options]) => (
         <div key={category} className="space-y-10">
           <label className="s16-eyebrow text-s16-text-muted block border-b border-s16-border pb-4">
-            Which {category} reflects the brand most?
+            Which {category} reflects the {orgType} most?
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {options.map((opt: any) => (
@@ -444,7 +458,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
           <span className="s16-eyebrow mb-6 block">Next Steps</span>
           <h1 className="text-6xl mb-8">Discovery Complete</h1>
           <p className="font-body text-s16-text-muted text-lg leading-relaxed">
-            Your intelligence has been gathered. Station16 is now crafting your initial Brand Strategy
+            Your intelligence has been gathered. Station16 is now crafting your initial Strategy
             Blueprint. We'll be in touch to review the trajectory.
           </p>
         </motion.div>
@@ -465,7 +479,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
             <span className="s16-eyebrow mb-8 block text-s16-accent">Identity Verification Required</span>
             <h1 className="text-5xl font-display mb-6 tracking-tight">Access Discovery</h1>
             <p className="font-body text-s16-text-muted mb-12 text-lg leading-relaxed">
-              To begin the brand strategy survey for{" "}
+              To begin the Organizational Personality Survey for{" "}
               <span className="text-s16-text font-semibold">{client.name}</span>, please enter the 4-digit
               access code provided by your Station16 consultant.
             </p>
