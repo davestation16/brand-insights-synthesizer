@@ -203,7 +203,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
           {template.intro && (
             <div
               className="font-body text-s16-text-muted text-xl leading-relaxed italic border-l-4 border-s16-accent pl-8 py-2 prose prose-lg max-w-none [&_p]:my-3 [&_a]:text-s16-accent [&_a]:underline [&_ul]:list-disc [&_ol]:list-decimal [&_ul,&_ol]:pl-6"
-              dangerouslySetInnerHTML={{ __html: interpolate(template.intro, client.name) }}
+              dangerouslySetInnerHTML={{ __html: interpolate(template.intro, client.name, orgType) }}
             />
           )}
         </div>
@@ -257,7 +257,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Personality Traits</h2>
         {template.instructions?.personality && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.personality, client.name)}
+            {interpolate(template.instructions.personality, client.name, orgType)}
           </p>
         )}
       </div>
@@ -292,14 +292,14 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Core Values</h2>
         {template.instructions?.values && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.values, client.name)}
+            {interpolate(template.instructions.values, client.name, orgType)}
           </p>
         )}
       </div>
       {template.valuesSpectrum.map((v, idx) => (
         <div key={idx} className="space-y-8">
           <h3 className="font-body text-xl text-s16-text leading-snug">
-            {interpolate(v.question, client.name)}
+            {interpolate(v.question, client.name, orgType)}
           </h3>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center text-[10px] font-ui uppercase tracking-widest">
@@ -337,7 +337,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Community Perception</h2>
         {template.instructions?.perception && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.perception, client.name)}
+            {interpolate(template.instructions.perception, client.name, orgType)}
           </p>
         )}
       </div>
@@ -372,7 +372,7 @@ export default function ClientSurvey({ previewTemplate, previewClient }: Preview
         <h2 className="text-4xl mb-4">Aesthetic Choices</h2>
         {template.instructions?.aesthetics && (
           <p className="font-body text-s16-text-muted text-lg leading-relaxed pb-8">
-            {interpolate(template.instructions.aesthetics, client.name)}
+            {interpolate(template.instructions.aesthetics, client.name, orgType)}
           </p>
         )}
       </div>
